@@ -1,0 +1,531 @@
+// resources/js/components/Navbar.jsx
+import React, { useState, useEffect, useRef } from 'react';
+import { format, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
+import Autosuggest from 'react-autosuggest';
+import { Link, usePage } from '@inertiajs/react'; // Use Inertia's usePage for accessing the Laravel Breeze user data
+
+const cities = [
+    { name: 'Москва' },
+    { name: 'Санкт-Петербург' },
+    { name: 'Новосибирск' },
+    { name: 'Екатеринбург' },
+    { name: 'Нижний Новгород' },
+    { name: 'Казань' },
+    { name: 'Челябинск' },
+    { name: 'Омск' },
+    { name: 'Самара' },
+    { name: 'Ростов-на-Дону' },
+    { name: 'Воронеж' },
+    { name: 'Ярославль' },
+    { name: 'Тула' },
+    { name: 'Липецк' },
+    { name: 'Рязань' },
+    { name: 'Курск' },
+    { name: 'Иваново' },
+    { name: 'Тверь' },
+    { name: 'Белгород' },
+    { name: 'Брянск' },
+    { name: 'Владимир' },
+    { name: 'Тамбов' },
+    { name: 'Смоленск' },
+    { name: 'Калуга' },
+    { name: 'Кострома' },
+    { name: 'Саратов' },
+    { name: 'Пенза' },
+    { name: 'Астрахань' },
+    { name: 'Севастополь' },
+    { name: 'Симферополь' },
+    { name: 'Ялта' },
+    { name: 'Евпатория' },
+    { name: 'Феодосия' },
+    { name: 'Керчь' },
+    { name: 'Алушта' },
+    { name: 'Бахчисарай' },
+    { name: 'Судак' },
+    { name: 'Алупка' },
+    { name: 'Джанкой' },
+    { name: 'Армянск' },
+    { name: 'Старый Крым' },
+    // Добавленные районные и небольшие города
+    { "name": "Зеленоград, Моск. обл." },
+    { "name": "Электросталь, Моск. обл." },
+    { "name": "Коломна, Моск. обл." },
+    { "name": "Серпухов, Моск. обл." },
+    { "name": "Одинцово, Моск. обл." },
+    { "name": "Жуковский, Моск. обл." },
+    { "name": "Клин, Моск. обл." },
+    { "name": "Пушкино, Моск. обл." },
+    { "name": "Щелково, Моск. обл." },
+    { "name": "Ногинск, Моск. обл." },
+    { "name": "Мытищи, Моск. обл." },
+    { "name": "Королев, Моск. обл." },
+    { "name": "Химки, Моск. обл." },
+    { "name": "Балашиха, Моск. обл." },
+    { "name": "Подольск, Моск. обл." },
+    { "name": "Долгопрудный, Моск. обл." },
+    { "name": "Люберцы, Моск. обл." },
+    { "name": "Видное, Моск. обл." },
+    { "name": "Воскресенск, Моск. обл." },
+    { "name": "Домодедово, Моск. обл." },
+    { "name": "Железногорск, Моск. обл." },
+    { "name": "Солнечногорск, Моск. обл." },
+    { "name": "Старый Оскол, Белг. обл." },
+    { "name": "Губкин, Белг. обл." },
+    { "name": "Шебекино, Белг. обл." },
+    { "name": "Старый Крым, Крым" },
+    { "name": "Черноголовка, Моск. обл." },
+    { "name": "Сергиев Посад, Моск. обл." },
+    { "name": "Орехово-Зуево, Моск. обл." },
+    { "name": "Фрязино, Моск. обл." },
+    { "name": "Раменское, Моск. обл." },
+    { "name": "Реутов, Моск. обл." },
+    { "name": "Электрогорск, Моск. обл." },
+    { "name": "Талдом, Моск. обл." },
+    { "name": "Кашира, Моск. обл." },
+    { "name": "Лобня, Моск. обл." },
+    { "name": "Ликино-Дулево, Моск. обл." },
+    { "name": "Красногорск, Моск. обл." },
+    { "name": "Котельники, Моск. обл." },
+    { "name": "Можайск, Моск. обл." },
+    { "name": "Волоколамск, Моск. обл." },
+    { "name": "Рошаль, Моск. обл." },
+    { "name": "Луховицы, Моск. обл." },
+    { "name": "Краснознаменск, Моск. обл." },
+    { "name": "Наро-Фоминск, Моск. обл." },
+    { "name": "Таруса, Моск. обл." },
+    { "name": "Кондрово, Калуж. обл." },
+    { "name": "Малоярославец, Калуж.обл." },
+    { "name": "Балабаново, Калуж. обл." },
+    { "name": "Обнинск, Калуж. обл." },
+    { "name": "Троицк, Моск. обл." },
+    { "name": "Калуга, Калуж. обл." },
+    { "name": "Козельск, Калуж. обл." },
+    { "name": "Киров, Калуж. обл." },
+    { "name": "Людиново, Калужс. обл." },
+    { "name": "Спас-Деменск, Калуж. обл." },
+    { "name": "Сухиничи, Калуж. обл." },
+    { "name": "Жиздра, Калуж. обл." },
+    { "name": "Курчатов, Калуж. обл." },
+    { "name": "Льгов, Калуж. обл." },
+    { "name": "Рыльск, Калуж. обл." },
+    { "name": "Суджа, Калуж. обл." },
+    { "name": "Дмитров, Моск. обл." },
+    { "name": "Истра, Моск. обл." },
+    { "name": "Старая Русса, Твер. обл." },
+    { "name": "Нелидово, Твер. обл." },
+    { "name": "Белый, Твер.обл." },
+    { "name": "Бежецк, Твер. обл." },
+    { "name": "Ржев, Твер. обл." },
+    { "name": "Торжок, Твер. обл." },
+    { "name": "Кимры, Твер. обл." },
+    { "name": "Кашин, Твер. обл." },
+    { "name": "Осташков, Твер. обл." },
+    { "name": "Вышний Волочек, Твер. обл." },
+    { "name": "Западная Двина, Твер. обл." },
+    { "name": "Красный Холм, Твер. обл." },
+    { "name": "Бологое, Твер. обл." },
+    { "name": "Удомля, Твер. обл." },
+    { "name": "Андреаполь, Твер. обл." },
+    { "name": "Зубцов, Твер. обл." },
+    { "name": "Калязин, Твер. обл." },
+    { "name": "Кувшиново, Твер. обл." },
+    { "name": "Оленино, Твер. обл." },
+    { "name": "Пено, Твер. обл." },
+    { "name": "Сандово, Твер. обл." },
+    { "name": "Селижарово, Твер. обл." },
+    { "name": "Сонково, Твер. обл." },
+    { "name": "Спирово, Твер.я обл." },
+    { "name": "Старица, Твер. обл." },
+    { "name": "Фирово, Твер. обл." },
+    { "name": "Юрьевец, Твер.я обл." },
+    { "name": "Александров, Вл. обл." },
+    { "name": "Вязники, Вл. обл." },
+    { "name": "Гороховец, Вл. обл." },
+    { "name": "Гусь-Хрустальный, Вл. обл." },
+    { "name": "Камешково, Вл. обл." },
+    { "name": "Карабаново, Вл. обл." },
+    { "name": "Киржач, Вл. обл." },
+    { "name": "Ковров, Вл. обл." },
+    { "name": "Кольчугино, Вл. обл." },
+    { "name": "Меленки, Вл. обл." },
+    { "name": "Муром, Вл. обл." },
+    { "name": "Петушки, Вл. обл." },
+    { "name": "Покров, Вл. обл." },
+    { "name": "Радужный, Вл. обл." },
+    { "name": "Собинка, Вл. обл." },
+    { "name": "Судогда, Вл. обл." },
+    { "name": "Суздаль, Вл. обл." },
+    { "name": "Юрьев-Польский, Вл. обл." },
+    { "name": "Борисоглебск, Ворон. обл." },
+    { "name": "Бутурлиновка, Ворон. обл." },
+    { "name": "Бобров, Ворон. обл." },
+    { "name": "Верхний Мамон, Ворон. обл." },
+    { "name": "Воробьевка, Ворон. обл." },
+    { "name": "Воронеж, Ворон. обл." },
+    { "name": "Грибановка, Ворон. обл." },
+    { "name": "Калач, Ворон. обл." },
+    { "name": "Каменка, Ворон. обл." },
+    { "name": "Лиски, Ворон. обл." },
+    { "name": "Новая Усмань, Ворон. обл." },
+    { "name": "Нововоронеж, Ворон. обл." },
+    { "name": "Новохоперск, Ворон. обл." },
+    { "name": "Ольховатка, Ворон. обл." },
+    { "name": "Острогожск, Ворон. обл." },
+    { "name": "Павловск, Ворон. обл." },
+    { "name": "Панино, Ворон. обл." },
+    { "name": "Петропавловка, Ворон. обл." },
+    { "name": "Поворино, Ворон. обл." },
+    { "name": "Рамонь, Ворон. обл." },
+    { "name": "Репьевка, Ворон. обл." },
+    { "name": "Россошь, Ворон. обл." },
+    { "name": "Семилуки, Ворон. обл." },
+    { "name": "Таловая, Ворон. обл." },
+    { "name": "Терновка, Ворон. обл." },
+    { "name": "Хохол, Ворон. обл." },
+    { "name": "Эртиль, Ворон. обл." },
+    { "name": "Алексин, Тул. обл." },
+    { "name": "Белев, Тул. обл." },
+    { "name": "Богородицк, Тул. обл." },
+    { "name": "Болохово, Тул. обл." },
+    { "name": "Венев, Тул. обл." },
+    { "name": "Донской, Тул. обл." },
+    { "name": "Ефремов, Тул. обл." },
+    { "name": "Кимовск, Тул. обл." },
+    { "name": "Киреевск, Тул. обл." },
+    { "name": "Липки, Тул. обл." },
+    { "name": "Новомосковск, Тул. обл." },
+    { "name": "Плавск, Тул. обл." },
+    { "name": "Советск, Тул. обл." },
+    { "name": "Суворов, Тул. обл." },
+    { "name": "Тула, Тул. обл." },
+    { "name": "Узловая, Тул. обл." },
+    { "name": "Щекино, Тул. обл." },
+    { "name": "Ясногорск, Тул. обл." },
+];
+const getSuggestions = (value) => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : cities.filter(city =>
+        city.name.toLowerCase().slice(0, inputLength) === inputValue
+    );
+};
+
+const getSuggestionValue = (suggestion) => suggestion.name;
+
+const renderSuggestion = (suggestion) => (
+    <div>
+        {suggestion.name}
+    </div>
+);
+
+const getPassengerLabel = (count) => {
+    if (count === 1) return 'пассажир';
+    if (count >= 2 && count <= 4) return 'пассажира';
+    return 'пассажиров';
+};
+
+// Компонент модального окна
+const NoCarModal = ({ show, onClose, onAddCar }) => {
+    if (!show) return null;
+
+    return (
+        <div>
+            <div className="modal-content">
+                <h2 style={{ textAlign: 'center'}}>У вас нет авто</h2>
+                <p style={{ textAlign: 'center', margin: '10px', fontSize: '18px'}}>Пожалуйста, добавьте автомобиль, чтобы опубликовать поездку.</p>
+                <div style={{display: 'flex', justifyContent: 'space-between', margin: '10px 10px 10px 10px'}}>
+                    <button className="btn btn-secondary" onClick={onClose}>Вернуться назад</button>
+                    <button className="btn btn-success" onClick={onAddCar}>Добавить авто</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const Navbar = () => {
+    const {auth} = usePage().props; // Access authentication information from Inertia
+    const user = auth.user || {};
+
+    const [cars, setCars] = useState([]);
+
+    useEffect(() => {
+        // Получение данных о автомобилях пользователя
+        fetch('/api/user/cars', {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            },
+        })
+            .then(response => response.json())
+            .then(data => setCars(data))
+            .catch(error => console.error('Error fetching cars:', error));
+    }, []);
+
+   // console.log('Auth data:', auth);
+   // console.log('Cars:', cars);
+
+    const [date, setDate] = useState('');
+    const handleDateChange = (event) => { setDate(event.target.value); };
+    const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
+
+    const [fromCity, setFromCity] = useState('');
+    const [toCity, setToCity] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const onFromCityChange = (event, { newValue }) => { setFromCity(newValue); };
+    const onToCityChange = (event, { newValue }) => { setToCity(newValue); };
+    const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
+    const onSuggestionsClearRequested = () => { setSuggestions([]); };
+    const [userPhoto, setUserPhoto] = useState(null);
+    const dropdownRef = useRef(null);
+    const passengerDropdownRef = useRef(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
+    const [passengerCount, setPassengerCount] = useState(1);
+    const toggleDropdown = () => { setDropdownOpen(!dropdownOpen); };
+    const togglePassengerDropdown = () => { setPassengerDropdownOpen(!passengerDropdownOpen);  };
+    const incrementPassenger = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setPassengerCount(prevCount => (prevCount < 4 ? prevCount + 1 : prevCount));
+    };
+    const decrementPassenger = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setPassengerCount(prevCount => (prevCount > 1 ? prevCount - 1 : prevCount));
+    };
+
+    const inputRef = useRef(null);
+
+    const handleWrapperClick = () => {
+        if (inputRef.current) {
+            inputRef.current.focus(); // Фокусируемся на input
+        }
+    };
+
+    const [showNoCarModal, setShowNoCarModal] = useState(false);
+
+    const handlePublishClick = (event) => {
+        event.preventDefault();
+        console.log('Auth user:', auth.user);
+        if (cars.length === 0) {
+            console.log(' user сar:', cars.length);
+            setShowNoCarModal(true);
+        } else {
+            window.location.href = '/orders/create';
+        }
+    };
+
+    const closeModal = () => {
+        setShowNoCarModal(false);
+    };
+
+    const redirectToAddCar = () => {
+        window.location.href = route('car.create'); // Перенаправление на страницу добавления авто
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                dropdownRef.current && !dropdownRef.current.contains(event.target)
+            ) {
+                setDropdownOpen(false);
+            }
+            if (
+                passengerDropdownRef.current && !passengerDropdownRef.current.contains(event.target)
+            ) {
+                setPassengerDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <header>
+            {/* START NAVIGATION */}
+            <div className="navbar navbar-default bs-dos-nav navbar-fixed-top" role="navigation">
+                <div className="container">
+                    <div className="navigation">
+                    <a href="#home" className="navbar-brand">
+                        <img src="/images/Logo-1.png" alt="Plus Icon" width="148" height="36"/>
+                    </a>
+                    <div className="navbar-header">
+                        <nav className="collapse navbar-collapse" id="rock-navigation">
+                            <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
+                                <li><a href="#home" className="smoothScroll">С попутчиками</a></li>
+                                <li><a href="#help" className="smoothScroll">Центр помощи</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <nav className="navbar-collapse" id="rock-navigation">
+                        <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
+                            <li><a href="#home" className="smoothScroll"></a></li>
+                            <li><a href="#work" className="smoothScroll"></a></li>
+                            <li><a href="#portfolio" className="smoothScroll"></a></li>
+                            <li>
+                            </li>
+                            <li>
+                                <a onClick={handlePublishClick} className="smoothScroll" style={{ cursor: 'pointer'}}>
+                                    <img src="/images/icons_plus.svg" alt="" width="25" height="25"/>
+                                    Опубликовать поездку</a>
+                            </li>
+                            <li className="dropdown" ref={dropdownRef}>
+                                <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
+                                    {auth.user ? (
+                                        <>
+                                            <img src={auth.user.photoUrl || "/images/user_icon.svg"} alt="" width="37" height="35"/>
+                                            <span>{auth.user.name}</span>
+                                        </>
+                                    ) : (
+                                        <img src="/images/user_icon.svg" alt="User" width="37" height="35" />
+                                    )}
+                                </a>
+                                {dropdownOpen && (
+                                    <ul className="dropdown-menu">
+                                        {auth.user  ? (
+                                            <>
+                                                <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
+                                                <li><a href="/incoming">Входящие</a></li>
+                                                <li><a href="/profile">Профиль</a></li>
+                                                <li><Link href="/logout" method="post">Выйти</Link></li>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <li><Link href="/login">Вход</Link></li>
+                                                <li><Link href="/register">Регистрация</Link></li>
+                                            </>
+                                        )}
+                                    </ul>
+                                )}
+                            </li>
+                        </ul>
+                    </nav>
+                    </div>
+
+                    <form role="search" className="search-form">
+                        <div className="input-group">
+                            <div className="input-wrapper">
+                                <Autosuggest
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    inputProps={{
+                                        placeholder: 'Откуда',
+                                        value: fromCity,
+                                        onChange: onFromCityChange
+                                    }}
+                                />
+                                <div className="icon-wrapper">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img"
+                                         aria-hidden="true" className="search-icon">
+                                        <g color="neutralIconDefault">
+                                            <g color="currentColor">
+                                                <path fill="currentColor" fillRule="evenodd"
+                                                      d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm7.293.293a1 1 0 0 1 1.414-1.414l2 2a1 1 0 0 1-1.414 1.414l-2-2Z"
+                                                      clipRule="evenodd"></path>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div className="input-wrapper">
+
+                                <Autosuggest
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    inputProps={{
+                                        placeholder: 'Куда',
+                                        value: toCity,
+                                        onChange: onToCityChange
+                                    }}
+                                />
+                                <div className="icon-wrapper">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img"
+                                         aria-hidden="true" className="search-icon">
+                                        <g color="neutralIconDefault">
+                                            <g color="currentColor">
+                                                <path fill="currentColor" fillRule="evenodd"
+                                                      d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm7.293.293a1 1 0 0 1 1.414-1.414l2 2a1 1 0 0 1-1.414 1.414l-2-2Z"
+                                                      clipRule="evenodd"></path>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div className="input-wrapper-calendar" onClick={handleWrapperClick}>
+                                <input
+                                    type="date"
+                                    aria-invalid="false"
+                                    className="input-field-calendar"
+                                    value={date}
+                                    onChange={handleDateChange}
+                                    ref={inputRef} // Привязываем ref к input
+                                />
+                                <div className="button-overlay">
+                                    <span>{formattedDate}</span>
+                                </div>
+                                <div className="icon-wrapper">
+                                    <img src="/images/calendar-1.png" alt="Passenger Icon" width="20" height="20"/>
+                                </div>
+                            </div>
+                            {/*<div className="input-wrapper-calendar"
+                                 onClick={() => document.querySelector('.input-field-calendar').focus()}>
+                                <input
+                                    type="date"
+                                    aria-invalid="false"
+                                    className="input-field-calendar"
+                                    value={date}
+                                    onChange={handleDateChange}
+                                />
+                                <div className="button-overlay">
+                                    <span>{formattedDate}</span>
+                                </div>
+                                <div className="icon-wrapper">
+                                    <img src="/images/calendar-1.png" alt="Passenger Icon" width="20" height="20"/>
+                                </div>
+                            </div>*/}
+                            {/*<div className="input-wrapper dropdown" ref={passengerDropdownRef}
+                                 onClick={() => setPassengerDropdownOpen(!passengerDropdownOpen)}>*/}
+                            <div className="input-wrapper"
+                                 onClick={togglePassengerDropdown}>
+
+                                <div className="button-overlay">
+                                    <span>{passengerCount} {getPassengerLabel(passengerCount)}</span>
+                                </div>
+                                <div className="icon-wrapper">
+                                    <img src="/images/user2_icon.svg" alt="Passenger Icon" width="20" height="20"/>
+                                </div>
+                            </div>
+                            {passengerDropdownOpen && (
+                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}}>
+                                    <span>Пассажиров</span>
+                                    <button onClick={decrementPassenger}>-</button>
+                                    <span>{passengerCount}</span>
+                                    <button onClick={incrementPassenger}>+</button>
+                                </div>
+                            )}
+                            <button type="submit" className="search-button">Поиск</button>
+                        </div>
+                    </form>
+                    {/* Модальное окно */}
+                    <NoCarModal show={showNoCarModal} onClose={closeModal} onAddCar={redirectToAddCar} />
+                </div>
+            </div>
+            {/* END NAVIGATION */}
+        </header>
+    );
+}
+export default Navbar;
+
+

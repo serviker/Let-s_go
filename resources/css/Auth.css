@@ -1,0 +1,143 @@
+/* Стили для контейнера Guest */
+.guest-container {
+    display: flex;
+    min-height: 100vh; /* Занимает всю высоту экрана */
+    align-items: center; /* Центрирует по вертикали */
+    justify-content: center; /* Центрирует по горизонтали */
+    background-color: #eaeaea; /* Светло-серый фон */
+    padding: 20px; /* Отступы внутри контейнера */
+}
+
+.guest-inner {
+    width: 100%; /* Занимает всю ширину контейнера */
+    max-width: 500px; /* Максимальная ширина для контента */
+    background-color: #eaeaea; /* Белый фон */
+    padding: 40px; /* Внутренние отступы */
+    border-radius: 15px; /* Радиус скругления углов */
+    /*box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  Тень для карточки */
+}
+
+/* Общие стили для формы входа (Login) */
+.card {
+    margin: auto; /* Центрирование по горизонтали */
+    position: absolute;
+    top: 40%; /* Центрирование по вертикали */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Центрирование с учетом ширины и высоты карточки */
+    border-radius: 10px;
+    background-color: #eaeaea;
+    padding: 20px;
+    width: 25%;
+    max-width: 100%;
+    /*box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);  Тень для карточки */
+}
+
+.card-header {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.card-body {
+    padding: 0 10px;
+}
+
+.form-control {
+    border-radius: 8px; /* Радиус скругления углов полей ввода */
+    border-color: #eea236; /* Цвет границы */
+    height: 50px; /* Высота полей ввода */
+    padding: 10px; /* Внутренний отступ */
+    font-size: 16px; /* Размер шрифта */
+}
+
+.input-error {
+    color: #dc3545; /* Цвет текста ошибок валидации */
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #28a745; /* Цвет фона кнопки */
+    color: white; /* Цвет текста кнопки */
+    padding: 10px 20px; /* Внутренние отступы */
+    font-size: 16px;
+    border: none;
+    border-radius: 5px; /* Радиус скругления углов кнопки */
+    cursor: pointer; /* Курсор-указатель при наведении на кнопку */
+    text-align: center;
+    text-decoration: none; /* Убираем подчеркивание у ссылок */
+}
+
+.btn-primary:disabled {
+    background-color: #6c757d; /* Цвет кнопки, когда она отключена */
+}
+
+.text-decoration-none {
+    color: #eea236; /* Цвет текста ссылок */
+    text-decoration: none; /* Убираем подчеркивание у ссылок */
+}
+
+.text-success {
+    color: #28a745; /* Зеленый цвет для успешных сообщений */
+}
+
+.form-check-label {
+    font-size: 16px;
+    color: #333; /* Цвет текста меток для чекбоксов */
+}
+
+.ms-2 {
+    margin-left: 0.5rem; /* Отступ слева */
+}
+
+.mb-3 {
+    margin-bottom: 1rem; /* Отступ снизу */
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem; /* Увеличенный отступ снизу */
+}
+
+.d-flex {
+    display: flex; /* Гибкий контейнер для выравнивания */
+}
+
+.justify-content-between {
+    justify-content: space-between; /* Равномерное распределение элементов */
+}
+
+.justify-content-end {
+    justify-content: flex-end; /* Выравнивание элементов по правому краю */
+}
+
+.align-items-center {
+    align-items: center; /* Вертикальное выравнивание элементов по центру */
+}
+
+/* Стили для меток */
+.input-label {
+    font-size: 18px; /* Размер шрифта метки */
+    font-weight: bold; /* Полужирный шрифт */
+    margin-bottom: 10px;
+    color: #eea236; /* Оранжевый цвет меток */
+}
+
+/* Центрирование текста в кнопках */
+.btn {
+    margin-right: 0;
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Вспомогательные классы для отступов */
+.ms-2 {
+    margin-left: 0.5rem; /* Отступ слева */
+}

@@ -1,0 +1,252 @@
+import React, { useState } from 'react';
+import { useForm, Link } from '@inertiajs/react';
+import Autosuggest from 'react-autosuggest';
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+
+// Пример данных для автозаполнения
+const carData = {
+    // Европа
+    BMW: ['X5', '3 Series', '5 Series', '7 Series', 'X3', 'X6', 'X1', 'X4', '1 Series', '2 Series', '4 Series', '8 Series', 'Z4', 'M2', 'M3', 'M4', 'M5', 'M8'],
+    Mercedes: ['C-Class', 'E-Class', 'S-Class', 'GLA', 'GLC', 'GLE', 'GLS', 'A-Class', 'B-Class', 'CLA', 'CLS', 'G-Class', 'EQC', 'EQB', 'EQS'],
+    Audi: ['A3', 'A4', 'A6', 'Q3', 'Q5', 'Q7', 'Q8', 'A1', 'A5', 'A7', 'A8', 'TT', 'R8', 'e-tron', 'RS3', 'RS4', 'RS5', 'RS6', 'RS7', 'RS Q8'],
+    Volkswagen: ['Golf', 'Passat', 'Tiguan', 'Polo', 'Touareg', 'Jetta', 'Arteon', 'T-Roc', 'T-Cross', 'ID.3', 'ID.4', 'ID. Buzz'],
+    Peugeot: ['208', '308', '508', '3008', '5008', '2008', 'Rifter', 'Partner', 'Traveller', 'Expert'],
+    Renault: ['Clio', 'Megane', 'Captur', 'Kadjar', 'Talisman', 'Koleos', 'Zoe', 'Scenic', 'Kangoo', 'Master', 'Trafic'],
+    Fiat: ['500', 'Panda', 'Tipo', 'Punto', 'Ducato', 'Fiorino', 'Qubo', 'Doblo', '500X', '500L'],
+    Volvo: ['XC40', 'XC60', 'XC90', 'S60', 'S90', 'V60', 'V90', 'V40', 'C40 Recharge', 'V60 Cross Country', 'V90 Cross Country'],
+    Skoda: ['Octavia', 'Fabia', 'Superb', 'Kodiaq', 'Karoq', 'Scala', 'Kamiq', 'Enyaq', 'Citigo', 'Rapid'],
+
+    // США
+    Ford: ['Mustang', 'F-150', 'Explorer', 'Escape', 'Fusion', 'Edge', 'Expedition', 'Bronco', 'Ranger', 'Transit', 'Taurus', 'EcoSport'],
+    Chevrolet: ['Silverado', 'Malibu', 'Tahoe', 'Equinox', 'Impala', 'Camaro', 'Suburban', 'Traverse', 'Colorado', 'Blazer', 'Trailblazer', 'Bolt EV', 'Corvette'],
+    Tesla: ['Model S', 'Model 3', 'Model X', 'Model Y', 'Roadster', 'Cybertruck', 'Semi'],
+    Dodge: ['Charger', 'Challenger', 'Durango', 'Ram 1500', 'Journey', 'Grand Caravan', 'Nitro'],
+    Jeep: ['Wrangler', 'Grand Cherokee', 'Compass', 'Renegade', 'Cherokee', 'Gladiator', 'Patriot'],
+    Cadillac: ['Escalade', 'CTS', 'XT5', 'XT6', 'XT4', 'CT4', 'CT5', 'XTS', 'ATS', 'SRX'],
+
+    // Азия
+    Toyota: ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', 'Land Cruiser', 'Yaris', 'Avalon', 'C-HR', 'Tacoma', 'Tundra', '4Runner', 'Sequoia'],
+    Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'HR-V', 'Fit', 'Odyssey', 'Ridgeline', 'Passport', 'Insight'],
+    Nissan: ['Altima', 'Maxima', 'Rogue', 'Murano', 'Sentra', 'Leaf', 'Pathfinder', 'Frontier', 'Versa', 'Kicks', 'Armada', 'GT-R', '370Z'],
+    Hyundai: ['Elantra', 'Sonata', 'Santa Fe', 'Tucson', 'Kona', 'Palisade', 'Veloster', 'Ioniq', 'Venue', 'Nexo'],
+    Kia: ['Optima', 'Sorento', 'Sportage', 'Rio', 'Soul', 'Seltos', 'Stinger', 'Telluride', 'Cadenza', 'Forte', 'Niro', 'Carnival'],
+    Subaru: ['Impreza', 'Forester', 'Outback', 'Legacy', 'Crosstrek', 'Ascent', 'BRZ', 'WRX'],
+    Mazda: ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5', 'CX-3', 'CX-30', 'CX-50', 'CX-90', 'Mazda2'],
+
+    // Россия
+    Lada: ['Granta', 'Vesta', 'XRAY', 'Niva', 'Largus', 'Kalina', 'Priora', '4x4', 'Samara'],
+    GAZ: ['GAZelle', 'Sobol', 'Next', 'Volga', 'GAZon', 'Sadko'],
+    UAZ: ['Patriot', 'Hunter', 'Pickup', 'Bukhanka', 'Profi']
+};
+const colorData = [
+    { name: 'Коричневый', value: '#702d00' },
+    { name: 'Красный', value: '#FF0000' },
+    { name: 'Оранжевый', value: '#ff7300' },
+    { name: 'Зелёный', value: '#00FF00' },
+    { name: 'Синий', value: '#0000FF' },
+    { name: 'Жёлтый', value: '#FFFF00' },
+    { name: 'Голубой', value: '#00FFFF' },
+    { name: 'Фиолетовый', value: '#FF00FF' },
+    { name: 'Чёрный', value: '#000000' },
+    { name: 'Белый', value: '#FFFFFF' },
+    { name: 'Серый', value: '#808080' },
+];
+
+const brands = Object.keys(carData);
+
+const getSuggestionsBrands = (value) => {
+    if (!value) return [];
+    const inputValue = value.trim().toLowerCase();
+    return Object.keys(carData).filter(brand =>
+        brand.toLowerCase().startsWith(inputValue)
+    );
+};
+
+const getSuggestionsModels = (brand, value) => {
+    if (!value || !carData[brand]) return [];
+    const inputValue = value.trim().toLowerCase();
+    return carData[brand].filter(model =>
+        model.toLowerCase().startsWith(inputValue)
+    );
+};
+
+const getSuggestionsColors = (value) => {
+    if (!value) return colorData;
+    const inputValue = value.trim().toLowerCase();
+    return colorData.filter(color =>
+        color.name.toLowerCase().startsWith(inputValue)
+    );
+};
+
+const getSuggestionValue = suggestion => suggestion;
+
+const renderSuggestion = suggestion => (
+    <div>{suggestion}</div>
+);
+
+const renderSuggestionColor = suggestion => (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div
+            style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: suggestion.value,
+                marginRight: '8px',
+            }}
+        />
+        {suggestion.name}
+    </div>
+);
+
+export default function AddCar() {
+    const { data, setData, post, errors, processing } = useForm({
+        brand: '',
+        model: '',
+        color: '',
+        photoUrl: null,
+    });
+
+    const [brandSuggestions, setBrandSuggestions] = useState([]);
+    const [modelSuggestions, setModelSuggestions] = useState([]);
+    const [colorSuggestions, setColorSuggestions] = useState([]);
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('photoUrl', file);
+        }
+    };
+
+    const submit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('brand', data.brand);
+        formData.append('model', data.model);
+        formData.append('color', data.color);
+        if (data.photoUrl) {
+            formData.append('photoUrl', data.photoUrl);
+        }
+        post(route('car.store'), formData);
+    };
+
+    const handleBrandChange = (event, { newValue }) => {
+        setData('brand', newValue);
+        setModelSuggestions([]); // Очистка предложений моделей при изменении бренда
+    };
+
+    const handleBrandSuggestionSelected = (event, { suggestion }) => {
+        setData('brand', suggestion);
+        setData('model', ''); // Очистка модели
+        setModelSuggestions(carData[suggestion] || []); // Обновление предложений моделей
+    };
+
+    const handleModelChange = (event, { newValue }) => {
+        setData('model', newValue);
+    };
+
+    const handleModelSuggestionSelected = (event, { suggestion }) => {
+        setData('model', suggestion);
+    };
+
+    const handleColorChange = (event, { newValue }) => {
+        setData('color', newValue);
+    };
+
+    const handleColorSuggestionSelected = (event, { suggestion }) => {
+        setData('color', suggestion.name);
+    };
+
+    return (
+        <section>
+            <header>
+                <h2 className="text-lg font-medium text-gray-900">Add Car</h2>
+            </header>
+
+            <form onSubmit={submit} className="mt-6 space-y-6">
+                <div>
+                    <InputLabel htmlFor="brand" value="Brand"/>
+                    <Autosuggest
+                        suggestions={brandSuggestions}
+                        onSuggestionsFetchRequested={({ value }) => setBrandSuggestions(getSuggestionsBrands(value))}
+                        onSuggestionsClearRequested={() => setBrandSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestion}
+                        onSuggestionSelected={handleBrandSuggestionSelected}
+                        inputProps={{
+                            value: data.brand,
+                            onChange: handleBrandChange,
+                            className: 'form-control w-full'
+                        }}
+                    />
+                    <InputError message={errors.brand} className="mt-2 text-red-500"/>
+                </div>
+                <div>
+                    <InputLabel htmlFor="model" value="Model"/>
+                    <Autosuggest
+                        suggestions={modelSuggestions}
+                        onSuggestionsFetchRequested={({ value }) => {
+                            if (data.brand) {
+                                setModelSuggestions(getSuggestionsModels(data.brand, value));
+                            } else {
+                                setModelSuggestions([]);
+                            }
+                        }}
+                        onSuggestionsClearRequested={() => setModelSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestion}
+                        onSuggestionSelected={handleModelSuggestionSelected}
+                        inputProps={{
+                            value: data.model,
+                            onChange: handleModelChange,
+                            className: 'form-control w-full',
+                            disabled: !data.brand
+                        }}
+                    />
+                    <InputError message={errors.model} className="mt-2 text-red-500"/>
+                </div>
+                <div>
+                    <InputLabel htmlFor="color" value="Color"/>
+                    <Autosuggest
+                        suggestions={colorSuggestions}
+                        onSuggestionsFetchRequested={({ value }) => setColorSuggestions(getSuggestionsColors(value))}
+                        onSuggestionsClearRequested={() => setColorSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestionColor}
+                        onSuggestionSelected={handleColorSuggestionSelected}
+                        inputProps={{
+                            value: data.color,
+                            onChange: handleColorChange,
+                            className: 'form-control w-full'
+                        }}
+                    />
+                    <InputError message={errors.color} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="photoUrl" value="Photo"/>
+                    <input
+                        id="photoUrl"
+                        type="file"
+                        name="photoUrl"
+                        onChange={handlePhotoChange}
+                        className="form-control w-full"
+                    />
+                    <InputError message={errors.photoUrl} className="mt-2 text-red-500"/>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <PrimaryButton disabled={processing} className="btn btn-primary">
+                        Save
+                    </PrimaryButton>
+                    <Link href={route('profile.edit')} className="btn btn-secondary">
+                        Cancel
+                    </Link>
+                </div>
+            </form>
+        </section>
+    );
+}

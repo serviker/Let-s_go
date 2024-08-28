@@ -1,0 +1,163 @@
+.order-details-container {
+    width: 40%;
+    margin: auto;
+    padding: 20px;
+    background-color: #eaeaea;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.order-date {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.location-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: relative;
+}
+
+.departure-info, .arrival-info {
+    flex: 1;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.departure-time {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: bold;
+    color: #eea236;
+}
+
+.arrival-address {
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-left: 90px;
+}
+
+.departure-address {
+    font-size: 18px;
+    margin-top: -25px;
+    margin-left: 90px;
+}
+
+.line-container {
+    position: absolute;
+    left: 60px;
+    top: 10px;
+    bottom: -40px;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.line {
+    width: 2px;
+    background-color: gray;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.circle {
+    width: 10px;
+    height: 10px;
+    background-color: gray;
+    border-radius: 50%;
+    z-index: 2;
+    position: relative;
+}
+
+.circle-top {
+    margin-top: -5px;
+}
+
+.circle-bottom {
+    margin-bottom: 5px;
+}
+
+.price-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.price-label, .price-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #eea236;
+}
+
+.separator {
+    margin: 20px 0;
+    border-top: 4px solid #ccc;
+}
+
+.separator-thin {
+    margin: 30px 0;
+    border-top: 1px solid #ccc;
+}
+
+/* Выровнять фото и имя водителя по горизонтали */
+.driver-info {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+}
+
+.driver-photo {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    margin-right: 20px !important;
+}
+
+.driver-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.driver-name {
+    font-weight: bold !important;
+    font-size: 22px !important;
+    margin-left: 20px;
+}
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.cancel-button,
+.home-button {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+
+}
+
+.home-link {
+    text-decoration: none;
+}
+
+.cancel-button {
+    margin-right: auto;
+}
+
+.home-button {
+    margin-left: auto;
+}

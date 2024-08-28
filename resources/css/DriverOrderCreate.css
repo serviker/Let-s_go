@@ -1,0 +1,287 @@
+/* Общие стили для контейнера */
+.create-order-container {
+    margin-top: 40px;
+    width: 60%;
+    max-width: 100%;
+    border-radius: 10px;
+    position: relative;
+    background-color: white;
+    padding: 20px 30px;
+}
+
+/* Стили для заголовков */
+.create-order-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Стили для меток и полей ввода */
+.input-label {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+/* Стили для кнопок */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn {
+    margin-right: 0;
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-primary {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Стили для многошаговой формы */
+.card {
+    margin-top: 20%;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    background-color: #eaeaea;
+    padding: 20px;
+    width: 60%;
+}
+
+.card-header {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.card-body {
+    padding: 0 10px;
+}
+
+.form-control{
+    border-radius: 8px;
+    border-color: #eea236;
+    background-size: 2px;
+    height: 50px;
+}
+
+.passenger-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.passenger-selector .btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius:50px;
+    font-size: 30px;
+}
+
+.passenger-selector .btn-primary {
+    background-color: #007bff;
+}
+
+.passenger-selector .btn-disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.passenger-count {
+    font-size: 10rem;
+    font-weight: bold;
+    min-width: 40px;
+    text-align: center;
+}
+/* Стили для кнопок "Назад" и "Далее" */
+.flex {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* Стили для ошибок валидации */
+.input-error {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+/* Стили для шагов и навигации */
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.step {
+    font-size: 18px;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+/* Дополнительные стили из OrderIndex.css */
+.order-container {
+    margin-top: 20px;
+    width: 60%; /* Установите ширину в 60%, чтобы соответствовать другим элементам */
+    max-width: 100%;
+    height: 160px;
+    border-radius: 10px;
+    position: relative;
+    background-color: white;
+    padding: 0 30px;
+}
+
+.city-label {
+    font-size: 20px;
+    font-weight: bold;
+    position: absolute;
+    top: 20%;
+    transform: translateY(-50%);
+}
+
+.from-city {
+    left: 30px;
+}
+
+.to-city {
+    left: calc(140px + 250px);
+}
+
+.departure-time-container {
+    position: absolute;
+    top: calc(20% + 30px); /* Сместить вниз от города отправления */
+    left: 20px;
+}
+
+.departure-date, .departure-time {
+    margin-right: 20px; /* Отступ между датой и временем */
+    font-size: 18px;
+    color: #eea236;
+}
+
+.line-container {
+    position: absolute;
+    top: 18%;
+    left: calc(30px + 100px); /* Отступ от города отправления + радиус круга */
+    width: 250px;
+    height: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    background-color: gray;
+    position: relative;
+}
+
+.circle {
+    width: 8px;
+    height: 8px;
+    background-color: gray;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.circle-left {
+    left: -4px; /* Половина диаметра круга для выравнивания по центру линии */
+}
+
+.circle-right {
+    right: -4px; /* Половина диаметра круга для выравнивания по центру линии */
+}
+
+.price-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #eea236;
+    position: absolute;
+    top: 20%;
+    right: 30px;
+    transform: translateY(-50%);
+}
+
+.separator {
+    margin-top: 90px; /* Отступ сверху перед разделителем */
+    border-top: 1px solid #ccc;
+}
+
+.info-container {
+    margin-top: 10px;
+    display: flex;
+    align-items: center; /* Вертикальное выравнивание по центру */
+}
+
+.driver-name {
+    font-weight: bold;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.car-name {
+    font-weight: bold;
+    margin-left: 50px; /* Измените отступ до нужного значения */
+    margin-top: 10px;
+}
+
+.driver-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px; /* Отступ от фотографии до имени */
+    margin-left: 80px;
+}
+
+.driver-orders-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Выравнивание элементов по центру */
+    width: 100%; /* Или ограничьте ширину контейнера, если нужно */
+}
+
+.order-item {
+    width: 60%; /* Ограничение ширины для каждого OrderIndex */
+    margin-bottom: 20px; /* Отступ между элементами */
+}

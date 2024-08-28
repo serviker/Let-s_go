@@ -1,0 +1,479 @@
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import { Link, useForm, usePage } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+
+export default function UpdateProfileInformationForm({ mustVerifyEmail, status, className = '' }) {
+    const { auth } = usePage().props;
+    const user = auth.user;
+    const cars = auth.cars;
+    // Замените это на статические данные для отладки
+    /*const cars = [
+        { id: 1, photoUrl: 'imagesCar/Camry.png', brand: 'Toyota', model: 'Corolla', color: 'White' },
+        { id: 2, photoUrl: 'imagesCar/mbvb.png', brand: 'Honda', model: 'Civic', color: 'White'  }
+    ];*/
+
+    console.log('User Data:', user);
+    console.log('Car Information:', cars); // Убедитесь, что это массив и что он содержит данные
+
+    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        photo: null,
+    });
+
+    const [photoPreview, setPhotoPreview] = useState(user.photoUrl ? `/${user.photoUrl}` : null);
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('photo', file);
+            setPhotoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    useEffect(() => {
+        const baseUrl = window.location.origin;
+        const fullPhotoUrl = user.photoUrl ? `${baseUrl}/${user.photoUrl}` : null;
+        setPhotoPreview(fullPhotoUrl);
+    }, [user.photoUrl]);
+
+    const submit = (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('lastName', data.lastName);
+        formData.append('email', data.email);
+        formData.append('phone', data.phone);
+        if (data.photo) {
+            formData.append('photo', data.photo);
+        }
+
+        patch(route('profile.update'), {
+            data: formData,
+            forceFormData: true,
+        }).then(() => {
+            console.log('Profile updated successfully.');
+        }).catch((error) => {
+            console.error('Error updating profile:', error);
+        });
+    };
+
+    return (
+        <section className={className}>
+            <header>
+                <h2 className="text-lg font-medium text-center text-gray-900"></h2>
+            </header>
+
+            <div className="flex items-center mt-4">
+                {photoPreview ? (
+                    <img
+                        src={photoPreview}
+                        alt="User Avatar"
+                        className="bg-gray-300 rounded-lg mr-4"
+                        style={{
+                            marginLeft: '100px',
+                            width: '100px',
+                            height: '100px',
+                            borderRadius: '16px'
+                        }}
+                    />
+                ) : (
+                    <div
+                        className="bg-gray-300 rounded-lg mr-4"
+                        style={{width: '70px', height: '70px', borderRadius: '16px'}}
+                    ></div>
+                )}
+                <span style={{marginLeft: '50px'}} className="text-xl font-medium text-gray-900">
+                    <b>{user.name} {user.lastName}</b>
+                </span>
+            </div>
+
+            <form onSubmit={submit} className="mt-6 space-y-6">
+                <div>
+                    <InputLabel htmlFor="name" value="Name"/>
+                    <TextInput
+                        id="name"
+                        value={data.name}
+                        onChange={(e) => setData('name', e.target.value)}
+                        required
+                        className="form-control w-100"
+                    />
+                    <InputError message={errors.name} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="lastName" value="Last Name"/>
+                    <TextInput
+                        id="lastName"
+                        value={data.lastName}
+                        onChange={(e) => setData('lastName', e.target.value)}
+                        required
+                        className="form-control w-100"
+                    />
+                    <InputError message={errors.lastName} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="email" value="Email"/>
+                    <TextInput
+                        id="email"
+                        type="email"
+                        value={data.email}
+                        onChange={(e) => setData('email', e.target.value)}
+                        required
+                        className="form-control w-100"
+                    />
+                    <InputError message={errors.email} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="phone" value="Phone"/>
+                    <TextInput
+                        id="phone"
+                        value={data.phone}
+                        onChange={(e) => setData('phone', e.target.value)}
+                        className="form-control w-100"
+                    />
+                    <InputError message={errors.phone} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="photo" value="Photo"/>
+                    <input
+                        id="photo"
+                        type="file"
+                        name="photo"
+                        onChange={handlePhotoChange}
+                        className="form-control w-100"
+                    />
+                    <InputError message={errors.photo} className="mt-2 text-red-500"/>
+                </div>
+
+                {mustVerifyEmail && user.email_verified_at === null && (
+                    <div>
+                        <p className="text-sm mt-2 text-gray-800">
+                            Your email address is unverified.
+                            <Link href={route('verification.send')} method="post" as="button"
+                                  className="text-blue-600 hover:text-blue-800">
+                                Click here to re-send the verification email.
+                            </Link>
+                        </p>
+                        {status === 'verification-link-sent' && (
+                            <div className="mt-2 text-green-600">A new verification link has been sent to your email
+                                address.</div>
+                        )}
+                    </div>
+                )}
+
+                <div className="flex items-center gap-4">
+                    <PrimaryButton disabled={processing} className="btn btn-primary">Save</PrimaryButton>
+                    <Link href={route('home')} className="btn btn-secondary">
+                        Home
+                    </Link>
+
+                    {recentlySuccessful && <span className="text-green-600 ml-3">Saved.</span>}
+                </div>
+            </form>
+
+            <div className="mt-6 border-t border-gray-300"></div>
+
+            <h2 className="text-lg font-medium text-center text-gray-900">Cars</h2>
+
+            <div className="mt-6">
+
+                <h2 className="text-lg font-medium text-center text-gray-900"></h2>
+                {cars.length > 0 ? (
+                    cars.map((car) => (
+                        <div className="flex items-center mt-4" key={car.id}>
+                            <img
+                                src={`/${car.photoUrl}`}
+                                alt="Car"
+                                style={{width: '100px', height: '100px', borderRadius: '16%'}}
+                                className="mr-2"
+                            />
+                            <span style={{marginLeft: '50px'}}>{car.brand} {car.model}</span>
+                        </div>
+                    ))
+                ) : (
+                    <Link href={route('car.create')} className="btn btn-primary">
+                        Add Car
+                    </Link>
+                )}
+            </div>
+        </section>
+    );
+}
+import React, { useState } from 'react';
+import { useForm, Link } from '@inertiajs/react';
+import Autosuggest from 'react-autosuggest';
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+
+// Пример данных для автозаполнения
+const carData = {
+    // Европа
+    BMW: ['X5', '3 Series', '5 Series', '7 Series', 'X3', 'X6', 'X1', 'X4', '1 Series', '2 Series', '4 Series', '8 Series', 'Z4', 'M2', 'M3', 'M4', 'M5', 'M8'],
+    Mercedes: ['C-Class', 'E-Class', 'S-Class', 'GLA', 'GLC', 'GLE', 'GLS', 'A-Class', 'B-Class', 'CLA', 'CLS', 'G-Class', 'EQC', 'EQB', 'EQS'],
+    Audi: ['A3', 'A4', 'A6', 'Q3', 'Q5', 'Q7', 'Q8', 'A1', 'A5', 'A7', 'A8', 'TT', 'R8', 'e-tron', 'RS3', 'RS4', 'RS5', 'RS6', 'RS7', 'RS Q8'],
+    Volkswagen: ['Golf', 'Passat', 'Tiguan', 'Polo', 'Touareg', 'Jetta', 'Arteon', 'T-Roc', 'T-Cross', 'ID.3', 'ID.4', 'ID. Buzz'],
+    Peugeot: ['208', '308', '508', '3008', '5008', '2008', 'Rifter', 'Partner', 'Traveller', 'Expert'],
+    Renault: ['Clio', 'Megane', 'Captur', 'Kadjar', 'Talisman', 'Koleos', 'Zoe', 'Scenic', 'Kangoo', 'Master', 'Trafic'],
+    Fiat: ['500', 'Panda', 'Tipo', 'Punto', 'Ducato', 'Fiorino', 'Qubo', 'Doblo', '500X', '500L'],
+    Volvo: ['XC40', 'XC60', 'XC90', 'S60', 'S90', 'V60', 'V90', 'V40', 'C40 Recharge', 'V60 Cross Country', 'V90 Cross Country'],
+    Skoda: ['Octavia', 'Fabia', 'Superb', 'Kodiaq', 'Karoq', 'Scala', 'Kamiq', 'Enyaq', 'Citigo', 'Rapid'],
+
+    // США
+    Ford: ['Mustang', 'F-150', 'Explorer', 'Escape', 'Fusion', 'Edge', 'Expedition', 'Bronco', 'Ranger', 'Transit', 'Taurus', 'EcoSport'],
+    Chevrolet: ['Silverado', 'Malibu', 'Tahoe', 'Equinox', 'Impala', 'Camaro', 'Suburban', 'Traverse', 'Colorado', 'Blazer', 'Trailblazer', 'Bolt EV', 'Corvette'],
+    Tesla: ['Model S', 'Model 3', 'Model X', 'Model Y', 'Roadster', 'Cybertruck', 'Semi'],
+    Dodge: ['Charger', 'Challenger', 'Durango', 'Ram 1500', 'Journey', 'Grand Caravan', 'Nitro'],
+    Jeep: ['Wrangler', 'Grand Cherokee', 'Compass', 'Renegade', 'Cherokee', 'Gladiator', 'Patriot'],
+    Cadillac: ['Escalade', 'CTS', 'XT5', 'XT6', 'XT4', 'CT4', 'CT5', 'XTS', 'ATS', 'SRX'],
+
+    // Азия
+    Toyota: ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', 'Land Cruiser', 'Yaris', 'Avalon', 'C-HR', 'Tacoma', 'Tundra', '4Runner', 'Sequoia'],
+    Honda: ['Civic', 'Accord', 'CR-V', 'Pilot', 'HR-V', 'Fit', 'Odyssey', 'Ridgeline', 'Passport', 'Insight'],
+    Nissan: ['Altima', 'Maxima', 'Rogue', 'Murano', 'Sentra', 'Leaf', 'Pathfinder', 'Frontier', 'Versa', 'Kicks', 'Armada', 'GT-R', '370Z'],
+    Hyundai: ['Elantra', 'Sonata', 'Santa Fe', 'Tucson', 'Kona', 'Palisade', 'Veloster', 'Ioniq', 'Venue', 'Nexo'],
+    Kia: ['Optima', 'Sorento', 'Sportage', 'Rio', 'Soul', 'Seltos', 'Stinger', 'Telluride', 'Cadenza', 'Forte', 'Niro', 'Carnival'],
+    Subaru: ['Impreza', 'Forester', 'Outback', 'Legacy', 'Crosstrek', 'Ascent', 'BRZ', 'WRX'],
+    Mazda: ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5', 'CX-3', 'CX-30', 'CX-50', 'CX-90', 'Mazda2'],
+
+    // Россия
+    Lada: ['Granta', 'Vesta', 'XRAY', 'Niva', 'Largus', 'Kalina', 'Priora', '4x4', 'Samara'],
+    GAZ: ['GAZelle', 'Sobol', 'Next', 'Volga', 'GAZon', 'Sadko'],
+    UAZ: ['Patriot', 'Hunter', 'Pickup', 'Bukhanka', 'Profi']
+};
+const colorData = [
+    { name: 'Коричневый', value: '#702d00' },
+    { name: 'Красный', value: '#FF0000' },
+    { name: 'Оранжевый', value: '#ff7300' },
+    { name: 'Зелёный', value: '#00FF00' },
+    { name: 'Синий', value: '#0000FF' },
+    { name: 'Жёлтый', value: '#FFFF00' },
+    { name: 'Голубой', value: '#00FFFF' },
+    { name: 'Фиолетовый', value: '#FF00FF' },
+    { name: 'Чёрный', value: '#000000' },
+    { name: 'Белый', value: '#FFFFFF' },
+    { name: 'Серый', value: '#808080' },
+];
+
+const brands = Object.keys(carData);
+
+/*const getSuggestions = (value, data) => {
+if (!value) return []; // Проверка на undefined или пустую строку
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0
+        ? data
+        : data.filter(item =>
+            item.name.toLowerCase().slice(0, inputLength) === inputValue
+        );
+};*/
+const getSuggestionsBrands = (value) => {
+    if (!value) return []; // Проверка на undefined или пустую строку
+
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+    return inputLength === 0 ? [] : Object.keys(carData).filter((brand) =>
+        brand.toLowerCase().startsWith(inputValue)
+    );
+};
+
+
+const getSuggestionsModels = (brand, value) => {
+    if (!value || !carData[brand]) return []; // Проверка на undefined, пустую строку или несуществующий бренд
+
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+    return inputLength === 0 ? [] : carData[brand].filter((model) =>
+        model.toLowerCase().startsWith(inputValue)
+    );
+};
+
+
+
+const getSuggestionValue = suggestion => suggestion;
+
+const renderSuggestion = suggestion => (
+    <div>{suggestion}</div>
+);
+
+const renderSuggestionColor = suggestion => (
+    <ColorSuggestion color={suggestion} />
+);
+
+const ColorSuggestion = ({ color }) => (
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div
+            style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: color.value,
+                marginRight: '8px',
+            }}
+        />
+        {color.name}
+    </div>
+);
+
+export default function AddCar() {
+    const { data, setData, post, errors, processing } = useForm({
+        brand: '',
+        model: '',
+        color: '',
+        photoUrl: null,
+    });
+
+    const [brandSuggestions, setBrandSuggestions] = useState([]);
+    const [modelSuggestions, setModelSuggestions] = useState([]);
+    const [colorSuggestions, setColorSuggestions] = useState([]);
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('photoUrl', file);
+        }
+    };
+
+    const submit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('brand', data.brand);
+        formData.append('model', data.model);
+        formData.append('color', data.color);
+        if (data.photoUrl) {
+            formData.append('photoUrl', data.photoUrl);
+        }
+        post(route('car.store'), formData);
+    };
+
+    const handleFocus = () => {
+        setColorSuggestions(colorData);
+    };
+
+    const handleBrandSuggestionSelected = (event, { suggestion }) => {
+        console.log("Selected brand:", suggestion);
+        setData('brand', suggestion);
+        setData('model', ''); // Очистка модели
+        setModelSuggestions([]);
+    };
+
+    const handleModelSuggestionSelected = (event, { suggestion }) => {
+        console.log("Selected model:", suggestion);
+        setData('model', suggestion);
+    };
+
+
+    return (
+        <section>
+            <header>
+                <h2 className="text-lg font-medium text-gray-900">Add Car</h2>
+            </header>
+
+            <form onSubmit={submit} className="mt-6 space-y-6">
+                <div>
+                    <InputLabel htmlFor="brand" value="Brand"/>
+                    <Autosuggest
+                        suggestions={brandSuggestions}
+                        onSuggestionsFetchRequested={({value}) => setBrandSuggestions(getSuggestionsBrands(value, brands))}
+                        onSuggestionsClearRequested={() => setBrandSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestion}
+                        onSuggestionSelected={handleBrandSuggestionSelected}
+                        inputProps={{
+                            value: data.brand,
+                            onChange: (e, {newValue}) => {
+                                console.log('Brand input change:', newValue);
+                                setData('brand', newValue);
+                            },
+                            className: 'form-control w-full'
+                        }}
+                    />
+                    <InputError message={errors.brand} className="mt-2 text-red-500"/>
+                </div>
+                <div>
+                    <InputLabel htmlFor="model" value="Model"/>
+                    <Autosuggest
+                        suggestions={modelSuggestions}
+                        onSuggestionsFetchRequested={({value}) => {
+                            if (data.brand && carData[data.brand]) {
+                                setModelSuggestions(getSuggestionsModels(value, carData[data.brand]));
+                            } else {
+                                setModelSuggestions([]);
+                            }
+                        }}
+                        onSuggestionsClearRequested={() => setModelSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestion}
+                        onSuggestionSelected={handleModelSuggestionSelected}
+                        inputProps={{
+                            value: data.model,
+                            onChange: (e, {newValue}) => setData('model', newValue),
+                            className: 'form-control w-full',
+                            disabled: !data.brand
+                        }}
+                    />
+                    <InputError message={errors.model} className="mt-2 text-red-500"/>
+                </div>
+                <div>
+                    <InputLabel htmlFor="color" value="Color"/>
+                    <Autosuggest
+                        suggestions={colorSuggestions}
+                        onSuggestionsFetchRequested={({value}) => {
+                            if (value.trim() === '') {
+                                setColorSuggestions(colorData);
+                            } else {
+                                setColorSuggestions(getSuggestions(value, colorData));
+                            }
+                        }}
+                        onSuggestionsClearRequested={() => setColorSuggestions([])}
+                        getSuggestionValue={getSuggestionValue}
+                        renderSuggestion={renderSuggestionColor}
+                        onSuggestionSelected={(event, {suggestion}) => {
+                            setData('color', suggestion.name);
+                        }}
+                        inputProps={{
+                            value: data.color,
+                            onChange: (e, {newValue}) => setData('color', newValue),
+                            onFocus: handleFocus, // Показывать все предложения при фокусе
+                            className: 'form-control w-full'
+                        }}
+                    />
+                    <InputError message={errors.color} className="mt-2 text-red-500"/>
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="photoUrl" value="Photo"/>
+                    <input
+                        id="photoUrl"
+                        type="file"
+                        name="photoUrl"
+                        onChange={handlePhotoChange}
+                        className="form-control w-full"
+                    />
+                    <InputError message={errors.photoUrl} className="mt-2 text-red-500"/>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <PrimaryButton disabled={processing} className="btn btn-primary">
+                        Save
+                    </PrimaryButton>
+                    <Link href={route('profile.edit')} className="btn btn-secondary">
+                        Cancel
+                    </Link>
+                </div>
+            </form>
+        </section>
+    );
+}

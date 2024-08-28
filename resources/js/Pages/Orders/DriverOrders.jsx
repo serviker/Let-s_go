@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from '@inertiajs/inertia-react';
-import OrderIndex from "@/Pages/Orders/OrderIndex.jsx";
+import DriverOrderIndex from "@/Pages/Orders/DriverOrderIndex.jsx";
 import Modal from "@/Components/Modal.jsx";
 import {Inertia} from "@inertiajs/inertia";
 
@@ -19,9 +19,8 @@ export default function DriverOrders({ orders }) {
     if (showModal) {
         return (
             <Modal show={showModal} onClose={closeModal}>
-                <div className="modal-content" style={{ width: '25%',
-                    position: 'fixed',
-                    top: '200px',   // Смещение на 200px сверху
+                <div className="modal-content" style={{ width: '25%', border: '4px solid #eea236', borderRadius: '10px',
+                    position: 'fixed', top: '30%',   // Смещение на 30% сверху
                     left: '50%',    // Горизонтальное центрирование
                     transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
                 }}>
@@ -40,7 +39,7 @@ export default function DriverOrders({ orders }) {
     return (
         <div className="driver-orders-container">
             {orders.map(order => (
-                <OrderIndex key={order.id} order={order} className="order-item"/>
+                <DriverOrderIndex key={order.id} order={order} className="order-item"/>
             ))}
 
             {/* Кнопка "На главную" */}

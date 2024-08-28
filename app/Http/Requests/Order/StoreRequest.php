@@ -13,7 +13,7 @@ class StoreRequest extends FormRequest
     public function authorize(): bool
     {
         // Логирование авторизации
-        Log::info('Request data:', $this->all());
+       // Log::info('Request data:', $this->all());
         return true;
     }
 
@@ -25,7 +25,7 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         // Логирование данных запроса
-        Log::info('StoreRequest Data', ['data' => $this->all()]);
+        // Log::info('StoreRequest Data', ['data' => $this->all()]);
 
         return [
             'date_time_departure' => 'required|date',

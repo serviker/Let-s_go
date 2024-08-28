@@ -231,7 +231,7 @@ const NoCarModal = ({ show, onClose, onAddCar }) => {
     if (!show) return null;
 
     return (
-        <div>
+        <div style={{ border: '4px solid #eea236', borderRadius: '10px'}}>
             <div className="modal-content">
                 <h2 style={{ textAlign: 'center'}}>У вас нет авто</h2>
                 <p style={{ textAlign: 'center', margin: '10px', fontSize: '18px'}}>Пожалуйста, добавьте автомобиль, чтобы опубликовать поездку.</p>

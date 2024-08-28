@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, usePage } from '@inertiajs/react';
 import '../../../css/DriverOrderDetails.css';
+import {Inertia} from "@inertiajs/inertia";
 
 export default function DriverOrderDetails() {
     const { order } = usePage().props;
     const [data, setData] = useState(order);
 
-    useEffect(() => {
+   /* useEffect(() => {
         // Функция для получения данных заказа
         const fetchOrderData = async () => {
             try {
@@ -21,10 +22,11 @@ export default function DriverOrderDetails() {
         // Если данные уже переданы через пропсы, просто устанавливаем их
         if (order) {
             setData(order);
+
         } else {
             fetchOrderData(); // Вызов функции получения данных при монтировании
         }
-    }, [order]); // Добавляем зависимость от order
+    }, [order]); // Добавляем зависимость от order */
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
@@ -135,7 +137,7 @@ export default function DriverOrderDetails() {
 
             <div className="button-container">
                 <Link href={route('driver.orders')} className="home-link">
-                    <button type="button" className="btn btn-primary">К поездкам</button>
+                    <button type="button" className="btn btn-secondary">К поездкам</button>
                 </Link>
                 <Link href="/" className="home-link">
                     <button className="btn btn-info">На главную</button>

@@ -150,6 +150,6 @@
 }
 
 .order-item {
-    width: 60%; /* Ограничение ширины для каждого OrderIndex */
+    width: 60%; /* Ограничение ширины для каждого DriverOrderIndex */
     margin-bottom: 20px; /* Отступ между элементами */
 }

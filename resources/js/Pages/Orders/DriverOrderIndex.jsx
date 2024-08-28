@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from '@inertiajs/react';  // Используйте @inertiajs/react для навигации
 import '../../../css/OrderIndex.css';  // Импорт стилей
 
-export default function OrderIndex({ order }) {
+export default function DriverOrderIndex({ order }) {
     if (!order) {
         return <div>Error: Order data is missing</div>;
     }
@@ -88,11 +88,10 @@ export default function OrderIndex({ order }) {
     );
 }
 
-OrderIndex.propTypes = {
+DriverOrderIndex.propTypes = {
     order: PropTypes.shape({
         fromCity: PropTypes.string.isRequired,
         toCity: PropTypes.string.isRequired,
-       // intermediateCity: PropTypes.string,
         price: PropTypes.oneOfType([
             PropTypes.string,
             PropTypes.number,

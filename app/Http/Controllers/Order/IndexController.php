@@ -11,12 +11,6 @@ use Inertia\Inertia;
 
 class IndexController extends Controller
 {
-    /*public function __invoke() {
-
-        $orders = Order::with(['from_address', 'to_address'])->get();
-        return Inertia::render('order.index', compact('orders'));
-    }*/
-
     public function __invoke()
     {
         $driver = Auth::user();

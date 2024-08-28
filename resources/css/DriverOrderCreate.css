@@ -158,7 +158,7 @@
     color: #6c757d;
 }
 
-/* Дополнительные стили из OrderIndex.css */
+/* Дополнительные стили из DriverOrderIndex.css */
 .order-container {
     margin-top: 20px;
     width: 60%; /* Установите ширину в 60%, чтобы соответствовать другим элементам */
@@ -282,6 +282,6 @@
 }
 
 .order-item {
-    width: 60%; /* Ограничение ширины для каждого OrderIndex */
+    width: 60%; /* Ограничение ширины для каждого DriverOrderIndex */
     margin-bottom: 20px; /* Отступ между элементами */
 }

@@ -8,14 +8,17 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
+/*Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-})->name('home');
+})->name('home');*/
+
+// Заменяем существующий маршрут для главной страницы на использование контроллера IndexController
+Route::get('/', [App\Http\Controllers\Order\IndexController::class, '__invoke'])->name('welcome');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -52,6 +55,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Добавляем маршрут для всех поездок водителя
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');
+        // Добавляем маршрут для всех поездок пассажира
+        Route::get('/passenger/orders', 'IndexController@passengerOrders')->name('passenger.orders');
 
         Route::get('/api/search/{query}', [CarDataController::class, 'search']);
         Route::get('/api/brands', [CarDataController::class, 'getBrands']);

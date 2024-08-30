@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Order;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Order\StoreRequest;
 use App\Models\Address;
+use App\Models\Driver;
 use App\Models\OrderIntermediateAddress;
 use Illuminate\Support\Facades\Log;
 
@@ -38,8 +39,6 @@ class StoreController extends Controller
         $intermediateAddresses = [];
         if (!empty($data['intermediate_addresses'])) { // Имя поля должно совпадать
             foreach ($data['intermediate_addresses'] as $city) {
-                // Дебаг: Проверьте, что промежуточные адреса приходят с клиента
-               // Log::info('!!!!! Intermediate Addresses:', ['intermediate_addresses' => $data['intermediate_addresses']]);
 
                 // Проверяем или создаем запись в таблице `addresses`
                 $intermediateAddress = Address::firstOrCreate([
@@ -48,16 +47,24 @@ class StoreController extends Controller
 
                 // Сохраняем ID промежуточного адреса
                 $intermediateAddresses[] = $intermediateAddress->id;
-               // Log::info('Intermediate Address created or found:', ['address' => $intermediateAddress]);
             }
         }
 
-        // Дебаг: Проверьте, что промежуточные адреса созданы
-       // Log::info('Received Intermediate Addresses:', ['intermediate_addresses' => $data['intermediate_addresses'] ?? []]);
+       /* $driverId = Auth::id();
+        if (!$driverId) {
+            return redirect()->back()->with('error', 'Пользователь не аутентифицирован');
+        }
+        Log::info('Current User ID', ['driver_id' => Auth::id()]);*/
+
+        $userId = Auth::id();
+
+        // Проверяем, существует ли запись в таблице drivers для этого пользователя
+        $driver = Driver::firstOrCreate(['user_id' => $userId]);
 
         try {
             $order = Order::create([
-                'user_id' => Auth::id(),
+                'user_id' => $userId,
+                'driver_id' => $driver->id, // Устанавливаем driver_id на ID записи в таблице drivers
                 'date_time_departure' => $data['date_time_departure'] . ' ' . $data['departure_time'],
                 'from_address_id' => $fromAddress->id,
                 'to_address_id' => $toAddress->id,
@@ -68,21 +75,14 @@ class StoreController extends Controller
 
             // Привязка промежуточных адресов
             if (!empty($intermediateAddresses)) {
-                // Дебаг: Проверьте, что промежуточные адреса действительно привязываются
-              /*  Log::info('Attaching Intermediate Addresses to Order:', [
-                    'order_id' => $order->id,
-                    'intermediate_addresses' => $intermediateAddresses
-                ]);*/
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
 
             return redirect()->route('order.show', $order->id)
                 ->with('success', 'Заказ успешно создан!');
-               // ->with('intermediate_addresses', $intermediateAddresses);
         } catch (\Exception $e) {
           //  Log::error('Failed to create order', ['error' => $e->getMessage(), 'data' => $data]);
             return redirect()->back()->with('error', 'Ошибка создания заказа');
         }
     }
-
 }

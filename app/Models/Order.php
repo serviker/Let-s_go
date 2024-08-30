@@ -13,6 +13,7 @@ class Order extends Model
     protected $table = 'orders';
     protected $fillable = [
         'user_id',
+        'driver_id',
         'date_time_departure',
         'from_address_id',
         'to_address_id',

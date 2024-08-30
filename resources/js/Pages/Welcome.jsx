@@ -1,5 +1,6 @@
 import { Link, Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
+import PassengerOrders from '../Components/PassengerOrders'; // Импортируйте компонент PassengerOrders
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -63,6 +64,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </header>
 
                         <main className="mt-6">
+                            {/* Передача данных о поездках в компонент PassengerOrders */}
+                            <PassengerOrders orders={orders} />
                             {/*    <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">*/}
                             {/*        <a*/}
                             {/*            href="https://laravel.com/docs"*/}

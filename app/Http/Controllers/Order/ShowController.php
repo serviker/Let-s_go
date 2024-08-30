@@ -20,8 +20,8 @@ class ShowController extends Controller
         // Получаем промежуточные адреса, связанные с заказом
         $intermediateAddresses = $order->intermediateAddresses()->pluck('city')->toArray();
 
-        // Получаем объект пользователя (водителя)
-        $driver = User::with('cars')->find($order->user_id = Auth::id());
+        // Получаем объект пользователя (водителя) через driver_id
+        $driver = User::with('cars')->find($order->driver_id);
         $car = $driver->cars->first();
 
         // Преобразуем цену в число с плавающей запятой

@@ -206,7 +206,6 @@ const cities = [
 const getSuggestions = (value) => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
-
     return inputLength === 0 ? [] : cities.filter(city =>
         city.name.toLowerCase().slice(0, inputLength) === inputValue
     );
@@ -215,9 +214,7 @@ const getSuggestions = (value) => {
 const getSuggestionValue = (suggestion) => suggestion.name;
 
 const renderSuggestion = (suggestion) => (
-    <div>
-        {suggestion.name}
-    </div>
+    <div>{suggestion.name}</div>
 );
 
 const getPassengerLabel = (count) => {
@@ -226,7 +223,6 @@ const getPassengerLabel = (count) => {
     return 'пассажиров';
 };
 
-// Компонент модального окна
 const NoCarModal = ({ show, onClose, onAddCar }) => {
     if (!show) return null;
 
@@ -245,13 +241,23 @@ const NoCarModal = ({ show, onClose, onAddCar }) => {
 };
 
 const Navbar = () => {
-    const {auth} = usePage().props; // Access authentication information from Inertia
+    const { auth } = usePage().props;
     const user = auth.user || {};
 
     const [cars, setCars] = useState([]);
+    const [date, setDate] = useState('');
+    const [fromCity, setFromCity] = useState('');
+    const [toCity, setToCity] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [passengerCount, setPassengerCount] = useState(1);
+    const [showNoCarModal, setShowNoCarModal] = useState(false);
+    const dropdownRef = useRef(null);
+    const passengerDropdownRef = useRef(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
+    const inputRef = useRef(null);
 
     useEffect(() => {
-        // Получение данных о автомобилях пользователя
         fetch('/api/user/cars', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
@@ -262,54 +268,44 @@ const Navbar = () => {
             .catch(error => console.error('Error fetching cars:', error));
     }, []);
 
-   // console.log('Auth data:', auth);
-   // console.log('Cars:', cars);
-
-    const [date, setDate] = useState('');
     const handleDateChange = (event) => { setDate(event.target.value); };
     const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
 
-    const [fromCity, setFromCity] = useState('');
-    const [toCity, setToCity] = useState('');
-    const [suggestions, setSuggestions] = useState([]);
     const onFromCityChange = (event, { newValue }) => { setFromCity(newValue); };
     const onToCityChange = (event, { newValue }) => { setToCity(newValue); };
     const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
     const onSuggestionsClearRequested = () => { setSuggestions([]); };
-    const [userPhoto, setUserPhoto] = useState(null);
-    const dropdownRef = useRef(null);
-    const passengerDropdownRef = useRef(null);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
-    const [passengerCount, setPassengerCount] = useState(1);
+
     const toggleDropdown = () => { setDropdownOpen(!dropdownOpen); };
-    const togglePassengerDropdown = () => { setPassengerDropdownOpen(!passengerDropdownOpen);  };
+    const togglePassengerDropdown = () => { setPassengerDropdownOpen(!passengerDropdownOpen); };
+
     const incrementPassenger = (event) => {
         event.preventDefault();
         event.stopPropagation();
         setPassengerCount(prevCount => (prevCount < 4 ? prevCount + 1 : prevCount));
     };
+
     const decrementPassenger = (event) => {
         event.preventDefault();
         event.stopPropagation();
         setPassengerCount(prevCount => (prevCount > 1 ? prevCount - 1 : prevCount));
     };
 
-    const inputRef = useRef(null);
+    const handleSearch = (event) => {
+        event.preventDefault();
+        const searchParams = new URLSearchParams({
+            departureCity: fromCity,
+            arrivalCity: toCity,
+            date,
+            seats: passengerCount
+        });
 
-    const handleWrapperClick = () => {
-        if (inputRef.current) {
-            inputRef.current.focus(); // Фокусируемся на input
-        }
+        window.location.href = `/passenger/orders?${searchParams.toString()}`;
     };
-
-    const [showNoCarModal, setShowNoCarModal] = useState(false);
 
     const handlePublishClick = (event) => {
         event.preventDefault();
-        console.log('Auth user:', auth.user);
         if (cars.length === 0) {
-            console.log(' user сar:', cars.length);
             setShowNoCarModal(true);
         } else {
             window.location.href = '/orders/create';
@@ -321,19 +317,15 @@ const Navbar = () => {
     };
 
     const redirectToAddCar = () => {
-        window.location.href = route('car.create'); // Перенаправление на страницу добавления авто
+        window.location.href = route('car.create');
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current && !dropdownRef.current.contains(event.target)
-            ) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setDropdownOpen(false);
             }
-            if (
-                passengerDropdownRef.current && !passengerDropdownRef.current.contains(event.target)
-            ) {
+            if (passengerDropdownRef.current && !passengerDropdownRef.current.contains(event.target)) {
                 setPassengerDropdownOpen(false);
             }
         };
@@ -346,68 +338,67 @@ const Navbar = () => {
 
     return (
         <header>
-            {/* START NAVIGATION */}
             <div className="navbar navbar-default bs-dos-nav navbar-fixed-top" role="navigation">
                 <div className="container">
                     <div className="navigation">
-                    <a href="#home" className="navbar-brand">
-                        <img src="/images/Logo-1.png" alt="Plus Icon" width="148" height="36"/>
-                    </a>
-                    <div className="navbar-header">
-                        <nav className="collapse navbar-collapse" id="rock-navigation">
+                        <a href="#home" className="navbar-brand">
+                            <img src="/images/Logo-1.png" alt="Plus Icon" width="148" height="36"/>
+                        </a>
+                        <div className="navbar-header">
+                            <nav className="collapse navbar-collapse" id="rock-navigation">
+                                <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
+                                    <li><a href="#home" className="smoothScroll">С попутчиками</a></li>
+                                    <li><a href="#help" className="smoothScroll">Центр помощи</a></li>
+                                </ul>
+                            </nav>
+                        </div>
+
+                        <nav className="navbar-collapse" id="rock-navigation">
                             <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
-                                <li><a href="#home" className="smoothScroll">С попутчиками</a></li>
-                                <li><a href="#help" className="smoothScroll">Центр помощи</a></li>
+                                <li><a href="#home" className="smoothScroll"></a></li>
+                                <li><a href="#work" className="smoothScroll"></a></li>
+                                <li><a href="#portfolio" className="smoothScroll"></a></li>
+                                <li></li>
+                                <li>
+                                    <a onClick={handlePublishClick} className="smoothScroll" style={{ cursor: 'pointer'}}>
+                                        <img src="/images/icons_plus.svg" alt="" width="25" height="25"/>
+                                        Опубликовать поездку
+                                    </a>
+                                </li>
+                                <li className="dropdown" ref={dropdownRef}>
+                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
+                                        {auth.user ? (
+                                            <>
+                                                <img src={auth.user.photoUrl || "/images/user_icon.svg"} alt="" width="37" height="35"/>
+                                                <span>{auth.user.name}</span>
+                                            </>
+                                        ) : (
+                                            <img src="/images/user_icon.svg" alt="User" width="37" height="35" />
+                                        )}
+                                    </a>
+                                    {dropdownOpen && (
+                                        <ul className="dropdown-menu">
+                                            {auth.user ? (
+                                                <>
+                                                    <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
+                                                    <li><a href="/incoming">Входящие</a></li>
+                                                    <li><a href="/profile">Профиль</a></li>
+                                                    <li><Link href="/logout" method="post">Выйти</Link></li>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <li><Link href="/login">Вход</Link></li>
+                                                    <li><Link href="/register">Регистрация</Link></li>
+                                                </>
+                                            )}
+                                        </ul>
+                                    )}
+                                </li>
                             </ul>
                         </nav>
                     </div>
 
-                    <nav className="navbar-collapse" id="rock-navigation">
-                        <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
-                            <li><a href="#home" className="smoothScroll"></a></li>
-                            <li><a href="#work" className="smoothScroll"></a></li>
-                            <li><a href="#portfolio" className="smoothScroll"></a></li>
-                            <li>
-                            </li>
-                            <li>
-                                <a onClick={handlePublishClick} className="smoothScroll" style={{ cursor: 'pointer'}}>
-                                    <img src="/images/icons_plus.svg" alt="" width="25" height="25"/>
-                                    Опубликовать поездку</a>
-                            </li>
-                            <li className="dropdown" ref={dropdownRef}>
-                                <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
-                                    {auth.user ? (
-                                        <>
-                                            <img src={auth.user.photoUrl || "/images/user_icon.svg"} alt="" width="37" height="35"/>
-                                            <span>{auth.user.name}</span>
-                                        </>
-                                    ) : (
-                                        <img src="/images/user_icon.svg" alt="User" width="37" height="35" />
-                                    )}
-                                </a>
-                                {dropdownOpen && (
-                                    <ul className="dropdown-menu">
-                                        {auth.user  ? (
-                                            <>
-                                                <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
-                                                <li><a href="/incoming">Входящие</a></li>
-                                                <li><a href="/profile">Профиль</a></li>
-                                                <li><Link href="/logout" method="post">Выйти</Link></li>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <li><Link href="/login">Вход</Link></li>
-                                                <li><Link href="/register">Регистрация</Link></li>
-                                            </>
-                                        )}
-                                    </ul>
-                                )}
-                            </li>
-                        </ul>
-                    </nav>
-                    </div>
-
-                    <form role="search" className="search-form">
+                    <form role="search" className="search-form" onSubmit={handleSearch}>
                         <div className="input-group">
                             <div className="input-wrapper">
                                 <Autosuggest
@@ -437,7 +428,6 @@ const Navbar = () => {
                             </div>
 
                             <div className="input-wrapper">
-
                                 <Autosuggest
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
@@ -463,43 +453,25 @@ const Navbar = () => {
                                     </svg>
                                 </div>
                             </div>
-                            <div className="input-wrapper-calendar" onClick={handleWrapperClick}>
+
+                            <div className="input-wrapper-calendar" onClick={() => inputRef.current?.focus()}>
                                 <input
                                     type="date"
                                     aria-invalid="false"
                                     className="input-field-calendar"
                                     value={date}
                                     onChange={handleDateChange}
-                                    ref={inputRef} // Привязываем ref к input
+                                    ref={inputRef}
                                 />
                                 <div className="button-overlay">
                                     <span>{formattedDate}</span>
                                 </div>
                                 <div className="icon-wrapper">
-                                    <img src="/images/calendar-1.png" alt="Passenger Icon" width="20" height="20"/>
+                                    <img src="/images/calendar-1.png" alt="Calendar Icon" width="20" height="20"/>
                                 </div>
                             </div>
-                            {/*<div className="input-wrapper-calendar"
-                                 onClick={() => document.querySelector('.input-field-calendar').focus()}>
-                                <input
-                                    type="date"
-                                    aria-invalid="false"
-                                    className="input-field-calendar"
-                                    value={date}
-                                    onChange={handleDateChange}
-                                />
-                                <div className="button-overlay">
-                                    <span>{formattedDate}</span>
-                                </div>
-                                <div className="icon-wrapper">
-                                    <img src="/images/calendar-1.png" alt="Passenger Icon" width="20" height="20"/>
-                                </div>
-                            </div>*/}
-                            {/*<div className="input-wrapper dropdown" ref={passengerDropdownRef}
-                                 onClick={() => setPassengerDropdownOpen(!passengerDropdownOpen)}>*/}
-                            <div className="input-wrapper"
-                                 onClick={togglePassengerDropdown}>
 
+                            <div className="input-wrapper" onClick={togglePassengerDropdown}>
                                 <div className="button-overlay">
                                     <span>{passengerCount} {getPassengerLabel(passengerCount)}</span>
                                 </div>
@@ -508,7 +480,7 @@ const Navbar = () => {
                                 </div>
                             </div>
                             {passengerDropdownOpen && (
-                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}}>
+                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}} ref={passengerDropdownRef}>
                                     <span>Пассажиров</span>
                                     <button onClick={decrementPassenger}>-</button>
                                     <span>{passengerCount}</span>
@@ -518,14 +490,12 @@ const Navbar = () => {
                             <button type="submit" className="search-button">Поиск</button>
                         </div>
                     </form>
-                    {/* Модальное окно */}
                     <NoCarModal show={showNoCarModal} onClose={closeModal} onAddCar={redirectToAddCar} />
                 </div>
             </div>
-            {/* END NAVIGATION */}
         </header>
     );
-}
-export default Navbar;
+};
 
+export default Navbar;
 

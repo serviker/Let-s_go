@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CarDataController;
@@ -8,17 +9,17 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*Route::get('/', function () {
+Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-})->name('home');*/
+})->name('home');
 
 // Заменяем существующий маршрут для главной страницы на использование контроллера IndexController
-Route::get('/', [App\Http\Controllers\Order\IndexController::class, '__invoke'])->name('welcome');
+//Route::get('/', [App\Http\Controllers\Order\IndexController::class, '__invoke'])->name('welcome');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -33,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [UserController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [UserController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [UserController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Добавляем маршрут для обновления пароля
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('password.update');
@@ -53,10 +56,16 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
         Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
+       // Route::get('/api/orders/search', [IndexController::class, 'passengerOrders']);
+
+
+
         // Добавляем маршрут для всех поездок водителя
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');
         // Добавляем маршрут для всех поездок пассажира
         Route::get('/passenger/orders', 'IndexController@passengerOrders')->name('passenger.orders');
+       // Route::get('/api/orders/search', 'IndexController@passengerOrders')->name('passenger.orders');
+
 
         Route::get('/api/search/{query}', [CarDataController::class, 'search']);
         Route::get('/api/brands', [CarDataController::class, 'getBrands']);

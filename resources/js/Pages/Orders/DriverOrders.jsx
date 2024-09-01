@@ -10,7 +10,7 @@ export default function DriverOrders({ orders }) {
 
     // Функция для закрытия модального окна
     const closeModal = () => {
-        Inertia.visit(route('home')); // Переход на главную страницу
+        Inertia.visit(route('dashboard')); // Переход на главную страницу
         setShowModal(false);
 
     };
@@ -35,7 +35,6 @@ export default function DriverOrders({ orders }) {
             </Modal>
         );
     }
-
     return (
         <div className="driver-orders-container">
             {orders.map(order => (

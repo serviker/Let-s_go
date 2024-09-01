@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Autosuggest from 'react-autosuggest';
-import { Link, usePage } from '@inertiajs/react'; // Use Inertia's usePage for accessing the Laravel Breeze user data
+import { Link, usePage } from '@inertiajs/react';
+import Modal from "@/Components/Modal.jsx"; // Use Inertia's usePage for accessing the Laravel Breeze user data
 
 const cities = [
     { name: 'Москва' },
@@ -227,21 +228,47 @@ const NoCarModal = ({ show, onClose, onAddCar }) => {
     if (!show) return null;
 
     return (
-        <div style={{ border: '4px solid #eea236', borderRadius: '10px'}}>
-            <div className="modal-content">
-                <h2 style={{ textAlign: 'center'}}>У вас нет авто</h2>
-                <p style={{ textAlign: 'center', margin: '10px', fontSize: '18px'}}>Пожалуйста, добавьте автомобиль, чтобы опубликовать поездку.</p>
-                <div style={{display: 'flex', justifyContent: 'space-between', margin: '10px 10px 10px 10px'}}>
-                    <button className="btn btn-secondary" onClick={onClose}>Вернуться назад</button>
-                    <button className="btn btn-success" onClick={onAddCar}>Добавить авто</button>
-                </div>
+        <div className="modal-content" style={{
+            width: '30%', border: '4px solid #eea236', borderRadius: '10px',
+            position: 'fixed', top: '11%',   // Смещение на 30% сверху
+            left: '50%',    // Горизонтальное центрирование
+            transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
+        }}>
+            <h3 style={{textAlign: 'center', color: 'black'}}>У вас нет авто</h3>
+            <p style={{textAlign: 'center', margin: '0', fontSize: '18px', color: 'black'}}>Пожалуйста, добавьте автомобиль, чтобы
+                опубликовать поездку.</p>
+            <div style={{display: 'flex', justifyContent: 'space-between', margin: '0px 10px -10px 10px'}}>
+                <button className="btn btn-secondary" onClick={onClose}>Вернуться назад</button>
+                <button className="btn btn-success" onClick={onAddCar}>Добавить авто</button>
             </div>
         </div>
+
+)
+    ;
+};
+
+const NoOrdersModal = ({show, onClose}) => {
+    if (!show) return null;
+
+    return (
+        <div className="modal-content" style={{
+            width: '30%', border: '4px solid #eea236', borderRadius: '10px',
+            position: 'fixed', top: '11%',   // Смещение на 30% сверху
+                left: '50%',    // Горизонтальное центрирование
+                transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
+            }}>
+                <h3 style={{textAlign: 'center', color: 'black'}} className="modal-body">
+                    Нет поездок, соответствующих вашему запросу.
+                </h3>
+                <div style={{display: 'flex', justifyContent: 'center', margin: '0px 10px -10px 10px'}}>
+                    <button onClick={onClose} className="btn btn-secondary">Вернуться назад</button>
+                </div>
+            </div>
     );
 };
 
 const Navbar = () => {
-    const { auth } = usePage().props;
+    const {auth} = usePage().props;
     const user = auth.user || {};
 
     const [cars, setCars] = useState([]);
@@ -251,11 +278,13 @@ const Navbar = () => {
     const [suggestions, setSuggestions] = useState([]);
     const [passengerCount, setPassengerCount] = useState(1);
     const [showNoCarModal, setShowNoCarModal] = useState(false);
+    const [showNoOrdersModal, setShowNoOrdersModal] = useState(false);
     const dropdownRef = useRef(null);
     const passengerDropdownRef = useRef(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
     const inputRef = useRef(null);
+    const [orders, setOrders] = useState([]);
 
     useEffect(() => {
         fetch('/api/user/cars', {
@@ -275,7 +304,6 @@ const Navbar = () => {
     const onToCityChange = (event, { newValue }) => { setToCity(newValue); };
     const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
     const onSuggestionsClearRequested = () => { setSuggestions([]); };
-
     const toggleDropdown = () => { setDropdownOpen(!dropdownOpen); };
     const togglePassengerDropdown = () => { setPassengerDropdownOpen(!passengerDropdownOpen); };
 
@@ -296,12 +324,28 @@ const Navbar = () => {
         const searchParams = new URLSearchParams({
             departureCity: fromCity,
             arrivalCity: toCity,
-            date,
+            date: date || '',
             seats: passengerCount
         });
 
-        window.location.href = `/passenger/orders?${searchParams.toString()}`;
+        fetch(`/passenger/orders?${searchParams.toString()}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data Navbar.jsx:', data);
+                setOrders(data.orders); // Обновляем состояние в Dashboard
+            })
+            .catch(error => {
+                console.error('Error searching orders:', error);
+            });
     };
+
+    //  window.location.href = `/passenger/orders?${searchParams.toString()}`;
+
 
     const handlePublishClick = (event) => {
         event.preventDefault();
@@ -312,8 +356,12 @@ const Navbar = () => {
         }
     };
 
-    const closeModal = () => {
+    const closeNoCarModal = () => {
         setShowNoCarModal(false);
+    };
+
+    const closeNoOrdersModal = () => {
+        setShowNoOrdersModal(false);
     };
 
     const redirectToAddCar = () => {
@@ -490,7 +538,8 @@ const Navbar = () => {
                             <button type="submit" className="search-button">Поиск</button>
                         </div>
                     </form>
-                    <NoCarModal show={showNoCarModal} onClose={closeModal} onAddCar={redirectToAddCar} />
+                    <NoCarModal show={showNoCarModal} onClose={closeNoCarModal} onAddCar={redirectToAddCar} />
+                    <NoOrdersModal show={showNoOrdersModal} onClose={closeNoOrdersModal} />
                 </div>
             </div>
         </header>

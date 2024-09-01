@@ -1,6 +1,6 @@
 import { Link, Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
-import PassengerOrders from '../Components/PassengerOrders'; // Импортируйте компонент PassengerOrders
+import PassengerOrders from '../Pages/Orders/PassengerOrders'; // Импортируйте компонент PassengerOrders
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -20,7 +20,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 {/*    src="https://laravel.com/assets/img/welcome/background.svg"*/}
                 {/*/>*/}
                 <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-                    <Navbar />
+                    {/*<Navbar />*/}
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
                         <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
                             {/*<div className="flex lg:justify-center lg:col-start-2">*/}
@@ -64,8 +64,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </header>
 
                         <main className="mt-6">
-                            {/* Передача данных о поездках в компонент PassengerOrders */}
-                            <PassengerOrders orders={orders} />
+                            {/* Передача данных о поездках в компонент PassengerOrders
+                            <PassengerOrders orders={orders} />*/}
                             {/*    <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">*/}
                             {/*        <a*/}
                             {/*            href="https://laravel.com/docs"*/}

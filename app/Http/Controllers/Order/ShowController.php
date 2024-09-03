@@ -38,6 +38,7 @@ class ShowController extends Controller
             'driverName' => $driver->name ?? 'Unknown',
             'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
             'carColor' => $car ? ($car->color) : 'No car',
+            'carPhoto' => $car && $car->photoUrl ? asset('/' . $car->photoUrl) : null,
             'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
             'driverPhotoUrl' => $driver && $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
             'driverId' => $driver->id ?? 0,  // Добавляем ID водителя

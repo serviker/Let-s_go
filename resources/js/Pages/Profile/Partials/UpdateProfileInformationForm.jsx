@@ -219,7 +219,12 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                                     style={{width: '100px', height: '80px', borderRadius: '16%'}}
                                     className="mr-2"
                                 />
-                            ) : null}
+                            ) : <img src="/imagesCar/icon-car.png" alt="car" style={{marginLeft: '20px',
+                                marginRight: '50px',
+                                color: "gray",
+                                width: '100px',
+                                height: '100px'}} />
+                            }
                             <span style={{marginLeft: car.photoUrl ? '50px' : '0', fontSize: '22px'}}>
                                 {car.brand} {car.model}
                             </span>

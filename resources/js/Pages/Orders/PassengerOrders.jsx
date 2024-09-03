@@ -6,7 +6,7 @@ import Modal from "@/Components/Modal.jsx";
 import { Inertia } from "@inertiajs/inertia";
 
 export default function PassengerOrders({ orders }) {
-    console.log('Orders in PassengerOrders:', orders); // Проверьте, что данные получены
+  //  console.log('Orders in PassengerOrders:', orders); // Проверьте, что данные получены
    // const [showNoOrdersModal, setShowNoOrdersModal] = useState(false);
     /* const [localOrders, setLocalOrders] = useState(orders || []);
 
@@ -33,11 +33,11 @@ export default function PassengerOrders({ orders }) {
                 <PassengerOrdersIndex key={order.id} order={order} />
             ))}
 
-           {/* <div className="d-flex justify-content-end mt-4">
-                <Link href={route('dashboard')} className="btn btn-info">
-                    На главную
-                </Link>
-            </div> */}
+            {/*<div className="d-flex justify-content-end mt-4">*/}
+            {/*    <Link href={route('dashboard')} className="btn btn-info">*/}
+            {/*        Назад*/}
+            {/*    </Link>*/}
+            {/*</div>*/}
         </div>
 
     );

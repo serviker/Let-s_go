@@ -267,7 +267,8 @@ const NoOrdersModal = ({show, onClose}) => {
     );
 };
 
-const Navbar = () => {
+const Navbar = ({ setOrders }) => {
+   // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
     const {auth} = usePage().props;
     const user = auth.user || {};
 
@@ -284,7 +285,8 @@ const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
     const inputRef = useRef(null);
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrdersState] = useState([]);
+
 
     useEffect(() => {
         fetch('/api/user/cars', {
@@ -333,11 +335,22 @@ const Navbar = () => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                return response.json();
+                return response.json(); // Парсим JSON
             })
             .then(data => {
-                console.log('Response data Navbar.jsx:', data);
-                setOrders(data.orders); // Обновляем состояние в Dashboard
+                if (data.orders.length === 0) {
+                    setShowNoOrdersModal(true);
+                } else {
+                console.log('Navbar: Received orders:', data.orders);
+                    if (setOrders && typeof setOrders === 'function') {
+                setOrders(data.orders); // Обновляем состояние orders в Dashboard
+                console.log('Navbar: setOrders вызван');
+                    } else {
+                        console.warn('setOrders is not provided');
+                        console.error('Navbar: setOrders is not a function');
+                    }
+                    setShowNoOrdersModal(false);
+                }
             })
             .catch(error => {
                 console.error('Error searching orders:', error);
@@ -345,7 +358,6 @@ const Navbar = () => {
     };
 
     //  window.location.href = `/passenger/orders?${searchParams.toString()}`;
-
 
     const handlePublishClick = (event) => {
         event.preventDefault();

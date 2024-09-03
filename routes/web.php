@@ -64,7 +64,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');
         // Добавляем маршрут для всех поездок пассажира
         Route::get('/passenger/orders', 'IndexController@passengerOrders')->name('passenger.orders');
-       // Route::get('/api/orders/search', 'IndexController@passengerOrders')->name('passenger.orders');
 
 
         Route::get('/api/search/{query}', [CarDataController::class, 'search']);

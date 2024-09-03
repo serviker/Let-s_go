@@ -35,15 +35,15 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">Delete Account</h2>
+                <h2 className="text-lg font-medium text-gray-900">Удаление аккаунта</h2>
                 <p className="mt-1 text-sm text-gray-600">
                     При удалении аккаунта все данные будут удалены.
                 </p>
             </header>
 
-            <DangerButton onClick={confirmUserDeletion} className="btn btn-danger">Delete Account</DangerButton>
-            <Link href={route('home')} className="btn btn-secondary" style={{marginLeft: '200px'}}>
-                Home
+            <DangerButton onClick={confirmUserDeletion} className="btn btn-danger">Удалить аккаунт</DangerButton>
+            <Link href={route('dashboard')} className="btn btn-secondary" style={{marginLeft: '200px'}}>
+                На главную
             </Link>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
@@ -73,10 +73,10 @@ export default function DeleteUserForm({ className = '' }) {
 
                             <div className="flex justify-end mt-4 space-x-2">
                                 <SecondaryButton onClick={closeModal} className="btn btn-secondary">
-                                    Cancel
+                                    Отмена
                                 </SecondaryButton>
                                 <DangerButton className="btn btn-danger" style={{marginLeft: '200px'}} disabled={processing}>
-                                    Delete Account
+                                    Удалить аккаунт
                                 </DangerButton>
                             </div>
                         </form>

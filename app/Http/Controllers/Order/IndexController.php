@@ -77,17 +77,6 @@ class IndexController extends Controller
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
         Log::info('Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
-        // Проверяем наличие и значение ключей
-      /*  $departureCity = $searchCriteria['departureCity'] ?? null;
-        $arrivalCity = $searchCriteria['arrivalCity'] ?? null;
-        $date = $searchCriteria['date'] ?? now()->format('Y-m-d');
-        $seats = $searchCriteria['seats'] ?? 1;
-
-        if (!isset($departureCity) || !isset($arrivalCity)) {
-            return response()->json(['error' => 'Departure city and arrival city are required'], 400);
-        }
-*/
-
         // Получаем заказы на основе критериев поиска
         $ordersQuery = Order::with(['fromAddress', 'toAddress', 'intermediateAddresses', 'driver'])
             ->whereDate('date_time_departure', $searchCriteria['date'])
@@ -144,37 +133,11 @@ class IndexController extends Controller
 
        /*  return Inertia::render('Orders/PassengerOrders', [
             'orders' => $orders,
-        ])*/
+        ]);*/
 
         return response()->json([
             'orders' => $orders->toArray(),
         ]);
-/*
-        return response()->json([
-            'orders' => [
-                [
-                    'id' => 1,
-                    'fromCity' => 'Москва',
-                    'toCity' => 'Санкт-Петербург',
-                    'price' => '1000.00',
-                    'driverName' => 'Иван',
-                    'carName' => 'Lada Vesta',
-                    'dateTimeDeparture' => '2024-09-01 08:00:00',
-                    'driverPhotoUrl' => 'http://localhost:8000/images/image1.png'
-                ],
-                [
-                    'id' => 2,
-                    'fromCity' => 'Казань',
-                    'toCity' => 'Нижний Новгород',
-                    'price' => '800.00',
-                    'driverName' => 'Алексей',
-                    'carName' => 'Renault Logan',
-                    'dateTimeDeparture' => '2024-09-01 09:00:00',
-                    'driverPhotoUrl' => 'http://localhost:8000/images/image2.png'
-                ],
-            ]
-        ]);*/
-
     }
 }
 

@@ -42,7 +42,7 @@ export default function ProfileRoutes({ auth, mustVerifyEmail, status }) {
                 }
             >
                 <Head title="Profile"/>
-                <div className="py-4">
+                <div className="py-4" style={{ marginTop: '100px'}}>
                     <div className="container">
                     <nav className="mb-4">
                         <ul className="flex space-x-4">

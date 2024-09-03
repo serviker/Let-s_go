@@ -4,29 +4,29 @@ import { Link, usePage } from '@inertiajs/react';
 import '../../../css/DriverOrderDetails.css';
 import {Inertia} from "@inertiajs/inertia";
 
-export default function DriverOrderDetails() {
+export default function PassengerOrderDetails() {
     const { order } = usePage().props;
     const [data, setData] = useState(order);
 
-   /* useEffect(() => {
-        // Функция для получения данных заказа
-        const fetchOrderData = async () => {
-            try {
-                const response = await axios.post('/orders/${order.id}'); // Замените URL на ваш
-                setData(response.data);
-            } catch (error) {
-                console.error('Ошибка при получении данных заказа:', error);
-            }
-        };
+    /* useEffect(() => {
+         // Функция для получения данных заказа
+         const fetchOrderData = async () => {
+             try {
+                 const response = await axios.post('/orders/${order.id}'); // Замените URL на ваш
+                 setData(response.data);
+             } catch (error) {
+                 console.error('Ошибка при получении данных заказа:', error);
+             }
+         };
 
-        // Если данные уже переданы через пропсы, просто устанавливаем их
-        if (order) {
-            setData(order);
+         // Если данные уже переданы через пропсы, просто устанавливаем их
+         if (order) {
+             setData(order);
 
-        } else {
-            fetchOrderData(); // Вызов функции получения данных при монтировании
-        }
-    }, [order]); // Добавляем зависимость от order */
+         } else {
+             fetchOrderData(); // Вызов функции получения данных при монтировании
+         }
+     }, [order]); // Добавляем зависимость от order */
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
@@ -112,15 +112,11 @@ export default function DriverOrderDetails() {
                 </div>
             )}
 
-            {/*<div className="separator-thin"></div>
+            <div className="separator-thin"></div>
 
-             Свободные места */}
+            {/* Свободные места */}
             <div className="available-seats">
                 <span className="available-seats-label">Свободных мест:</span>
-                <span className="available-seats-value">{data.availableSeats}</span>
-            </div>
-            <div className="available-seats">
-                <span className="available-seats-label">Пассажиры:</span>
                 <span className="available-seats-value">{data.availableSeats}</span>
             </div>
 
@@ -145,8 +141,6 @@ export default function DriverOrderDetails() {
                 />
             </div>
             <div className="separator-thin"></div>
-            {/*<p className="available-seats-label">Ваше бронирование будет подтверждено только после одобрения*/}
-            {/*    водителя</p>*/}
             <p className="available-seats-label">Максимум двое сзади</p>
             <div className="separator-thin"></div>
 
@@ -162,7 +156,7 @@ export default function DriverOrderDetails() {
     );
 }
 
-DriverOrderDetails.propTypes = {
+PassengerOrderDetails.propTypes = {
     order: PropTypes.shape({
         departureAddress: PropTypes.string,
         arrivalAddress: PropTypes.string,

@@ -12,6 +12,7 @@ class Passenger extends Model
 
     protected $table = 'passengers';
     protected $guarded = [];
+    protected $fillable = ['user_id'];
 
     public function user()
     {

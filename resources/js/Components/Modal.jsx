@@ -32,7 +32,21 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="absolute inset-0 bg-gray-500/75" />
+                    {/*<div className="absolute inset-0 bg-gray-500/75" />*/}
+                    {/* Заменяем фон на изображение */}
+                    <img
+                        src="/imagesCar/Zastavka.jpg"
+                        alt="Заставка"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{
+                            width: '100%',
+                            objectFit: 'cover',
+                            height: '100vh',
+                            zIndex: '-1',
+                            filter: 'brightness(50%)', // Применяем затемнение
+
+                        }}
+                    />
                 </TransitionChild>
 
                 <TransitionChild

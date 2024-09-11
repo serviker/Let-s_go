@@ -50,12 +50,6 @@ class StoreController extends Controller
             }
         }
 
-       /* $driverId = Auth::id();
-        if (!$driverId) {
-            return redirect()->back()->with('error', 'Пользователь не аутентифицирован');
-        }
-        Log::info('Current User ID', ['driver_id' => Auth::id()]);*/
-
         $userId = Auth::id();
 
         // Проверяем, существует ли запись в таблице drivers для этого пользователя

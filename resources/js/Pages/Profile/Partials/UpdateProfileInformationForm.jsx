@@ -196,7 +196,7 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
 
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing} className="btn btn-primary">Сохранить</PrimaryButton>
-                    <Link href={route('home')} className="btn btn-info" style={{marginLeft: '250px'}}>
+                    <Link href={route('dashboard')} className="btn btn-info" style={{marginLeft: '250px'}}>
                         На главную
                     </Link>
 

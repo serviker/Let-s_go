@@ -4,7 +4,8 @@ import { format, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Autosuggest from 'react-autosuggest';
 import { Link, usePage } from '@inertiajs/react';
-import Modal from "@/Components/Modal.jsx"; // Use Inertia's usePage for accessing the Laravel Breeze user data
+import Modal from "@/Components/Modal.jsx";
+import {Inertia} from "@inertiajs/inertia"; // Use Inertia's usePage for accessing the Laravel Breeze user data
 
 const cities = [
     { name: 'Москва' },
@@ -267,25 +268,48 @@ const NoOrdersModal = ({show, onClose}) => {
     );
 };
 
-const Navbar = ({ setOrders }) => {
-   // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
+const  NoCompletedOrdersModal = ({show, onClose}) => {
+    if (!show) return null;
+
+    return (
+        <div className="modal-content" style={{
+            width: '30%', border: '4px solid #eea236', borderRadius: '10px',
+            position: 'fixed', top: '11%',   // Смещение на 30% сверху
+            left: '50%',    // Горизонтальное центрирование
+            transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
+        }}>
+            <h2 style={{textAlign: 'center', color: 'black'}} className="modal-body">
+                У вас нет завершенных поездок.
+            </h2>
+            <div style={{display: 'flex', justifyContent: 'space-between', margin: '10px 10px 0 10px'}}>
+                <button onClick={onClose} className="btn btn-secondary">Вернуться назад</button>
+                <Link href={route('order.create')} className="btn btn-primary">Опубликовать поездку</Link>
+            </div>
+        </div>
+    );
+}
+
+
+const Navbar = ({setOrders, orders}) => {
+    // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
     const {auth} = usePage().props;
     const user = auth.user || {};
 
     const [cars, setCars] = useState([]);
     const [date, setDate] = useState('');
     const [fromCity, setFromCity] = useState('');
+    //  const [orders, setOrders] = useState([]);
     const [toCity, setToCity] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [passengerCount, setPassengerCount] = useState(1);
     const [showNoCarModal, setShowNoCarModal] = useState(false);
     const [showNoOrdersModal, setShowNoOrdersModal] = useState(false);
+    const [showNoCompletedOrdersModal, setShowNoCompletedOrdersModal] = useState(!Array.isArray(orders) || orders.length === 0);
     const dropdownRef = useRef(null);
     const passengerDropdownRef = useRef(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
     const inputRef = useRef(null);
-    const [orders, setOrdersState] = useState([]);
 
 
     useEffect(() => {
@@ -298,6 +322,14 @@ const Navbar = ({ setOrders }) => {
             .then(data => setCars(data))
             .catch(error => console.error('Error fetching cars:', error));
     }, []);
+
+    useEffect(() => {
+        if (Array.isArray(orders) && orders.length === 0) {
+            setShowNoCompletedOrdersModal(true);
+        } else {
+            setShowNoCompletedOrdersModal(false); // Скрываем окно, если заказы есть
+        }
+    }, [orders]);
 
     const handleDateChange = (event) => { setDate(event.target.value); };
     const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
@@ -374,6 +406,11 @@ const Navbar = ({ setOrders }) => {
 
     const closeNoOrdersModal = () => {
         setShowNoOrdersModal(false);
+    };
+
+    const closeNoCompletedOrdersModal = () => {
+        setShowNoCompletedOrdersModal(false);
+
     };
 
     const redirectToAddCar = () => {
@@ -552,6 +589,7 @@ const Navbar = ({ setOrders }) => {
                     </form>
                     <NoCarModal show={showNoCarModal} onClose={closeNoCarModal} onAddCar={redirectToAddCar} />
                     <NoOrdersModal show={showNoOrdersModal} onClose={closeNoOrdersModal} />
+                    {/*<NoCompletedOrdersModal show={showNoCompletedOrdersModal} onClose={closeNoCompletedOrdersModal} />*/}
                 </div>
             </div>
         </header>

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Car;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +25,17 @@ class ProfileController extends Controller
             'status' => session('status'),
         ]);
     }
+
+    public function show($id)
+    {
+        $user = User::findOrFail($id);
+        $cars = Car::where('user_id', $id)->get(); // Если у пользователя есть автомобили
+        return Inertia::render('Profile/ShowProfile', [
+            'user' => $user,
+            'cars' => $cars,
+        ]);
+    }
+
 
     /**
      * Update the user's profile information.

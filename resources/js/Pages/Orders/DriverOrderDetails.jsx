@@ -154,7 +154,7 @@ export default function DriverOrderDetails() {
                 <Link href={route('driver.orders')} className="home-link">
                     <button type="button" className="btn btn-secondary">К поездкам</button>
                 </Link>
-                <Link href="/" className="home-link">
+                <Link href={route('dashboard')} className="home-link">
                     <button className="btn btn-info">На главную</button>
                 </Link>
             </div>

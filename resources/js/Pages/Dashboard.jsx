@@ -11,7 +11,7 @@ export default function Dashboard({ auth }) {
 
     return (
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Home</h2>}>
-            <Navbar setOrders={setOrders} />
+            <Navbar  orders={orders} setOrders={setOrders} />
             <PassengerOrders orders={orders || []} />
         </AuthenticatedLayout>
     );

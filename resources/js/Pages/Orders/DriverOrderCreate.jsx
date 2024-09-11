@@ -126,7 +126,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         />
                         <InputError message={errors.date_time_departure} className="input-error" />
                         <div className="flex">
-                            <Link href="/" className="home-link">
+                            <Link href={route('dashboard')} className="home-link">
                                 <button className="btn btn-info">На главную</button>
                             </Link>
                             <SecondaryButton type="button" onClick={handleNext} className="btn btn-success">
@@ -450,7 +450,7 @@ export default function DriverOrderCreate({ className = '' }) {
                             <PrimaryButton type="submit" className="btn btn-primary" disabled={processing}>
                                 Опубликовать поездку
                             </PrimaryButton>
-                            <Link href={route('home')} className="btn btn-info">
+                            <Link href={route('dashboard')} className="btn btn-info">
                                 Отмена
                             </Link>
                         </div>

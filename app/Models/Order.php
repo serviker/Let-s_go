@@ -15,6 +15,7 @@ class Order extends Model
         'user_id',
         'driver_id',
         'date_time_departure',
+        'passenger_id',
         'from_address_id',
         'to_address_id',
         'price',

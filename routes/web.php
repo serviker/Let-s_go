@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Order\ShowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CarDataController;
@@ -35,6 +36,8 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [UserController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [UserController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Добавляем маршрут для обновления пароля
@@ -56,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
         Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
-       // Route::get('/api/orders/search', [IndexController::class, 'passengerOrders']);
+        Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');
 
 
 

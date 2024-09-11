@@ -6,26 +6,6 @@ import Modal from "@/Components/Modal.jsx";
 import { Inertia } from "@inertiajs/inertia";
 
 export default function PassengerOrders({ orders }) {
-  //  console.log('Orders in PassengerOrders:', orders); // Проверьте, что данные получены
-   // const [showNoOrdersModal, setShowNoOrdersModal] = useState(false);
-    /* const [localOrders, setLocalOrders] = useState(orders || []);
-
-      useEffect(() => {
-           axios.get('/passenger/orders', {  параметры запроса  })
-             .then(response => {
-                 setLocalOrders(response.data.orders);
-                 console.log('Orders:', response.data.orders);
-             })
-             .catch(error => {
-                 if (error.response) {
-                     console.error('Error response:', error.response);
-                 } else if (error.request) {
-                     console.error('Error request:', error.request);
-                 } else {
-                     console.error('Error message:', error.message);
-                 }
-             });
-     }, []);*/
 
     return (
         <div className="driver-orders-container" style={{ marginTop: '80px', width: '160%'}}>
@@ -41,20 +21,6 @@ export default function PassengerOrders({ orders }) {
         </div>
 
     );
-
-/*
-    return (
-        <div className="orders-container">
-            {showNoOrdersModal && <NoOrdersModal />} {/* Ваше модальное окно }*/
-    /* {orders.length > 0 ? (
-         orders.map(order => (
-             <PassengerOrdersIndex key={order.id} order={order} />
-         ))
-     ) : (
-         !showNoOrdersModal && <p>Ищем заказы...</p> // Показать сообщение о загрузке, если нет заказов и модальное окно не открыто
-     )}
- </div>
-);*/
 }
 
 PassengerOrders.propTypes = {

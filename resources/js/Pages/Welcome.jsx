@@ -1,6 +1,7 @@
 import { Link, Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
-import PassengerOrders from '../Pages/Orders/PassengerOrders'; // Импортируйте компонент PassengerOrders
+import PassengerOrders from '../Pages/Orders/PassengerOrders';
+import {Button} from "@headlessui/react"; // Импортируйте компонент PassengerOrders
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -14,13 +15,20 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
         <>
             <Head title="Welcome" />
             <div className="bg-gray-50 text-black/50 white:bg-white dark:text-black/50">
-                {/*<img*/}
-                {/*    id="background"*/}
-                {/*    className="absolute -left-20 top-0 max-w-[877px]"*/}
-                {/*    src="https://laravel.com/assets/img/welcome/background.svg"*/}
-                {/*/>*/}
+                <img
+                    src="/imagesCar/Zastavka.jpg"
+                    alt="Заставка"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{
+                        width: '100%',
+                        objectFit: 'cover',  // Обрезаем изображение, чтобы оно занимало всю ширину и высоту без скролла
+                        height: '100vh',     // Ограничиваем высоту до размера окна
+                        zIndex: '-1', // Ставим изображение на задний план
+                        filter: 'brightness(50%)', // Применение затемнения для лучшей читабельности текста поверх изображения
+                    }}
+                />
                 <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
-                    <Navbar setOrders={null} />
+                    {/*<Navbar setOrders={null} "public/imagesCar/Zastavka.jpg" />*/}
 
                     <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
                         <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
@@ -42,24 +50,48 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     <Link
                                         href={route('dashboard')}
                                         className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                    >
+                                      //  className="btn-secondary"
+                                          >
                                         Dashboard
                                     </Link>
                                 ) : (
-                                    <>
-                                        <Link
-                                            href={route('login')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                        >
-                                            Log in
-                                        </Link>
-                                        <Link
-                                            href={route('register')}
-                                            className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                        >
-                                            Register
-                                        </Link>
-                                    </>
+                                    <div className="modal-content" style={{
+                                        width: '25%',
+                                        height: 'auto',
+                                        padding: '20px',
+                                        background: '#eaeaea',
+                                        border: '4px solid #eea236',
+                                        borderRadius: '10px',
+                                        textAlign: 'center',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold', // Жирный шрифт
+                                        position: 'fixed',
+                                        top: '30%',  // Вертикальное центрирование
+                                        left: '50%',  // Горизонтальное центрирование
+                                        transform: 'translate(-50%, -50%)'  // Полное центрирование
+                                    }}>
+                                        <p className="mb-4" style={{marginBottom: '20px'}}>
+                                            Для входа авторизуйтесь
+                                            <Link
+                                                href={route('login')}
+                                                className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                                style={{marginLeft: '10px'}}  // Расстояние между текстом и ссылкой
+                                            >
+                                                Войти
+                                            </Link>
+                                        </p>
+
+                                        <p style={{marginBottom: '0'}}>
+                                            Если вы еще не зарегистрированы
+                                            <Link
+                                                href={route('register')}
+                                                className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                                style={{marginLeft: '10px'}}  // Расстояние между текстом и ссылкой
+                                            >
+                                                Зарегистрироваться
+                                            </Link>
+                                        </p>
+                                    </div>
                                 )}
                             </nav>
                         </header>
@@ -335,7 +367,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                         </main>
 
                         <footer className="py-16 text-center text-sm text-black dark:text-black/70">
-                            Laravel v{laravelVersion} (PHP v{phpVersion})
+                            {/*Laravel v{laravelVersion} (PHP v{phpVersion})*/}
                         </footer>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ import {Inertia} from "@inertiajs/inertia";
 export default function DriverOrderDetails() {
     const { order } = usePage().props;
     const [data, setData] = useState(order);
+    const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
 
    /* useEffect(() => {
         // Функция для получения данных заказа
@@ -42,6 +43,7 @@ export default function DriverOrderDetails() {
         hour: '2-digit',
         minute: '2-digit',
     });
+
 
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
@@ -112,23 +114,34 @@ export default function DriverOrderDetails() {
                 </div>
             )}
 
-            {/*<div className="separator-thin"></div>
+            <div className="separator-thin"></div>
 
-             Свободные места */}
+            {/* Свободные места */}
             <div className="available-seats">
                 <span className="available-seats-label">Свободных мест:</span>
-                <span className="available-seats-value">{data.availableSeats}</span>
+                <span className="available-seats-value">
+                    {availableSeats > 0 ? availableSeats : 'Мест нет'}
+                </span>
             </div>
             <div className="available-seats">
                 <span className="available-seats-label">Пассажиры:</span>
-                <span className="available-seats-value">{data.availableSeats}</span>
-            </div>
-
-            <div className="separator-thin"></div>
-
-            <div className="communication">
-                <span className="communication-label">Связатся с </span>
-                <span className="communication-value">{data.driverName}</span>
+                <div className="passenger-list">
+                    {data.passengers.length > 0 ? (
+                        data.passengers.map((passenger, index) => (
+                            <div key={index} className="passenger">
+                                <span className="passenger-name"
+                                      style={{marginRight: '30px', fontSize: '18px'}}>{passenger.name}</span>
+                                <img
+                                    src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}
+                                    alt={passenger.name}
+                                    className="passenger-photo"
+                                />
+                            </div>
+                        ))
+                    ) : (
+                        <p>Нет пассажиров</p>
+                    )}
+                </div>
             </div>
 
             <div className="separator-thin"></div>

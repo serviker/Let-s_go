@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Order;
 use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\Order;
+use App\Models\Passenger;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ShowController extends Controller
@@ -31,6 +34,17 @@ class ShowController extends Controller
         // Преобразуем цену в число с плавающей запятой
         $price = (float) $order->price;
 
+        // Получаем пассажиров, связанных с заказом через сводную таблицу
+        $passengers = $order->passengers()->get()->map(function ($passenger) {
+            return [
+                'name' => $passenger->name,
+                'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
+            ];
+        });
+
+        // Проверяем, является ли пользователь пассажиром в заказе
+        $isBooked = $order->passengers()->where('passenger_id', $user->id)->exists();
+
         // Собираем данные для передачи в компонент
         $data = [
             'id' => $order->id,
@@ -49,6 +63,8 @@ class ShowController extends Controller
             'driverId' => $driver ? $driver->id : 0,
             'description' => $order->description ?? 'No description provided',
             'availableSeats' => $order->available_seats ?? 'Нет свободных мест',
+            'passengers' => $passengers, // Добавляем информацию о пассажирах
+            'isBooked' => $isBooked, // Передаем это значение на клиент
         ];
 
         // Проверяем, является ли пользователь водителем в этом заказе
@@ -76,53 +92,42 @@ class ShowController extends Controller
 
     public function joinOrder(Request $request, $orderId)
     {
-        $user = Auth::user(); // Получаем текущего пользователя
+        $user = Auth::user();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'User not authenticated',
-            ], 401);
+            return response()->json(['message' => 'User not authenticated'], 401);
         }
 
-        // Находим заказ по ID
         $order = Order::find($orderId);
 
         if (!$order) {
-            return response()->json([
-                'message' => 'Order not found',
-            ], 404);
+            return response()->json(['message' => 'Order not found'], 404);
         }
 
-        // Проверяем, свободны ли места
         if ($order->available_seats <= 0) {
-            return response()->json([
-                'message' => 'No available seats',
-            ], 400);
+            return response()->json(['message' => 'No available seats'], 400);
         }
 
-        // Проверяем, что пользователь уже не является пассажиром в этом заказе
-        if ($order->passenger_id) {
-            return response()->json([
-                'message' => 'Passenger already assigned to this order',
-            ], 400);
+//        // Проверяем, что пользователь не является пассажиром в этом заказе
+//        if ($order->passengers()->where('user_id', $user->id)->exists()) {
+//            return response()->json(['message' => 'Passenger already assigned to this order'], 400);
+//        }
+
+        // Проверяем, что пользователь не является пассажиром в этом заказе
+        $exists = DB::table('order_passenger')
+            ->where('order_id', $orderId)
+            ->where('passenger_id', $user->id) // Заменяем на 'passenger_id'
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'Passenger already assigned to this order'], 400);
         }
 
-        // Добавляем пользователя как пассажира
-        if (!$user->passenger) {
-            // Создаем запись пассажира, если он еще не зарегистрирован как пассажир
-            $user->passenger()->create([
-                'user_id' => $user->id,
-            ]);
-        }
+        // Добавляем пользователя в список пассажиров
+        $order->passengers()->attach($user->id);
+        $order->available_seats--;
+        $order->save();
 
-        // Обновляем заказ, добавляя passenger_id
-        $order->passenger_id = $user->passenger->id;
-        $order->available_seats--; // Уменьшаем количество свободных мест
-        $order->save(); // Сохраняем изменения
-
-        return response()->json([
-            'message' => 'Passenger added to order successfully',
-            'order' => $order,
-        ]);
+        return response()->json(['order' => $order]);
     }
 }

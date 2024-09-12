@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\User;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
@@ -38,6 +39,12 @@ class UserController extends Controller
         return Inertia::render('Profile/ShowProfile', [
             'user' => $user,
         ]);
+    }
+
+    public function checkBookedTrips($userId) {
+        $hasBookedTrips = Order::where('passenger_id', $userId)->exists();
+
+        return response()->json(['hasBookedTrips' => $hasBookedTrips]);
     }
 
     /**

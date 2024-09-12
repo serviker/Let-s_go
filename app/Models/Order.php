@@ -48,9 +48,9 @@ class Order extends Model
         return $this->belongsTo(User::class, 'driver_id');
     }
 
-    public function passenger()
+    public function passengers()
     {
-        return $this->belongsTo(User::class, 'passenger_id');
+        return $this->belongsToMany(User::class, 'order_passenger', 'order_id', 'passenger_id');
     }
 
     public function statusOrder()

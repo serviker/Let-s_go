@@ -75,6 +75,14 @@ class IndexController extends Controller
     {
         $user = Auth::user(); // Получаем текущего аутентифицированного пользователя
 
+        // Валидация входящих данных
+        $validated = $request->validate([
+            'departureCity' => 'required|string',
+            'arrivalCity' => 'required|string',
+            'date' => 'required|date',
+            'seats' => 'required|integer|min:1',
+        ]);
+
         if (!$user) {
             return response()->json([
                 'orders' => [],

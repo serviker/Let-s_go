@@ -212,3 +212,23 @@
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
     text-decoration: none; /* Убирает подчеркивание при наведении */
 }
+.passenger-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.passenger-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.passenger-name {
+    font-size: 14px;
+}
+
+.no-photo {
+    font-size: 14px;
+    color: gray;
+}

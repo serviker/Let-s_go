@@ -19,13 +19,13 @@ export default function DriverOrders({ orders }) {
     if (showModal) {
         return (
             <Modal show={showModal} onClose={closeModal}>
-                <div className="modal-content" style={{ width: '25%', border: '4px solid #eea236', borderRadius: '10px',
+                <div className="modal-content" style={{ width: '23%', border: '4px solid #eea236', borderRadius: '10px',
                     position: 'fixed', top: '20%',   // Смещение на 30% сверху
                     left: '50%',    // Горизонтальное центрирование
                     transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
                 }}>
                     <h2  style={{ textAlign: 'center'}} className="modal-body">
-                        У вас нет завершенных поездок.
+                        У вас нет опубликованых <br/> или завершенных поездок.
                     </h2>
                     <div style={{display: 'flex', justifyContent: 'space-between', margin: '10px 10px -10px 10px'}}>
                         <button onClick={closeModal} className="btn btn-secondary">Вернуться назад</button>

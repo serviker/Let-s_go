@@ -244,8 +244,8 @@ const NoCarModal = ({ show, onClose, onAddCar }) => {
             </div>
         </div>
 
-)
-    ;
+    )
+        ;
 };
 
 const NoOrdersModal = ({show, onClose}) => {
@@ -255,16 +255,16 @@ const NoOrdersModal = ({show, onClose}) => {
         <div className="modal-content" style={{
             width: '30%', border: '4px solid #eea236', borderRadius: '10px',
             position: 'fixed', top: '11%',   // Смещение на 30% сверху
-                left: '50%',    // Горизонтальное центрирование
-                transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
-            }}>
-                <h3 style={{textAlign: 'center', color: 'black'}} className="modal-body">
-                    Нет поездок, соответствующих вашему запросу.
-                </h3>
-                <div style={{display: 'flex', justifyContent: 'center', margin: '0px 10px -10px 10px'}}>
-                    <button onClick={onClose} className="btn btn-secondary">Вернуться назад</button>
-                </div>
+            left: '50%',    // Горизонтальное центрирование
+            transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
+        }}>
+            <h3 style={{textAlign: 'center', color: 'black'}} className="modal-body">
+                Нет поездок, соответствующих вашему запросу.
+            </h3>
+            <div style={{display: 'flex', justifyContent: 'center', margin: '0px 10px -10px 10px'}}>
+                <button onClick={onClose} className="btn btn-secondary">Вернуться назад</button>
             </div>
+        </div>
     );
 };
 
@@ -373,10 +373,10 @@ const Navbar = ({setOrders, orders}) => {
                 if (data.orders.length === 0) {
                     setShowNoOrdersModal(true);
                 } else {
-                console.log('Navbar: Received orders:', data.orders);
+                    console.log('Navbar: Received orders:', data.orders);
                     if (setOrders && typeof setOrders === 'function') {
-                setOrders(data.orders); // Обновляем состояние orders в Dashboard
-                console.log('Navbar: setOrders вызван');
+                        setOrders(data.orders); // Обновляем состояние orders в Dashboard
+                        console.log('Navbar: setOrders вызван');
                     } else {
                         console.warn('setOrders is not provided');
                         console.error('Navbar: setOrders is not a function');
@@ -477,7 +477,14 @@ const Navbar = ({setOrders, orders}) => {
                                         <ul className="dropdown-menu">
                                             {auth.user ? (
                                                 <>
-                                                    <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
+                                                    {/*<li><Link href={route('driver.orders')}>Ваши поездки</Link></li>*/}
+                                                    <li>
+                                                        <Link
+                                                            href={auth.user && userHasBookedTrips(auth.user.id) ? route('passenger.orders') : route('driver.orders')}
+                                                        >
+                                                            Ваши поездки
+                                                        </Link>
+                                                    </li>
                                                     <li><a href="/incoming">Входящие</a></li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
@@ -594,6 +601,17 @@ const Navbar = ({setOrders, orders}) => {
             </div>
         </header>
     );
+};
+
+const userHasBookedTrips = async (userId) => {
+    const response = await fetch(`/api/user/${userId}/booked-trips`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+    });
+
+    const data = await response.json();
+    return data.hasBookedTrips; // Флаг, возвращаемый сервером
 };
 
 export default Navbar;

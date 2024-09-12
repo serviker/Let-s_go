@@ -1,7 +1,8 @@
 import { Link, Head } from '@inertiajs/react';
 import Navbar from '../Components/Navbar';
 import PassengerOrders from '../Pages/Orders/PassengerOrders';
-import {Button} from "@headlessui/react"; // Импортируйте компонент PassengerOrders
+import {Button} from "@headlessui/react";
+import Dashboard from "@/Pages/Dashboard.jsx"; // Импортируйте компонент PassengerOrders
 
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
@@ -47,13 +48,14 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             {/*</div>*/}
                             <nav className="-mx-3 flex flex-1 justify-end">
                                 {auth.user ? (
-                                    <Link
-                                        href={route('dashboard')}
-                                        className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                      //  className="btn-secondary"
-                                          >
-                                        Dashboard
-                                    </Link>
+                                    // <Link
+                                    //     href={route('dashboard')}
+                                    //     className="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                    //   //  className="btn-secondary"
+                                    //       >
+                                    //     Dashboard
+                                    // </Link>
+                                     <Dashboard/>
                                 ) : (
                                     <div className="modal-content" style={{
                                         width: '25%',
@@ -66,29 +68,33 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         fontSize: '18px',
                                         fontWeight: 'bold', // Жирный шрифт
                                         position: 'fixed',
-                                        top: '30%',  // Вертикальное центрирование
+                                        top: '25%',  // Вертикальное центрирование
                                         left: '50%',  // Горизонтальное центрирование
                                         transform: 'translate(-50%, -50%)'  // Полное центрирование
                                     }}>
                                         <p className="mb-4" style={{marginBottom: '20px'}}>
-                                            Для входа авторизуйтесь
+
+                                            <h2>Поездки в удобном формате <br/> по самым низким ценам.</h2>
+                                            <br/>
+                                            {/*Для входа авторизуйтесь<br/>*/}
                                             <Link
                                                 href={route('login')}
-                                                className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                                className="btn btn-success"
                                                 style={{marginLeft: '10px'}}  // Расстояние между текстом и ссылкой
                                             >
-                                                Войти
+                                                Войти.
                                             </Link>
                                         </p>
 
-                                        <p style={{marginBottom: '0'}}>
-                                            Если вы еще не зарегистрированы
+                                        <p style={{marginBottom: '0',  alignItems: 'center'}}>
+                                            Если вы еще не с нами<br/>
                                             <Link
                                                 href={route('register')}
-                                                className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                                className="btn btn-info"
+                                              //  className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
                                                 style={{marginLeft: '10px'}}  // Расстояние между текстом и ссылкой
                                             >
-                                                Зарегистрироваться
+                                                Зарегистрироваться.
                                             </Link>
                                         </p>
                                     </div>

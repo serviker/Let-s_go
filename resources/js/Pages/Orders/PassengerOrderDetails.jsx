@@ -7,10 +7,10 @@ import {Inertia} from "@inertiajs/inertia";
 const PassengerOrderDetails = ({ order }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
-    const [isBooked, setIsBooked] = useState(order.isBooked);
+    const [isBooked, setIsBooked] = useState(order.isBooked); // Используем isBooked из order
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [data, setData] = useState(order);
-    console.log("Order data:", data);
+    // console.log("Order data:", data);
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
@@ -26,7 +26,7 @@ const PassengerOrderDetails = ({ order }) => {
         hour: '2-digit',
         minute: '2-digit',
     });
-    console.log('Order ID:', order.id);
+    //console.log('Order ID:', order.id);
 
     useEffect(() => {
         // Установите начальное состояние кнопки и текста
@@ -51,35 +51,35 @@ const PassengerOrderDetails = ({ order }) => {
         }
     };
 
+    // Найдем пассажира, чтобы показать его города отправления и прибытия
+    const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id);
+
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="order-date">{formattedDate}</h2>
-            <div className="departure-info">
-                <div className="route-line">
-                    <div className="circle"></div>
-                </div>
-                <div className="departure-address">
-                    {data.fromCity}, {data.departureAddress}
-                </div>
-                <div className="departure-time">{formattedTime}</div>
-            </div>
+            <h1 className="order-date">{formattedDate}</h1>
 
-            {/* Промежуточные города */}
-            {data.intermediate_addresses && data.intermediate_addresses.length > 0 && (
-                <div className="intermediate-cities">
-                    {data.intermediate_addresses.map((city, index) => (
-                        <div key={index} className="intermediate-city">
-                            <div className="route-line">
-                                <div className="line"></div>
-                                <div className="circle"></div>
-                                <div className="line"></div>
-                            </div>
-                            <div className="intermediate-city-name">
-                                {city}
-                            </div>
+            {/* Показываем только города отправления и прибытия пассажира */}
+            {currentPassenger && (
+                <>
+                    <div className="departure-info">
+                        <div className="route-line">
+                            <div className="circle"></div>
                         </div>
-                    ))}
-                </div>
+                        <div className="departure-address">
+                            {currentPassenger.departureCity}, {currentPassenger.departureAddress}
+                        </div>
+                        <div className="departure-time">{formattedTime}</div>
+                    </div>
+
+                    <div className="arrival-info">
+                        <div className="route-line">
+                            <div className="circle"></div>
+                        </div>
+                        <div className="arrival-address">
+                            {currentPassenger.arrivalCity}, {currentPassenger.arrivalAddress}
+                        </div>
+                    </div>
+                </>
             )}
 
             <div className="arrival-info">
@@ -130,8 +130,24 @@ const PassengerOrderDetails = ({ order }) => {
             </div>
             <div className="available-seats">
                 <span className="available-seats-label">Пассажиры:</span>
-                <span className="available-seats-value">{data.availableSeats}</span>
+                <div className="passenger-list">
+                    {data.passengers.length > 0 ? (
+                        data.passengers.map((passenger, index) => (
+                            <div key={index} className="passenger">
+                                <span className="passenger-name" style={{ marginRight: '30px', fontSize: '18px'}}>{passenger.name}</span>
+                                <img
+                                    src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}
+                                    alt={passenger.name}
+                                    className="passenger-photo"
+                                />
+                            </div>
+                        ))
+                    ) : (
+                        <p>Нет пассажиров</p>
+                    )}
+                </div>
             </div>
+
 
             <div className="separator-thin"></div>
 
@@ -162,7 +178,14 @@ const PassengerOrderDetails = ({ order }) => {
                 {/*    <button type="button" className="btn btn-secondary">Назад</button>*/}
                 {/*</Link>*/}
                 <button className="btn btn-secondary" onClick={() => window.history.back()}>Назад</button>
-                <button className="btn btn-info" onClick={handleBooking} disabled={isButtonDisabled}>Забронировать</button>
+                {/*<button className="btn btn-info" onClick={handleBooking} disabled={isButtonDisabled}>Забронировать</button>*/}
+                <button
+                    className="btn btn-info"
+                    disabled={isButtonDisabled}
+                    onClick={handleBooking}
+                >
+                    {isBooked ? 'Вы забронировали место' : 'Забронировать место'}
+                </button>
             </div>
         </div>
     );
@@ -170,21 +193,27 @@ const PassengerOrderDetails = ({ order }) => {
 
 PassengerOrderDetails.propTypes = {
     order: PropTypes.shape({
-        departureAddress: PropTypes.string,
-        arrivalAddress: PropTypes.string,
         fromCity: PropTypes.string,
         toCity: PropTypes.string,
-        intermediate_addresses: PropTypes.arrayOf(PropTypes.string), // Промежуточные города
-        price: PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.number,
-        ]).isRequired,
+        intermediate_addresses: PropTypes.arrayOf(PropTypes.string),
+        price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         dateTimeDeparture: PropTypes.string,
         driverName: PropTypes.string,
         driverPhotoUrl: PropTypes.string,
         driverId: PropTypes.number.isRequired,
-        description: PropTypes.string, // Описание поездки
-        availableSeats: PropTypes.number.isRequired, // Свободные места
+        description: PropTypes.string,
+        availableSeats: PropTypes.number.isRequired,
+        passengers: PropTypes.arrayOf(
+            PropTypes.shape({
+                id: PropTypes.number.isRequired,
+                name: PropTypes.string.isRequired,
+                departureCity: PropTypes.string,
+                arrivalCity: PropTypes.string,
+                departureAddress: PropTypes.string,
+                arrivalAddress: PropTypes.string,
+                photoUrl: PropTypes.string,
+            })
+        ),
     }).isRequired,
 };
 export default PassengerOrderDetails;

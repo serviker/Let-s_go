@@ -56,6 +56,12 @@ class User extends Authenticatable
 
     public function passenger()
     {
-        return $this->hasOne(Passenger::class);
+        return $this->hasOne(Passenger::class, 'user_id');
     }
+
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_passenger', 'passenger_id', 'order_id');
+    }
+
 }

@@ -288,7 +288,16 @@ const  NoCompletedOrdersModal = ({show, onClose}) => {
         </div>
     );
 }
+const userHasBookedTrips = async (userId) => {
+    const response = await fetch(`/api/user/${userId}/booked-trips`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+    });
 
+    const data = await response.json();
+    return data.hasBookedTrips; // Флаг, возвращаемый сервером
+};
 
 const Navbar = ({setOrders, orders}) => {
     // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
@@ -353,40 +362,53 @@ const Navbar = ({setOrders, orders}) => {
         setPassengerCount(prevCount => (prevCount > 1 ? prevCount - 1 : prevCount));
     };
 
-    const handleSearch = (event) => {
+    const handleSearch = async (event) => {
         event.preventDefault();
-        const searchParams = new URLSearchParams({
-            departureCity: fromCity,
-            arrivalCity: toCity,
-            date: date || '',
-            seats: passengerCount
-        });
 
-        fetch(`/passenger/orders?${searchParams.toString()}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json(); // Парсим JSON
-            })
-            .then(data => {
-                if (data.orders.length === 0) {
-                    setShowNoOrdersModal(true);
-                } else {
-                    console.log('Navbar: Received orders:', data.orders);
-                    if (setOrders && typeof setOrders === 'function') {
-                        setOrders(data.orders); // Обновляем состояние orders в Dashboard
-                        console.log('Navbar: setOrders вызван');
-                    } else {
-                        console.warn('setOrders is not provided');
-                        console.error('Navbar: setOrders is not a function');
-                    }
-                    setShowNoOrdersModal(false);
-                }
-            })
-            .catch(error => {
-                console.error('Error searching orders:', error);
+        // Проверяем, что город отправления и прибытия указаны
+        if (!fromCity || !toCity) {
+            alert("Пожалуйста, укажите города отправления и прибытия");
+            return;
+        }
+
+        try {
+            // Создаем параметры запроса
+            const searchParams = new URLSearchParams({
+                departureCity: fromCity,
+                arrivalCity: toCity,
+                date: date || '', // Опциональная дата
+                seats: passengerCount || 1 // Минимум 1 пассажир по умолчанию
             });
+
+            // Выполняем запрос
+            const response = await fetch(`/passenger/orders?${searchParams.toString()}`);
+
+            // Проверяем статус ответа
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            // Получаем данные
+            const data = await response.json();
+
+            // Проверяем наличие поездок
+            if (data.orders.length === 0) {
+                setShowNoOrdersModal(true); // Показать модалку, если поездок нет
+            } else {
+                console.log('Navbar: Received orders:', data.orders);
+
+                if (setOrders && typeof setOrders === 'function') {
+                    setOrders(data.orders); // Обновляем состояние orders в Dashboard
+                    console.log('Navbar: setOrders вызван');
+                } else {
+                    console.warn('setOrders is not provided');
+                }
+
+                setShowNoOrdersModal(false); // Скрыть модалку, если поездки найдены
+            }
+        } catch (error) {
+            console.error('Error searching orders:', error);
+        }
     };
 
     //  window.location.href = `/passenger/orders?${searchParams.toString()}`;
@@ -477,14 +499,14 @@ const Navbar = ({setOrders, orders}) => {
                                         <ul className="dropdown-menu">
                                             {auth.user ? (
                                                 <>
-                                                    {/*<li><Link href={route('driver.orders')}>Ваши поездки</Link></li>*/}
-                                                    <li>
+                                                    <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
+                                                    {/*<li>
                                                         <Link
                                                             href={auth.user && userHasBookedTrips(auth.user.id) ? route('passenger.orders') : route('driver.orders')}
                                                         >
                                                             Ваши поездки
                                                         </Link>
-                                                    </li>
+                                                    </li>*/}
                                                     <li><a href="/incoming">Входящие</a></li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
@@ -601,17 +623,6 @@ const Navbar = ({setOrders, orders}) => {
             </div>
         </header>
     );
-};
-
-const userHasBookedTrips = async (userId) => {
-    const response = await fetch(`/api/user/${userId}/booked-trips`, {
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-        }
-    });
-
-    const data = await response.json();
-    return data.hasBookedTrips; // Флаг, возвращаемый сервером
 };
 
 export default Navbar;

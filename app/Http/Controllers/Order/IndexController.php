@@ -90,14 +90,6 @@ class IndexController extends Controller
             ], 401);
         }
 
-//        // Проверяем, является ли пользователь пассажиром
-//        if (!$user->passenger) {
-//            // Если нет, добавляем его как пассажира
-//            $user->passenger()->create([
-//                'user_id' => $user->id,
-//            ]);
-//        }
-
         // Получаем данные из запроса
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
         Log::info('Search Criteria:', $searchCriteria); // Логируем критерии поиска

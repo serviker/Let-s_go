@@ -43,6 +43,12 @@ export default function DriverOrderDetails() {
         hour: '2-digit',
         minute: '2-digit',
     });
+    const openMessagingComponent = (passengerId) => {
+        // Логика для открытия компонента обмена сообщениями
+        console.log(`Open messaging for passenger with ID: ${passengerId}`);
+        // Здесь можно вызвать логику для перехода на компонент обмена сообщениями
+    };
+
 
 
     return (
@@ -118,28 +124,40 @@ export default function DriverOrderDetails() {
 
             {/* Свободные места */}
             <div className="available-seats">
-                <span className="available-seats-label">Свободных мест:</span>
+                <span className="available-seats-label">Свободные места:</span>
                 <span className="available-seats-value">
                     {availableSeats > 0 ? availableSeats : 'Мест нет'}
                 </span>
             </div>
-            <div className="available-seats">
-                <span className="available-seats-label">Пассажиры:</span>
+            <div className="passenger-seats">
+                <span className="passenger-seats-label">Пассажиры:</span>
                 <div className="passenger-list">
                     {data.passengers.length > 0 ? (
-                        data.passengers.map((passenger, index) => (
-                            <div key={index} className="passenger">
-                                <span className="passenger-name"
-                                      style={{marginRight: '30px', fontSize: '18px'}}>{passenger.name}</span>
-                                <img
-                                    src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}
-                                    alt={passenger.name}
-                                    className="passenger-photo"
-                                />
-                            </div>
-                        ))
+                        data.passengers.map((passenger, index) => {
+                           // console.log(passenger); // Выводим данные пассажира в консоль
+                            return (
+                                <div
+                                    key={index}
+                                    className="passenger"
+                                    onClick={() => openMessagingComponent(passenger.id)}  // Убедитесь, что используется правильное поле для id
+                                >
+                                    <div style={{ flex: 1}}>
+                                            <span className="passenger-name">{passenger.name}</span>
+                                        <div className="passenger-cities">
+                                            <span className="passenger-departure">Отправление: {passenger.departureCity}</span>
+                                            <span className="passenger-arrival">Прибытие: {passenger.arrivalCity}</span>
+                                        </div>
+                                    </div>
+                                    <img
+                                        src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}
+                                        alt={passenger.name}
+                                        className="passenger-photo"
+                                    />
+                                </div>
+                            );
+                        })
                     ) : (
-                        <p>Нет пассажиров</p>
+                        <p style={{fontSize: '18px', color: '#eea236'}}>Пока никого нет</p>
                     )}
                 </div>
             </div>

@@ -79,7 +79,7 @@
 }
 
 .price-label, .price-value {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #eea236;
 }
@@ -192,7 +192,22 @@
     font-weight: bold;
     margin-left: 30px;
     color: #eea236;
-    font-size: 22px;
+    font-size: 18px;
+}
+
+.passenger-seats {
+    font-size: 16px;
+    color: #495057;
+    /*display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;*/
+}
+
+.passenger-seats-label {
+    /*font-weight: bold;*/
+    font-size: 18px;
+    margin-right: 5px;
 }
 
 .communication {
@@ -212,6 +227,30 @@
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
     text-decoration: none; /* Убирает подчеркивание при наведении */
 }
+
+/*.passenger-list {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    gap: 10px;*/
+/*    justify-content: space-around;*/
+/*    margin-left: 10px;*/
+/*    margin-top: 30px;*/
+/*    font-size: 22px;*/
+/*}*/
+.passenger {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.passenger:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Цвет затемнения при наведении */
+}
+
 .passenger-info {
     display: flex;
     align-items: center;
@@ -219,16 +258,32 @@
 }
 
 .passenger-photo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    border-radius: 20%;
+    object-fit: cover;
 }
 
 .passenger-name {
-    font-size: 14px;
+    font-weight: bold;
+    margin-right: 30px;
+    font-size: 18px;
+    flex: 1;
+    color: #eea236;
 }
 
 .no-photo {
     font-size: 14px;
     color: gray;
+}
+.passenger-cities {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px; /* Отступ от имени и фото */
+}
+
+.passenger-departure,
+.passenger-arrival {
+    font-size: 14px;
+    color: #555;
 }

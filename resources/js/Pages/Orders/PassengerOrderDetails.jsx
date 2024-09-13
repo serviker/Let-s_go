@@ -9,6 +9,8 @@ const PassengerOrderDetails = ({ order }) => {
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
     const [isBooked, setIsBooked] = useState(order.isBooked); // Используем isBooked из order
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+    const [fromCity, setFromCity] = useState(order.fromCity || '');
+    const [toCity, setToCity] = useState(order.toCity || '');
     const [data, setData] = useState(order);
     // console.log("Order data:", data);
 
@@ -36,7 +38,10 @@ const PassengerOrderDetails = ({ order }) => {
     }, [availableSeats, isBooked]);
     const handleBooking = async () => {
         try {
-            await Inertia.post(route('order.join', { order: order.id }), {}, {
+            await Inertia.post(route('order.join', { order: order.id }), {
+                departure_city: fromCity, // Передаем город отправления
+                arrival_city: toCity      // Передаем город прибытия
+            }, {
                 onSuccess: () => {
                     setIsBooked(true);
                     setAvailableSeats(availableSeats - 1);
@@ -50,6 +55,7 @@ const PassengerOrderDetails = ({ order }) => {
             console.error('Error booking the order:', error);
         }
     };
+
 
     // Найдем пассажира, чтобы показать его города отправления и прибытия
     const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id);
@@ -66,7 +72,7 @@ const PassengerOrderDetails = ({ order }) => {
                             <div className="circle"></div>
                         </div>
                         <div className="departure-address">
-                            {currentPassenger.departureCity}, {currentPassenger.departureAddress}
+                            {currentPassenger.departureCity}
                         </div>
                         <div className="departure-time">{formattedTime}</div>
                     </div>
@@ -76,20 +82,11 @@ const PassengerOrderDetails = ({ order }) => {
                             <div className="circle"></div>
                         </div>
                         <div className="arrival-address">
-                            {currentPassenger.arrivalCity}, {currentPassenger.arrivalAddress}
+                            {currentPassenger.arrivalCity}
                         </div>
                     </div>
                 </>
             )}
-
-            <div className="arrival-info">
-                <div className="route-line">
-                    <div className="circle"></div>
-                </div>
-                <div className="arrival-address">
-                    {data.toCity}, {data.arrivalAddress}
-                </div>
-            </div>
 
             <div className="separator"></div>
 
@@ -128,13 +125,21 @@ const PassengerOrderDetails = ({ order }) => {
                     {availableSeats > 0 ? availableSeats : 'Свободных мест нет'}
                 </span>
             </div>
-            <div className="available-seats">
-                <span className="available-seats-label">Пассажиры:</span>
+            <div className="passenger-seats">
+                <span className="passenger-seats-label">Пассажиры:</span>
                 <div className="passenger-list">
                     {data.passengers.length > 0 ? (
                         data.passengers.map((passenger, index) => (
                             <div key={index} className="passenger">
-                                <span className="passenger-name" style={{ marginRight: '30px', fontSize: '18px'}}>{passenger.name}</span>
+                                {/* Имя пассажира слева */}
+                                <div style={{flex: 1}}>
+                                    <span className="passenger-name">{passenger.name}</span>
+                                    <div className="passenger-cities">
+                                        <span
+                                            className="passenger-departure">Отправление: {passenger.departureCity}</span>
+                                        <span className="passenger-arrival">Прибытие: {passenger.arrivalCity}</span>
+                                    </div>
+                                </div>
                                 <img
                                     src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}
                                     alt={passenger.name}
@@ -143,7 +148,7 @@ const PassengerOrderDetails = ({ order }) => {
                             </div>
                         ))
                     ) : (
-                        <p>Нет пассажиров</p>
+                        <p style={{color: '#eea236'}}>Будьте первым !!!</p>
                     )}
                 </div>
             </div>
@@ -174,11 +179,10 @@ const PassengerOrderDetails = ({ order }) => {
             <div className="separator-thin"></div>
 
             <div className="button-container">
-                {/*<Link href={route('dashboard')} className="home-link">*/}
-                {/*    <button type="button" className="btn btn-secondary">Назад</button>*/}
-                {/*</Link>*/}
-                <button className="btn btn-secondary" onClick={() => window.history.back()}>Назад</button>
-                {/*<button className="btn btn-info" onClick={handleBooking} disabled={isButtonDisabled}>Забронировать</button>*/}
+                <Link href={route('dashboard')} className="home-link">
+                    <button type="button" className="btn btn-secondary">Назад</button>
+                </Link>
+                {/*<button className="btn btn-secondary" onClick={() => window.history.back()}>Назад</button>*/}
                 <button
                     className="btn btn-info"
                     disabled={isButtonDisabled}

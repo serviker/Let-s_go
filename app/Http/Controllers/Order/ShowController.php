@@ -34,11 +34,26 @@ class ShowController extends Controller
         // Преобразуем цену в число с плавающей запятой
         $price = (float) $order->price;
 
-        // Получаем пассажиров, связанных с заказом через сводную таблицу
-        $passengers = $order->passengers()->get()->map(function ($passenger) {
+        // Получаем пассажиров с их городами отправления и прибытия
+//        $passengers = $order->passengers()->get()->map(function ($passenger) use ($order) {
+//            $pivotData = $passenger->pivot; // Данные из pivot таблицы
+//            return [
+//                'id' => $passenger->id,
+//                'name' => $passenger->name,
+//                'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
+//                'departureCity' => $pivotData->departure_city ?? 'Unknown', // Город отправления пассажира
+//                'arrivalCity' => $pivotData->arrival_city ?? 'Unknown',     // Город прибытия пассажира
+//            ];
+//        });
+
+        $passengers = $order->passengers()->withPivot('departure_city', 'arrival_city')->get()->map(function ($passenger) {
+            $pivotData = $passenger->pivot;
             return [
+                'id' => $passenger->id,
                 'name' => $passenger->name,
                 'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
+                'departureCity' => $pivotData->departure_city ?? 'Unknown',
+                'arrivalCity' => $pivotData->arrival_city ?? 'Unknown',
             ];
         });
 
@@ -89,7 +104,6 @@ class ShowController extends Controller
             'canJoin' => false,//true,  Пользователь может присоединиться к поездке
         ]);
     }
-
     public function joinOrder(Request $request, $orderId)
     {
         $user = Auth::user();
@@ -108,15 +122,14 @@ class ShowController extends Controller
             return response()->json(['message' => 'No available seats'], 400);
         }
 
-//        // Проверяем, что пользователь не является пассажиром в этом заказе
-//        if ($order->passengers()->where('user_id', $user->id)->exists()) {
-//            return response()->json(['message' => 'Passenger already assigned to this order'], 400);
-//        }
+        // Получаем города отправления и прибытия из запроса
+        $departureCity = $request->input('departure_city');
+        $arrivalCity = $request->input('arrival_city');
 
         // Проверяем, что пользователь не является пассажиром в этом заказе
         $exists = DB::table('order_passenger')
             ->where('order_id', $orderId)
-            ->where('passenger_id', $user->id) // Заменяем на 'passenger_id'
+            ->where('passenger_id', $user->id)
             ->exists();
 
         if ($exists) {
@@ -124,10 +137,19 @@ class ShowController extends Controller
         }
 
         // Добавляем пользователя в список пассажиров
-        $order->passengers()->attach($user->id);
+        $order->passengers()->attach($user->id, [
+            'departure_city' => $departureCity,
+            'arrival_city' => $arrivalCity,
+        ]);
+
         $order->available_seats--;
         $order->save();
 
-        return response()->json(['order' => $order]);
+        // Возвращаем Inertia ответ с данными заказа
+        return Inertia::render('Orders/PassengerOrderDetails', [
+            'order' => $order
+        ]);
     }
+
+
 }

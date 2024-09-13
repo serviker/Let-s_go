@@ -61,8 +61,6 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');
 
-
-
         // Добавляем маршрут для всех поездок водителя
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');
         // Добавляем маршрут для всех поездок пассажира

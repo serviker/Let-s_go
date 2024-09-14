@@ -227,22 +227,18 @@
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
     text-decoration: none; /* Убирает подчеркивание при наведении */
 }
+.passenger-cities-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Расстояние между элементами */
 
-/*.passenger-list {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    gap: 10px;*/
-/*    justify-content: space-around;*/
-/*    margin-left: 10px;*/
-/*    margin-top: 30px;*/
-/*    font-size: 22px;*/
-/*}*/
+}
+
 .passenger {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
     border-radius: 10px;
-    padding: 10px;
+    /*padding: 10px;*/
     transition: background-color 0.3s ease;
     cursor: pointer;
 }
@@ -276,14 +272,24 @@
     font-size: 14px;
     color: gray;
 }
-.passenger-cities {
-    display: flex;
-    flex-direction: column;
-    margin-left: 20px; /* Отступ от имени и фото */
+
+.arrow {
+    font-size: 2.5rem; /* Размер стрелки */
+    color: #555; /* Цвет стрелки */
+    line-height: 1; /* Высота строки для выравнивания стрелки */
+    margin-bottom: 2px;
 }
+
+/*.arrow {*/
+/*    width: 24px;*/
+/*    height: 24px;*/
+/*    display: inline-block;*/
+/*    background: url('path/to/arrow.svg') no-repeat center center;*/
+/*    background-size: contain;*/
+/*}*/
 
 .passenger-departure,
 .passenger-arrival {
-    font-size: 14px;
+    font-size: 18px;
     color: #555;
 }

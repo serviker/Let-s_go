@@ -15,10 +15,17 @@ use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-    public function __invoke(Order $order)
+    public function __invoke(Request $request,Order $order)
     {
         // Получаем текущего аутентифицированного пользователя
         $user = Auth::user();
+
+        // Получаем переданные города из запроса
+        $searchCriteria = $request->only(['departureCity', 'arrivalCity']);
+
+        // Логируем полученные критерии
+        Log::info('Логируем полученные критерии in ShowController:', $searchCriteria);
+
 
         // Получаем связанные адреса
         $fromAddress = $order->fromAddress;
@@ -46,6 +53,7 @@ class ShowController extends Controller
 //            ];
 //        });
 
+        // Получаем пассажиров с их городами отправления и прибытия
         $passengers = $order->passengers()->withPivot('departure_city', 'arrival_city')->get()->map(function ($passenger) {
             $pivotData = $passenger->pivot;
             return [
@@ -80,6 +88,8 @@ class ShowController extends Controller
             'availableSeats' => $order->available_seats ?? 'Нет свободных мест',
             'passengers' => $passengers, // Добавляем информацию о пассажирах
             'isBooked' => $isBooked, // Передаем это значение на клиент
+//            'departureCity' => $departureCity ?? 'Unknown',
+//            'arrivalCity' => $arrivalCity ?? 'Unknown',
         ];
 
         // Проверяем, является ли пользователь водителем в этом заказе
@@ -87,14 +97,6 @@ class ShowController extends Controller
             return Inertia::render('Orders/DriverOrderDetails', [
                 'order' => $data,
                 'canJoin' => false, // Водитель не может присоединиться к поездке
-            ]);
-        }
-
-        // Проверяем, является ли пользователь пассажиром в этом заказе
-        if ($user && $user->id === $order->passenger_id) {
-            return Inertia::render('Orders/PassengerOrderDetails', [
-                'order' => $data,
-                'canJoin' => false, // Пассажир не может присоединиться к поездке
             ]);
         }
 
@@ -150,6 +152,4 @@ class ShowController extends Controller
             'order' => $order
         ]);
     }
-
-
 }

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, usePage } from '@inertiajs/react';
 import '../../../css/DriverOrderDetails.css';
-import {Inertia} from "@inertiajs/inertia";
+import { Inertia } from '@inertiajs/inertia';
 
 const PassengerOrderDetails = ({ order }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
@@ -12,11 +12,19 @@ const PassengerOrderDetails = ({ order }) => {
     const [fromCity, setFromCity] = useState(order.fromCity || '');
     const [toCity, setToCity] = useState(order.toCity || '');
     const [data, setData] = useState(order);
-    // console.log("Order data:", data);
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
     }
+
+    const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id); // Переместили выше
+
+    useEffect(() => {
+        if (currentPassenger) {
+            setFromCity(currentPassenger.departureCity);
+            setToCity(currentPassenger.arrivalCity);
+        }
+    }, [currentPassenger]);
 
     const departureDate = new Date(data.dateTimeDeparture);
     const formattedDate = departureDate.toLocaleDateString('ru-RU', {
@@ -28,7 +36,6 @@ const PassengerOrderDetails = ({ order }) => {
         hour: '2-digit',
         minute: '2-digit',
     });
-    //console.log('Order ID:', order.id);
 
     useEffect(() => {
         // Установите начальное состояние кнопки и текста
@@ -36,11 +43,12 @@ const PassengerOrderDetails = ({ order }) => {
             setIsButtonDisabled(true);
         }
     }, [availableSeats, isBooked]);
+
     const handleBooking = async () => {
         try {
             await Inertia.post(route('order.join', { order: order.id }), {
                 departure_city: fromCity, // Передаем город отправления
-                arrival_city: toCity      // Передаем город прибытия
+                arrival_city: toCity,     // Передаем город прибытия
             }, {
                 onSuccess: () => {
                     setIsBooked(true);
@@ -56,15 +64,11 @@ const PassengerOrderDetails = ({ order }) => {
         }
     };
 
-
-    // Найдем пассажира, чтобы показать его города отправления и прибытия
-    const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id);
-
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
             <h1 className="order-date">{formattedDate}</h1>
 
-            {/* Показываем только города отправления и прибытия пассажира */}
+            {/* Показываем только города отправления и прибытия пассажира
             {currentPassenger && (
                 <>
                     <div className="departure-info">
@@ -86,7 +90,43 @@ const PassengerOrderDetails = ({ order }) => {
                         </div>
                     </div>
                 </>
+            )}*/}
+            <div className="departure-info">
+                <div className="route-line">
+                    <div className="circle"></div>
+                </div>
+                <div className="departure-address">
+                    {data.fromCity}, {data.departureAddress}
+                </div>
+                <div className="departure-time">{formattedTime}</div>
+            </div>
+
+            {/* Промежуточные города */}
+            {data.intermediate_addresses && data.intermediate_addresses.length > 0 && (
+                <div className="intermediate-cities">
+                    {data.intermediate_addresses.map((city, index) => (
+                        <div key={index} className="intermediate-city">
+                            <div className="route-line">
+                                <div className="line"></div>
+                                <div className="circle"></div>
+                                <div className="line"></div>
+                            </div>
+                            <div className="intermediate-city-name">
+                                {city}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
+
+            <div className="arrival-info">
+                <div className="route-line">
+                    <div className="circle"></div>
+                </div>
+                <div className="arrival-address">
+                    {data.toCity}, {data.arrivalAddress}
+                </div>
+            </div>
 
             <div className="separator"></div>
 
@@ -96,7 +136,7 @@ const PassengerOrderDetails = ({ order }) => {
             </div>
 
             <div className="separator"></div>
-            <Link href={route('profile.show', { user: data.driverId })} className="driver-link">
+            <Link href={route('profile.show', {user: data.driverId})} className="driver-link">
                 <div className="driver-info">
                     <img
                         src={data.driverPhotoUrl ? data.driverPhotoUrl : '/images/user_icon.svg'}
@@ -130,14 +170,15 @@ const PassengerOrderDetails = ({ order }) => {
                 <div className="passenger-list">
                     {data.passengers.length > 0 ? (
                         data.passengers.map((passenger, index) => (
-                            <div key={index} className="passenger">
+                            <div key={index} className="passenger"
+                                 onClick={() => window.location.href = route('profile.show', { user: passenger.id })}>
                                 {/* Имя пассажира слева */}
                                 <div style={{flex: 1}}>
                                     <span className="passenger-name">{passenger.name}</span>
-                                    <div className="passenger-cities">
-                                        <span
-                                            className="passenger-departure">Отправление: {passenger.departureCity}</span>
-                                        <span className="passenger-arrival">Прибытие: {passenger.arrivalCity}</span>
+                                    <div className="passenger-cities-container">
+                                        <span className="passenger-departure">{passenger.departureCity}</span>
+                                        <div className="arrow">→</div>
+                                        <span className="passenger-arrival">{passenger.arrivalCity}</span>
                                     </div>
                                 </div>
                                 <img
@@ -153,7 +194,6 @@ const PassengerOrderDetails = ({ order }) => {
                 </div>
             </div>
 
-
             <div className="separator-thin"></div>
 
             <div className="communication">
@@ -165,7 +205,7 @@ const PassengerOrderDetails = ({ order }) => {
 
             <div className="car-info">
                 <div>
-                    <p className="car-name">{order.carName}</p><p></p>
+                    <p className="car-name">{order.carName}</p>
                     <p className="car-color" style={{fontSize: '18px'}}>{order.carColor}</p>
                 </div>
                 <img
@@ -182,7 +222,6 @@ const PassengerOrderDetails = ({ order }) => {
                 <Link href={route('dashboard')} className="home-link">
                     <button type="button" className="btn btn-secondary">Назад</button>
                 </Link>
-                {/*<button className="btn btn-secondary" onClick={() => window.history.back()}>Назад</button>*/}
                 <button
                     className="btn btn-info"
                     disabled={isButtonDisabled}
@@ -193,7 +232,7 @@ const PassengerOrderDetails = ({ order }) => {
             </div>
         </div>
     );
-}
+};
 
 PassengerOrderDetails.propTypes = {
     order: PropTypes.shape({
@@ -220,4 +259,5 @@ PassengerOrderDetails.propTypes = {
         ),
     }).isRequired,
 };
+
 export default PassengerOrderDetails;

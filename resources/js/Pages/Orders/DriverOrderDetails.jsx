@@ -46,7 +46,8 @@ export default function DriverOrderDetails() {
     const openMessagingComponent = (passengerId) => {
         // Логика для открытия компонента обмена сообщениями
         console.log(`Open messaging for passenger with ID: ${passengerId}`);
-        // Здесь можно вызвать логику для перехода на компонент обмена сообщениями
+        // логикА для перехода на компонент обмена сообщениями
+        Inertia.visit(`/orders/${data.id}/messages/${passengerId}`);
     };
 
 
@@ -141,11 +142,12 @@ export default function DriverOrderDetails() {
                                     className="passenger"
                                     onClick={() => openMessagingComponent(passenger.id)}  // Убедитесь, что используется правильное поле для id
                                 >
-                                    <div style={{ flex: 1}}>
-                                            <span className="passenger-name">{passenger.name}</span>
-                                        <div className="passenger-cities">
-                                            <span className="passenger-departure">Отправление: {passenger.departureCity}</span>
-                                            <span className="passenger-arrival">Прибытие: {passenger.arrivalCity}</span>
+                                    <div style={{flex: 1}}>
+                                        <span className="passenger-name">{passenger.name}</span>
+                                        <div className="passenger-cities-container">
+                                            <span className="passenger-departure">{passenger.departureCity}</span>
+                                            <div className="arrow">→</div>
+                                            <span className="passenger-arrival">{passenger.arrivalCity}</span>
                                         </div>
                                     </div>
                                     <img

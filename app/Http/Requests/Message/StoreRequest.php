@@ -22,9 +22,9 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sender_id'=>'integer',
-            'recipient_id'=>'integer',
-            'messagesText'=>'string',
+            'sender_id' => 'required|exists:users,id',
+            'recipient_id' => 'required|exists:users,id',
+            'messages_text'=> 'required|string',
         ];
     }
 }

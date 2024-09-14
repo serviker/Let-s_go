@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Message\CreateController;
+use App\Http\Controllers\Message\StoreController;
 use App\Http\Controllers\Order\ShowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -48,6 +50,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/add-car', [CarController::class, 'store'])->name('car.store');
     // Добавляем маршрут для удаления авто
     Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
+
+    // Группа маршрутов заказов с пространством имен 'Message'
+    Route::namespace('App\Http\Controllers\Message')->group(function () {
+        Route::get('/orders/{order}/messages/create', CreateController::class)->name('messages.create');
+        Route::post('/orders/{order}/messages', StoreController::class)->name('messages.store');
+        // In your web.php or api.php
+        Route::get('/orders/{order}/messages/{passenger}', 'MessageController@show')->name('messages.show');
+
+    });
 
     // Группа маршрутов заказов с пространством имен 'Order'
     Route::namespace('App\Http\Controllers\Order')->group(function () {

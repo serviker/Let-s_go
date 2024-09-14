@@ -94,6 +94,8 @@ class IndexController extends Controller
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
         Log::info('Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
+
+
         // Получаем заказы на основе критериев поиска
         $ordersQuery = Order::with(['fromAddress', 'toAddress', 'intermediateAddresses', 'driver'])
             ->whereDate('date_time_departure', $searchCriteria['date'])
@@ -110,6 +112,7 @@ class IndexController extends Controller
                             ->orWhere('city', $searchCriteria['arrivalCity']);
                     });
             });
+
 
         // Логируем SQL запрос для отладки
         Log::info('Generated SQL Query:', ['query' => $ordersQuery->toSql()]);
@@ -144,8 +147,49 @@ class IndexController extends Controller
             ];
         });
 
+       /* $orders = $ordersQuery->get();
+
+        // Перебор всех заказов и генерация URL для каждого
+        $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
+            return [
+                'id' => $order->id,
+                'fromCity' => $order->fromAddress->city ?? 'Unknown',
+                'toCity' => $order->toAddress->city ?? 'Unknown',
+                'price' => (string) $order->price,
+                'driverName' => $order->driver->name ?? 'Unknown',
+                'carName' => $order->driver->cars->first() ? ($order->driver->cars->first()->brand . ' ' . $order->driver->cars->first()->model) : 'No car',
+                'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
+                'driverPhotoUrl' => $order->driver->photoUrl ? asset('/' . $order->driver->photoUrl) : null,
+                // Генерация URL для каждого заказа
+                'url' => route('order.show', [
+                    'order' => $order->id,
+                    'departureCity' => $searchCriteria['departureCity'],
+                    'arrivalCity' => $searchCriteria['arrivalCity']
+                ])
+            ];
+        });
+
+        // Логируем финальный массив с URL
+        Log::info('Логируем финальный массив с URLs:', ['ordersWithUrls' => $ordersWithUrls->toArray()]);
+        */
         // Логируем конечный массив заказов перед отправкой на фронт
         Log::info('Final Orders Array:', ['orders' => $orders->toArray()]);
+
+        // Логика для получения первого найденного заказа
+        /* $order = $orders->first(); // Пример: берем первый заказ для демонстрации
+
+         // Передача параметров в URL для ShowController
+     /*  if ($order) {
+             // Генерируем URL с параметрами городов
+             $url = route('order.show', [
+                 'order' => $order->id,
+                 'departureCity' => $searchCriteria['departureCity'],
+                 'arrivalCity' => $searchCriteria['arrivalCity']
+             ]);
+
+             // Редирект на этот URL
+             return redirect($url);
+         }*/
 
 
        /*  return Inertia::render('Orders/PassengerOrders', [

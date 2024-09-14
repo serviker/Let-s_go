@@ -7,11 +7,12 @@ use App\Models\Address;
 use App\Models\Client;
 use App\Models\Message;
 use App\Models\Order;
+use App\Models\User;
 
 class CreateController extends Controller
 {
     public function __invoke() {
-        $clients = Client::all();
-        return view('message.create', compact('clients'));
+        $users= User::all();
+        return view('message.create', compact('users'));
     }
 }

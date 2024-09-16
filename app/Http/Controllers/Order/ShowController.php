@@ -24,7 +24,7 @@ class ShowController extends Controller
         $searchCriteria = $request->only(['departureCity', 'arrivalCity']);
 
         // Логируем полученные критерии
-        Log::info('Логируем полученные критерии in ShowController:', $searchCriteria);
+       // Log::info('Логируем полученные критерии in ShowController:', $searchCriteria);
 
 
         // Получаем связанные адреса

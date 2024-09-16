@@ -216,6 +216,7 @@
     color: #eea236;
     align-items: center;
     margin: 20px 0;
+    cursor: pointer;
 }
 .communication-value {
     font-weight: bold;
@@ -223,7 +224,7 @@
     color: #eea236;
     font-size: 18px;
 }
-.communication:hover {
+.communication:hover{
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
     text-decoration: none; /* Убирает подчеркивание при наведении */
 }

@@ -16,7 +16,8 @@ class Message extends Model
     protected $fillable = [
         'sender_id',
         'recipient_id',
-        'messages_text',
+        'message_text',
+        'order_id',
     ];
 
     // Определение атрибута для удобного доступа к времени отправки
@@ -34,4 +35,10 @@ class Message extends Model
     {
         return $this->belongsTo(User::class, 'recipient_id');
     }
+    // App\Models\Message.php
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
 }

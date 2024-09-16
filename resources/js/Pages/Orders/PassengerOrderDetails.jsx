@@ -64,6 +64,11 @@ const PassengerOrderDetails = ({ order }) => {
         }
     };
 
+    const openDriverMessagingComponent = () => {
+        Inertia.visit(`/orders/${data.id}/messages/${data.driverId}`);
+    };
+
+
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
             <h1 className="order-date">{formattedDate}</h1>
@@ -171,7 +176,7 @@ const PassengerOrderDetails = ({ order }) => {
                     {data.passengers.length > 0 ? (
                         data.passengers.map((passenger, index) => (
                             <div key={index} className="passenger"
-                                 onClick={() => window.location.href = route('profile.show', { user: passenger.id })}>
+                                 onClick={() => window.location.href = route('profile.show', {user: passenger.id})}>
                                 {/* Имя пассажира слева */}
                                 <div style={{flex: 1}}>
                                     <span className="passenger-name">{passenger.name}</span>
@@ -196,10 +201,11 @@ const PassengerOrderDetails = ({ order }) => {
 
             <div className="separator-thin"></div>
 
-            <div className="communication">
-                <span className="communication-label">Связатся с </span>
+            <div className="communication" onClick={openDriverMessagingComponent}>
+                <span className="communication-label">Связаться с </span>
                 <span className="communication-value">{data.driverName}</span>
             </div>
+
 
             <div className="separator-thin"></div>
 

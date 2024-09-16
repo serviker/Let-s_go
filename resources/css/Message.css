@@ -1,0 +1,131 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Контейнер занимает всю высоту окна */
+    width: 60%;
+    justify-content: space-between;
+    align-items: center; /* Центровка по горизонтали */
+    padding: 20px;
+    margin: auto;
+}
+
+.message-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    width: 60%; /* Ширина списка сообщений на всю ширину контейнера */
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    border-color: #eea236;
+    font-size: 16px;
+    word-wrap: break-word;
+}
+
+.message-bubble.passenger {
+    background-color: #f0f0f0;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: #ff7300;
+    border-top-left-radius: 0;
+    align-self: flex-start;
+}
+
+.message-bubble.driver {
+    background-color: #d1e7dd;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-color: #eea236;
+    border-top-right-radius: 0;
+    align-self: flex-end;
+}
+
+.message-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky; /* Строка ввода остается на месте при скроллинге */
+    bottom: 0; /* Закреплена снизу */
+    background-color: #eaeaea; /* Белый фон */
+    width: 60%; /* Ограничение ширины контейнера для ввода до 60% */
+}
+
+.message-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.send-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.message-header {
+    display: flex; /* Use flexbox to align items horizontally */
+    margin-top: 30px;
+    align-items: center; /* Center items vertically */
+    gap: 10px; /* Space between the photo and the name */
+}
+
+.message-header .btn {
+    position: absolute; /* Position the back arrow absolutely */
+    left: 33%; /* Align to the left edge of the container */
+    /*top: 50%;  Vertically center the arrow */
+    /* transform: translateY(-50%);Adjust for vertical centering */
+    font-size: 24px; /* Adjust the size of the arrow */
+    color: #6c757d; /* The color of the arrow */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+    z-index: 1; /* Ensure it appears above other content */
+}
+
+.message-header .btn:hover {
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+
+.user-name {
+    font-size: 20px; /* Adjust the font size as needed */
+    margin-left: 30px; /* Remove default margin */
+    font-weight: bold;
+}
+
+.user-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 20%;
+    object-fit: cover;
+}
+
+.separator {
+    margin: 10px 0;
+    border-top: 4px solid #ff7300;
+}
+
+.separator-thin {
+    margin: 5px 0;
+    border-top: 1px solid #ccc;
+}
+
+
+/*
+.message-bubble.driver {
+    background-color: #e0f7fa;
+    text-align: right;
+}
+
+.message-bubble.passenger {
+    background-color: #f1f8e9;
+    text-align: left;
+} */
+

@@ -507,7 +507,7 @@ const Navbar = ({setOrders, orders}) => {
                                                             Ваши поездки
                                                         </Link>
                                                     </li>*/}
-                                                    <li><a href="/incoming">Входящие</a></li>
+                                                    {/*<li><Link href={route('messages.show')}>Входящие</Link></li>*/}
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
                                                 </>

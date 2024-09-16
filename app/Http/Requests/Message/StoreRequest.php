@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Message;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class StoreRequest extends FormRequest
 {
@@ -24,7 +25,14 @@ class StoreRequest extends FormRequest
         return [
             'sender_id' => 'required|exists:users,id',
             'recipient_id' => 'required|exists:users,id',
-            'messages_text'=> 'required|string',
+            'message_text' => 'required|string',
+            //'order_id' => 'required|exists:orders,id',
         ];
+    }
+
+
+    protected function passedValidation()
+    {
+        Log::info('Validated data StoreRequest:', $this->validated());
     }
 }

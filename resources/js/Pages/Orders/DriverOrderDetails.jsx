@@ -44,8 +44,6 @@ export default function DriverOrderDetails() {
         minute: '2-digit',
     });
     const openMessagingComponent = (passengerId) => {
-        // Логика для открытия компонента обмена сообщениями
-        console.log(`Open messaging for passenger with ID: ${passengerId}`);
         // логикА для перехода на компонент обмена сообщениями
         Inertia.visit(`/orders/${data.id}/messages/${passengerId}`);
     };

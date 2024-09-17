@@ -7,82 +7,96 @@ use App\Models\Address;
 use App\Models\Message;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-    /*public function __invoke($orderId, $passengerId) {
-
-      // Получить заказ с соответствующими пассажирами и водителем
-        $order = Order::with(['passengers', 'driver'])->findOrFail($orderId);
-
-        // Получить пассажира
-        $passenger = User::findOrFail($passengerId);
-
-    //      // Получайте сообщения, в которых пассажир является либо отправителем, либо получателем.
-    //    $messages = $order->messages()->where(function ($query) use ($passengerId) {
-    //        $query->where('sender_id', $passengerId)
-    //            ->orWhere('recipient_id', $passengerId);
-    //    })->get();
-
-        // Передайте данные в представление Inertia
-   //     return Inertia::render('MessageComponent', [
-        //       'order' => $order,
-    //        'passenger' => $passenger,
-    //        'messages' => $messages
-    //    ]);
-
-        $messages = $order->messages()
-            ->where(function ($query) use ($passenger) {
-                $query->where('sender_id', $passenger->id)
-                    ->orWhere('recipient_id', $passenger->id);
-            })->get();
-
-        return Inertia::render('Messages/MessageComponent', [
-            'order' => $order,
-            'passenger' => $passenger,
-            'messages' => $messages,
-            'driver' => $order->driver,
-        ]);
-    }*/
-
     public function __invoke($orderId, $userId = null) {
         // Получить заказ с пассажирами и водителем
         $order = Order::with(['passengers', 'driver'])->findOrFail($orderId);
 
-        if ($userId) {
-            // Получить пассажира (или водителя)
-            $passenger = User::findOrFail($userId);
-            $driver = $order->driver;
+        // Текущий пользователь
+        $currentUser = auth()->user();
 
-            // Получить сообщения между пассажиром и водителем
-            $messages = $order->messages()
-                ->where(function ($query) use ($passenger, $driver) {
-                    $query->where(function ($q) use ($passenger, $driver) {
-                        $q->where('sender_id', $passenger->id)
-                            ->where('recipient_id', $driver->id);
-                    })->orWhere(function ($q) use ($passenger, $driver) {
-                        $q->where('sender_id', $driver->id)
-                            ->where('recipient_id', $passenger->id);
-                    });
-                })->get();
+        // Определяем, кто является пассажиром и водителем
+        $passenger = $userId ? User::findOrFail($userId) : $currentUser;
+        $driver = $order->driver;
 
-            // Передаем данные в компонент Inertia
-            return Inertia::render('Messages/MessageComponent', [
-                'order' => $order,
-                'passenger' => $passenger,
-                'messages' => $messages,
-                'driver' => $driver,
-            ]);
-        } else {
-            // Начальный запрос (без сообщений)
-            return Inertia::render('Messages/MessageComponent', [
-                'order' => $order,
-                'passenger' => null,
-                'messages' => [],
-                'driver' => $order->driver,
-            ]);
-        }
+        // Получаем сообщения между пассажиром и водителем
+        $messages = $this->getMessagesBetweenUsers($order, $passenger, $driver);
+
+        // Передача данных в Inertia компонент
+        return Inertia::render('Messages/MessageComponent', [
+            'order' => $order,
+            'passenger' => $passenger,
+            'messages' => $messages,
+            'driver' => $driver,
+            'currentUser' => $currentUser,
+        ]);
+    }
+
+    private function getMessagesBetweenUsers($order, $passenger, $driver) {
+        return $order->messages()
+            ->where(function ($query) use ($passenger, $driver) {
+                $query->where(function ($q) use ($passenger, $driver) {
+                    $q->where('sender_id', $passenger->id)
+                        ->where('recipient_id', $driver->id);
+                })->orWhere(function ($q) use ($passenger, $driver) {
+                    $q->where('sender_id', $driver->id)
+                        ->where('recipient_id', $passenger->id);
+                });
+            })->get();
+    }
+
+
+
+    public function showIncoming()
+    {
+        // Получаем текущего пользователя
+        $user = auth()->user();
+
+        // Поездки, где пользователь является водителем
+        $driverIncoming = Order::where('driver_id', $user->id)
+            ->with(['passengers', 'fromAddress', 'toAddress'])
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'departureCity' => $order->fromAddress->city ?? 'Unknown',
+                    'arrivalCity' => $order->toAddress->city ?? 'Unknown',
+                    'dateTimeDeparture' => $order->date_time_departure ? Carbon::parse($order->date_time_departure)->format('Y-m-d H:i') : 'Unknown',
+                    'passengers' => $order->passengers,
+                ];
+            });
+
+        // Логирование данных $driverIncoming
+        Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
+
+        // Поездки, где пользователь является пассажиром
+        $passengerIncoming = $user->passengerOrders()
+            ->with(['driver', 'fromAddress', 'toAddress'])
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'departureCity' => $order->fromAddress->city ?? 'Unknown',
+                    'arrivalCity' => $order->toAddress->city ?? 'Unknown',
+                    'dateTimeDeparture' => $order->date_time_departure ? Carbon::parse($order->date_time_departure)->format('Y-m-d H:i') : 'Unknown',
+                    'driver' => $order->driver,
+                ];
+            });
+
+        // Логирование данных $passengerIncoming
+        Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
+
+        // Передаем данные в Inertia компонент
+        return Inertia::render('Messages/IncomingMessagesComponent', [
+            'driverIncoming' => $driverIncoming,
+            'passengerIncoming' => $passengerIncoming,
+            'user' => $user,
+        ]);
     }
 
 }

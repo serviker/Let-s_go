@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Группа маршрутов заказов с пространством имен 'Message'
     Route::namespace('App\Http\Controllers\Message')->group(function () {
+        // Route to show the user's incoming trips
+        Route::get('/incoming', [\App\Http\Controllers\Message\ShowController::class, 'showIncoming'])->name('incoming.show');
         Route::get('/orders/{order}/messages/create', CreateController::class)->name('messages.create');
        // Route::post('/orders/{order}/messages', StoreController::class)->name('messages.store');
         Route::post('/orders/{order}/messages', [StoreController::class, '__invoke'])->name('messages.store');

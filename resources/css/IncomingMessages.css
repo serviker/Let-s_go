@@ -1,0 +1,122 @@
+.incoming-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+    padding: 20px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.incoming-list {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 40px;
+}
+
+.incoming-header {
+    display: flex;
+    align-items: center;
+}
+.incoming-header .btn {
+    position: absolute; /* Position the back arrow absolutely */
+    left: 38%; /* Align to the left edge of the container */
+    /*top: 50%;  Vertically center the arrow */
+    /* transform: translateY(-50%);Adjust for vertical centering */
+    font-size: 24px; /* Adjust the size of the arrow */
+    color: #6c757d; /* The color of the arrow */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+    z-index: 1; /* Ensure it appears above other content */
+}
+
+.incoming-header .btn:hover {
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+
+.incoming-item {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.incoming-item h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.incoming-item p {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.incoming-item .btn {
+    padding: 10px 20px;
+    background-color: #bed7f4;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.incoming-item .btn:hover {
+    background-color: #0056b3;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 200px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+/* Кнопка стрелки */
+.btn-link {
+    font-size: 1.2em;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-link:focus {
+    outline: none;
+}

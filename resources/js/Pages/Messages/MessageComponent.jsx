@@ -4,20 +4,29 @@ import {Inertia} from "@inertiajs/inertia";
 import PropTypes from 'prop-types';
 import {Link} from "@inertiajs/react";
 
-const MessageComponent = ({ order, passenger, driver, initialMessages, currentUser = {} }) => {
+const MessageComponent = ({ order, passenger, driver, messages: initialMessages, currentUser }) => {
     const [newMessage, setNewMessage] = useState('');
     const [messages, setMessages] = useState(initialMessages || []); // Объявляем состояние для списка сообщений
 
+    // Проверка и обновление сообщений при изменении initialMessages
+   /* useEffect(() => {
+        if (initialMessages && initialMessages.length > 0) {
+            setMessages(initialMessages);
+        }
+    }, [initialMessages]);*/
+    useEffect(() => {
+        setMessages(initialMessages);
+    }, [initialMessages]);
+
     const handleSendMessage = async () => {
-        if (!currentUser.id) {
+        if (!currentUser || !currentUser.id) {
             console.error("currentUser is undefined or missing an id");
             return;
         }
 
         if (newMessage.trim()) {
             try {
-                const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
-                const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : '';
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
                 // Определяем отправителя и получателя
                 const senderId = currentUser.id;
@@ -35,13 +44,6 @@ const MessageComponent = ({ order, passenger, driver, initialMessages, currentUs
                         message_text: newMessage,
                         order_id: order.id,
                     }),
-                });
-
-                console.log('Отправка сообщения:', {
-                    sender_id: senderId,
-                    recipient_id: recipientId,
-                    order_id: order.id,
-                    message_text: newMessage,
                 });
 
                 if (response.ok) {
@@ -80,20 +82,12 @@ const MessageComponent = ({ order, passenger, driver, initialMessages, currentUs
 
             <div className="separator"></div>
 
-            {/*<div className="message-list">*/}
-            {/*    {messages.map((message, index) => (*/}
-            {/*        <div*/}
-            {/*            key={index}*/}
-            {/*            className={`message-bubble ${message.sender_id === driver.id ? 'driver' : 'passenger'}`}*/}
-            {/*        >*/}
-            {/*            {message.message_text}*/}
-            {/*        </div>*/}
-            {/*    ))}*/}
-            {/*</div>*/}
-            <div>
-                {Array.isArray(messages) && messages.map((message) => (
-                    <div key={message.id}>
-                        <strong>{message.sender_id === currentUser.id ? 'Вы' : 'Другой'}:</strong>
+            <div className="message-list">
+                {Array.isArray(messages) && messages.map((message, index) => (
+                    <div
+                        key={index}
+                        className={`message-bubble ${message.sender_id === currentUser.id ? 'current-user' : (message.sender_id === driver.id ?  'message-right' : 'message-left')}`}
+                    >
                         {message.message_text}
                     </div>
                 ))}
@@ -104,7 +98,7 @@ const MessageComponent = ({ order, passenger, driver, initialMessages, currentUs
                     type="text"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Введите сообщение..."
+                    placeholder="Введите ваше сообщение ..."
                     className="message-input"
                 />
                 <button onClick={handleSendMessage} className="send-button">

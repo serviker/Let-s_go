@@ -11,6 +11,9 @@ class Order extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'orders';
+
+    protected $dates = ['date_time_departure'];
+
     protected $fillable = [
         'user_id',
         'driver_id',

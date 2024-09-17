@@ -19,58 +19,72 @@
 }
 
 .message-bubble {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 20px;
     max-width: 75%;
-    padding: 10px 15px;
-    border-radius: 10px;
-    border-color: #eea236;
-    font-size: 16px;
     word-wrap: break-word;
+    font-size: 16px;
 }
 
-.message-bubble.passenger {
-    background-color: #f0f0f0;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-color: #ff7300;
-    border-top-left-radius: 0;
+/* Стили для сообщений текущего пользователя */
+.current-user {
+    background-color: #7e7c7c; /* Зеленый цвет */
+    align-self: flex-end;
+    border-top-right-radius: 0;
+    color: white;
+}
+
+.message-right {
+    background-color: #FFFFFF; /* Светло-серый цвет */
     align-self: flex-start;
 }
 
-.message-bubble.driver {
-    background-color: #d1e7dd;
-    background-color: rgba(0, 0, 0, 0.1);
-    border-color: #eea236;
-    border-top-right-radius: 0;
-    align-self: flex-end;
+.message-left {
+    background-color: #FFFFFF; /* Белый цвет */
+    align-self: flex-start;
+    border-top-left-radius: 0;
 }
+
 
 .message-input-container {
     display: flex;
     align-items: center;
-    gap: 10px;
     position: sticky; /* Строка ввода остается на месте при скроллинге */
     bottom: 0; /* Закреплена снизу */
     background-color: #eaeaea; /* Белый фон */
     width: 60%; /* Ограничение ширины контейнера для ввода до 60% */
+    margin-top: 10px;
 }
 
 .message-input {
     flex: 1;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
+    border-radius: 10px;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+
+    font-size: 18px;
     cursor: pointer;
-    margin-top: 10px;
 }
 
 .send-button {
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
     cursor: pointer;
+    font-size: 18px;
 }
+
+.send-button:hover {
+    background-color: #0056b3; /* Изменение цвета при наведении */
+}
+
 .message-header {
     display: flex; /* Use flexbox to align items horizontally */
     margin-top: 30px;

@@ -64,4 +64,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Order::class, 'order_passenger', 'passenger_id', 'order_id');
     }
 
+    // Связь пользователя с заказами как пассажира через таблицу 'order_passenger'
+    public function passengerOrders()
+    {
+        return $this->belongsToMany(Order::class, 'order_passenger', 'passenger_id', 'order_id')
+            ->withTimestamps()
+            ->withPivot('departure_city', 'arrival_city'); // если у вас есть дополнительные поля
+    }
+
 }

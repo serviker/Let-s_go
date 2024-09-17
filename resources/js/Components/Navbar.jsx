@@ -500,14 +500,7 @@ const Navbar = ({setOrders, orders}) => {
                                             {auth.user ? (
                                                 <>
                                                     <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
-                                                    {/*<li>
-                                                        <Link
-                                                            href={auth.user && userHasBookedTrips(auth.user.id) ? route('passenger.orders') : route('driver.orders')}
-                                                        >
-                                                            Ваши поездки
-                                                        </Link>
-                                                    </li>*/}
-                                                    {/*<li><Link href={route('messages.show')}>Входящие</Link></li>*/}
+                                                    <li><Link href={route('incoming.show')}>Входящие</Link></li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
                                                 </>

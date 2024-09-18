@@ -4,29 +4,32 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f7f7f7;
+    background-color: #eaeaea;
     padding: 20px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    top: 20%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
 }
 
 .incoming-list {
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
     margin-bottom: 40px;
 }
 
 .incoming-header {
     display: flex;
     align-items: center;
+    justify-content: center;
+    position: sticky;
 }
 .incoming-header .btn {
     position: absolute; /* Position the back arrow absolutely */
-    left: 38%; /* Align to the left edge of the container */
+    left: -20%; /* Align to the left edge of the container */
     /*top: 50%;  Vertically center the arrow */
     /* transform: translateY(-50%);Adjust for vertical centering */
     font-size: 24px; /* Adjust the size of the arrow */
-    color: #6c757d; /* The color of the arrow */
+    color: #eea236; /* The color of the arrow */
     padding: 0; /* Remove default padding */
     margin: 0; /* Remove default margin */
     z-index: 1; /* Ensure it appears above other content */
@@ -38,52 +41,92 @@
 
 .incoming-item {
     background-color: #ffffff;
-    padding: 20px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* Добавляем позиционирование для относительного родителя */
+    cursor: pointer;
+    padding: 10px; /* Увеличиваем область клика */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.incoming-item h4 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-    color: #333;
-}
-
-.incoming-item p {
-    margin: 0 0 10px 0;
-    font-size: 16px;
-    color: #555;
-}
+/*.incoming-item h4 .incoming-item p {*/
+/*    font-size: 18px;*/
+/*    color: #333;*/
+/*}*/
 
 .incoming-item .btn {
-    padding: 10px 20px;
-    background-color: #bed7f4;
-    color: #fff;
+    padding: 0 5px;
+    background: none;
+    border: none;
     text-decoration: none;
     border-radius: 4px;
     transition: background-color 0.2s ease-in-out;
 }
 
 .incoming-item .btn:hover {
-    background-color: #0056b3;
+    color: #f1f1f1;
+}
+
+.incoming-info {
+    display: flex;
+    justify-content: space-between; /* Разделяет содержимое по горизонтали */
+    align-items: center; /* Выравнивает содержимое по вертикали */
+    width: 100%; /* Займет всю ширину */
+}
+
+.incoming-date {
+    font-weight: bold;
+    color: #888;
+    margin-right: 20px;
+}
+
+.passenger-count {
+    color: #eea236; /* Цвет для количества пассажиров */
+    font-weight: bold; /* Жирный шрифт для выделения */
+    font-size: 18px;
+    margin-left: auto; /* Сдвигает элемент максимально вправо */
+    padding-right: 10px; /* Добавляем отступ справа */
+    text-align: right; /* Дополнительно выравнивает текст вправо */
+}
+
+.driver-name {
+    color: #eea236;
+    font-weight: bold;
+    font-size: 18px;
+    margin-left: auto; /* Сдвигает элемент максимально вправо */
+    padding-right: 10px; /* Добавляем отступ справа */
 }
 
 h2 {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #333;
+    font-weight: bold;
+    color: #999;
     text-align: center;
 }
+p {
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #eea236;
+    text-align: center;
+}
+
 .dropdown-menu {
-    display: none;
+    display: block;
     position: absolute;
-    top: 100%;
-    right: 0;
+    top: 0; /* Выравниваем по вертикали с родительским элементом */
+    left: 100%; /* Двигаем выпадающий список вправо от родителя */
+    margin-left: 10px; /* Добавляем отступ, чтобы немного отодвинуть список от правого края родителя */
     background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     width: 200px;
@@ -93,30 +136,19 @@ h2 {
 }
 
 .dropdown-item {
-    padding: 8px 12px;
+    padding: 5px 15px;
     border-bottom: 1px solid #ddd;
-    color: #333;
-    text-decoration: none;
+    color: #eea236;
+    font-size: 16px;
+    font-weight: bold;
     display: block;
 }
 
 .dropdown-item:hover {
-    background-color: #f1f1f1;
+    background-color: #fff;
+    text-decoration: none;
 }
 
-.dropdown-item:last-child {
-    border-bottom: none;
-}
-
-/* Кнопка стрелки */
-.btn-link {
-    font-size: 1.2em;
-    line-height: 1;
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-link:focus {
-    outline: none;
-}
+/*.dropdown-item:last-child {*/
+/*    border-bottom: none;*/
+/*}*/

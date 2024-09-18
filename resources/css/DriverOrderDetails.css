@@ -215,8 +215,9 @@
     font-weight: bold;
     color: #eea236;
     align-items: center;
-    margin: 20px 0;
+    padding: 10px;
     cursor: pointer;
+    border-radius: 8px;
 }
 .communication-value {
     font-weight: bold;
@@ -227,6 +228,10 @@
 .communication:hover{
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
     text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+
+.highlighted {
+    color: #afafaf; /* Или другой цвет для выделения */
 }
 .passenger-cities-container {
     display: flex;

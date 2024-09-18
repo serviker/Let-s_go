@@ -5,7 +5,7 @@ import '../../../css/DriverOrderDetails.css';
 import {Inertia} from "@inertiajs/inertia";
 
 export default function DriverOrderDetails() {
-    const { order } = usePage().props;
+    const { order, searchCriteria } = usePage().props;
     const [data, setData] = useState(order);
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
 
@@ -143,9 +143,9 @@ export default function DriverOrderDetails() {
                                     <div style={{flex: 1}}>
                                         <span className="passenger-name">{passenger.name}</span>
                                         <div className="passenger-cities-container">
-                                            <span className="passenger-departure">{passenger.departureCity}</span>
+                                            <span className="passenger-departure">{searchCriteria.departureCity}</span>
                                             <div className="arrow">→</div>
-                                            <span className="passenger-arrival">{passenger.arrivalCity}</span>
+                                            <span className="passenger-arrival">{searchCriteria.arrivalCity}</span>
                                         </div>
                                     </div>
                                     <img

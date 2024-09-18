@@ -21,10 +21,28 @@ class ShowController extends Controller
         $user = Auth::user();
 
         // Получаем переданные города из запроса
-        $searchCriteria = $request->only(['departureCity', 'arrivalCity']);
+        //$searchCriteria = $request->only(['departureCity', 'arrivalCity']);
+
+        // Извлекаем критерии поиска из сессии
+        $sessionCriteria = session('searchCriteria', []);
+
+        // Получаем критерии из запроса
+        // Извлекаем конкретные параметры
+        $departureCity = $sessionCriteria['departureCity'] ?? null;
+        $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
+        $seats = $sessionCriteria['seats'] ?? null;
+
+        // Логируем параметры для проверки
+        Log::info('Полученные критерии в ShowController:', [
+            'departureCity' => $departureCity,
+            'arrivalCity' => $arrivalCity,
+            'seats' => $seats
+        ]);
+
 
         // Логируем полученные критерии
-       // Log::info('Логируем полученные критерии in ShowController:', $searchCriteria);
+     //   Log::info('Логируем полученные критерии in Order/ShowController:', $searchCriteria);
+        Log::info('Логируем $sessionCriteria полученные критерии in Order/ShowController:', $sessionCriteria);
 
 
         // Получаем связанные адреса
@@ -86,24 +104,33 @@ class ShowController extends Controller
             'driverId' => $driver ? $driver->id : 0,
             'description' => $order->description ?? 'No description provided',
             'availableSeats' => $order->available_seats ?? 'Нет свободных мест',
-            'passengers' => $passengers, // Добавляем информацию о пассажирах
-            'isBooked' => $isBooked, // Передаем это значение на клиент
-//            'departureCity' => $departureCity ?? 'Unknown',
-//            'arrivalCity' => $arrivalCity ?? 'Unknown',
+            'passengers' => $passengers,
+            'isBooked' => $isBooked,
+            'searchCriteria' => $sessionCriteria, // Передаем критерии поиска в компонент
         ];
 
         // Проверяем, является ли пользователь водителем в этом заказе
         if ($user && $user->id === $order->driver_id) {
             return Inertia::render('Orders/DriverOrderDetails', [
                 'order' => $data,
-                'canJoin' => false, // Водитель не может присоединиться к поездке
+                'canJoin' => false,// Водитель не может присоединиться к поездке
+                'searchCriteria' => [
+                    'departureCity' => $departureCity,
+                    'arrivalCity' => $arrivalCity,
+                    'seats' => $seats
+                ]
             ]);
         }
 
         // Для пользователей, которые не являются водителем или пассажиром, показываем данные и возможность присоединиться
         return Inertia::render('Orders/PassengerOrderDetails', [
             'order' => $data,
-            'canJoin' => false,//true,  Пользователь может присоединиться к поездке
+            'canJoin' => !$isBooked,//true,  Пользователь может присоединиться к поездке
+            'searchCriteria' => [
+                'departureCity' => $departureCity,
+                'arrivalCity' => $arrivalCity,
+                'seats' => $seats
+            ]
         ]);
     }
     public function joinOrder(Request $request, $orderId)
@@ -149,7 +176,12 @@ class ShowController extends Controller
 
         // Возвращаем Inertia ответ с данными заказа
         return Inertia::render('Orders/PassengerOrderDetails', [
-            'order' => $order
+            'order' => $order,
+            'searchCriteria' => [
+                'departureCity' => $departureCity,
+                'arrivalCity' => $arrivalCity,
+                //'seats' => $seats
+            ]
         ]);
     }
 }

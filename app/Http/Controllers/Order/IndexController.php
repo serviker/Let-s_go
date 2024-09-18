@@ -92,9 +92,12 @@ class IndexController extends Controller
 
         // Получаем данные из запроса
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
-        Log::info('Search Criteria:', $searchCriteria); // Логируем критерии поиска
+        Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
-
+        // Сохраняем критерии поиска в сессию
+        session([
+            'searchCriteria' => $searchCriteria
+        ]);
 
         // Получаем заказы на основе критериев поиска
         $ordersQuery = Order::with(['fromAddress', 'toAddress', 'intermediateAddresses', 'driver'])
@@ -115,7 +118,7 @@ class IndexController extends Controller
 
 
         // Логируем SQL запрос для отладки
-        Log::info('Generated SQL Query:', ['query' => $ordersQuery->toSql()]);
+       /* Log::info('IndexController Generated SQL Query:', ['query' => $ordersQuery->toSql()]);
 
         $orders = $ordersQuery->get()->map(function ($order) {
             $fromAddress = $order->fromAddress;
@@ -124,7 +127,7 @@ class IndexController extends Controller
             $car = $driver ? $driver->cars->first() : null; // Получаем первую машину водителя
 
             // Логируем информацию по каждому заказу
-            Log::info('Order:', [
+            Log::info('IndexController Order:', [
                 'id' => $order->id,
                 'fromCity' => $fromAddress->city ?? 'Unknown',
                 'toCity' => $toAddress->city ?? 'Unknown',
@@ -145,10 +148,10 @@ class IndexController extends Controller
                 'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
                 'driverPhotoUrl' => $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
             ];
-        });
+        }); */
 
-       /* $orders = $ordersQuery->get();
-
+        $orders = $ordersQuery->get();
+        Log::info('IndexController/Orders:', $orders->toArray());
         // Перебор всех заказов и генерация URL для каждого
         $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
             return [
@@ -164,16 +167,17 @@ class IndexController extends Controller
                 'url' => route('order.show', [
                     'order' => $order->id,
                     'departureCity' => $searchCriteria['departureCity'],
-                    'arrivalCity' => $searchCriteria['arrivalCity']
+                    'arrivalCity' => $searchCriteria['arrivalCity'],
+                    'seats' => $searchCriteria['seats']
                 ])
             ];
         });
 
         // Логируем финальный массив с URL
-        Log::info('Логируем финальный массив с URLs:', ['ordersWithUrls' => $ordersWithUrls->toArray()]);
-        */
+       // Log::info('IndexController Логируем финальный массив с URLs:', ['ordersWithUrls' => $ordersWithUrls->toArray()]);
+        Log::info('Orders/IndexController with URLs:', $ordersWithUrls->toArray());
         // Логируем конечный массив заказов перед отправкой на фронт
-        Log::info('Final Orders Array:', ['orders' => $orders->toArray()]);
+       // Log::info('IndexController Final Orders Array:', ['orders' => $orders->toArray()]);
 
         // Логика для получения первого найденного заказа
         /* $order = $orders->first(); // Пример: берем первый заказ для демонстрации
@@ -196,9 +200,9 @@ class IndexController extends Controller
             'orders' => $orders,
         ]);*/
 
-        return response()->json([
-            'orders' => $orders->toArray(),
-        ]);
+       // return response()->json(['orders' => $orders->toArray(),]);
+        return response()->json(['orders' => $ordersWithUrls->toArray()
+            ]);
     }
 }
 

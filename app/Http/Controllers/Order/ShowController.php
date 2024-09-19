@@ -20,30 +20,15 @@ class ShowController extends Controller
         // Получаем текущего аутентифицированного пользователя
         $user = Auth::user();
 
-        // Получаем переданные города из запроса
-        //$searchCriteria = $request->only(['departureCity', 'arrivalCity']);
-
         // Извлекаем критерии поиска из сессии
         $sessionCriteria = session('searchCriteria', []);
 
-        // Получаем критерии из запроса
-        // Извлекаем конкретные параметры
+        // Получаем критерии из запроса Извлекаем конкретные параметры
         $departureCity = $sessionCriteria['departureCity'] ?? null;
         $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
         $seats = $sessionCriteria['seats'] ?? null;
 
-        // Логируем параметры для проверки
-        Log::info('Полученные критерии в ShowController:', [
-            'departureCity' => $departureCity,
-            'arrivalCity' => $arrivalCity,
-            'seats' => $seats
-        ]);
-
-
-        // Логируем полученные критерии
-     //   Log::info('Логируем полученные критерии in Order/ShowController:', $searchCriteria);
-        Log::info('Логируем $sessionCriteria полученные критерии in Order/ShowController:', $sessionCriteria);
-
+       // Log::info('Логируем $sessionCriteria полученные критерии in Order/ShowController:', $sessionCriteria);
 
         // Получаем связанные адреса
         $fromAddress = $order->fromAddress;
@@ -59,29 +44,17 @@ class ShowController extends Controller
         // Преобразуем цену в число с плавающей запятой
         $price = (float) $order->price;
 
-        // Получаем пассажиров с их городами отправления и прибытия
-//        $passengers = $order->passengers()->get()->map(function ($passenger) use ($order) {
-//            $pivotData = $passenger->pivot; // Данные из pivot таблицы
-//            return [
-//                'id' => $passenger->id,
-//                'name' => $passenger->name,
-//                'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
-//                'departureCity' => $pivotData->departure_city ?? 'Unknown', // Город отправления пассажира
-//                'arrivalCity' => $pivotData->arrival_city ?? 'Unknown',     // Город прибытия пассажира
-//            ];
-//        });
-
-        // Получаем пассажиров с их городами отправления и прибытия
-        $passengers = $order->passengers()->withPivot('departure_city', 'arrival_city')->get()->map(function ($passenger) {
-            $pivotData = $passenger->pivot;
+        $passengers = $order->passengers->map(function ($passenger) {
             return [
                 'id' => $passenger->id,
                 'name' => $passenger->name,
                 'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
-                'departureCity' => $pivotData->departure_city ?? 'Unknown',
-                'arrivalCity' => $pivotData->arrival_city ?? 'Unknown',
+                'departureCity' => $passenger->pivot->departure_city ?? 'Unknown',
+                'arrivalCity' => $passenger->pivot->arrival_city ?? 'Unknown',
+                'seats' => $passenger->pivot->seats // Добавляем количество забронированных мест
             ];
         });
+
 
         // Проверяем, является ли пользователь пассажиром в заказе
         $isBooked = $order->passengers()->where('passenger_id', $user->id)->exists();
@@ -136,7 +109,7 @@ class ShowController extends Controller
     public function joinOrder(Request $request, $orderId)
     {
         $user = Auth::user();
-
+        $sessionCriteria = session('searchCriteria', []);
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
@@ -151,9 +124,15 @@ class ShowController extends Controller
             return response()->json(['message' => 'No available seats'], 400);
         }
 
-        // Получаем города отправления и прибытия из запроса
-        $departureCity = $request->input('departure_city');
-        $arrivalCity = $request->input('arrival_city');
+        // Получаем данные из критериев
+        $departureCity = $sessionCriteria['departureCity'] ?? null;
+        $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
+        $seats = $sessionCriteria['seats'] ?? 1; // Количество мест по умолчанию — 1
+
+        // Проверяем, свободны ли заявленные места
+        if ($order->available_seats < $seats) {
+            return back()->withErrors('Недостаточно свободных мест для бронирования.');
+        }
 
         // Проверяем, что пользователь не является пассажиром в этом заказе
         $exists = DB::table('order_passenger')
@@ -167,11 +146,12 @@ class ShowController extends Controller
 
         // Добавляем пользователя в список пассажиров
         $order->passengers()->attach($user->id, [
+            'seats' => $seats,
             'departure_city' => $departureCity,
-            'arrival_city' => $arrivalCity,
+            'arrival_city' => $arrivalCity
         ]);
 
-        $order->available_seats--;
+        $order->available_seats -= $seats;
         $order->save();
 
         // Возвращаем Inertia ответ с данными заказа
@@ -180,7 +160,7 @@ class ShowController extends Controller
             'searchCriteria' => [
                 'departureCity' => $departureCity,
                 'arrivalCity' => $arrivalCity,
-                //'seats' => $seats
+                'seats' => $seats
             ]
         ]);
     }

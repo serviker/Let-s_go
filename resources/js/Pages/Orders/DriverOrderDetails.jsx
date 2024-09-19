@@ -9,26 +9,6 @@ export default function DriverOrderDetails() {
     const [data, setData] = useState(order);
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
 
-   /* useEffect(() => {
-        // Функция для получения данных заказа
-        const fetchOrderData = async () => {
-            try {
-                const response = await axios.post('/orders/${order.id}'); // Замените URL на ваш
-                setData(response.data);
-            } catch (error) {
-                console.error('Ошибка при получении данных заказа:', error);
-            }
-        };
-
-        // Если данные уже переданы через пропсы, просто устанавливаем их
-        if (order) {
-            setData(order);
-
-        } else {
-            fetchOrderData(); // Вызов функции получения данных при монтировании
-        }
-    }, [order]); // Добавляем зависимость от order */
-
     if (!data) {
         return <div>Error: Order data is missing</div>;
     }
@@ -52,15 +32,15 @@ export default function DriverOrderDetails() {
 
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
-            <h1 className="order-date">{formattedDate}</h1>
+            <h1 className="order-date">{formattedTime} {formattedDate}</h1>
             <div className="departure-info">
                 <div className="route-line">
                     <div className="circle"></div>
                 </div>
-                <div className="departure-address">
+                <div className="departure-address" style={{ fontWeight: 'bold'}}>
                     {data.fromCity}, {data.departureAddress}
                 </div>
-                <div className="departure-time">{formattedTime}</div>
+                {/*<div className="departure-time">{formattedTime}</div>*/}
             </div>
 
             {/* Промежуточные города */}
@@ -83,9 +63,9 @@ export default function DriverOrderDetails() {
 
             <div className="arrival-info">
                 <div className="route-line">
-                    <div className="circle"></div>
+                    <div style={{marginTop: '-8px'}} className="circle"></div>
                 </div>
-                <div className="arrival-address">
+                <div className="arrival-address"  style={{ fontWeight: 'bold', marginTop: '-8px'}}>
                     {data.toCity}, {data.arrivalAddress}
                 </div>
             </div>
@@ -143,10 +123,16 @@ export default function DriverOrderDetails() {
                                     <div style={{flex: 1}}>
                                         <span className="passenger-name">{passenger.name}</span>
                                         <div className="passenger-cities-container">
-                                            <span className="passenger-departure">{searchCriteria.departureCity}</span>
+                                            <span className="passenger-departure">{passenger.departureCity}</span>
                                             <div className="arrow">→</div>
-                                            <span className="passenger-arrival">{searchCriteria.arrivalCity}</span>
+                                            <span className="passenger-arrival">{passenger.arrivalCity}</span>
+                                            {passenger.seats >= 2 && (  // Условное отображение
+                                                <div style={{ color: '#eea236', fontWeight: 'bold', marginLeft: '30px'}}>
+                                                    <span> - {passenger.seats} Места </span>
+                                                </div>
+                                            )}
                                         </div>
+
                                     </div>
                                     <img
                                         src={passenger.photoUrl ? passenger.photoUrl : '/images/user_icon.svg'}

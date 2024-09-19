@@ -117,152 +117,61 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             setShowErrorModal(true); // Показываем модальное окно при ошибке
         }
     };
+    const filterCities = (cities) => {
+        const fromIndex = cities.indexOf(fromCity);
+        const toIndex = cities.indexOf(toCity);
+
+        return cities.filter((city, index) => {
+            return (
+                index === fromIndex - 1 || // предыдущий город
+                index === fromIndex || // город отправления
+                index === toIndex || // город прибытия
+                index === toIndex + 1 // следующий город
+            );
+        });
+    };
+
+    const filteredCities = filterCities(data.intermediate_addresses || []);
 
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
-            <h1 className="order-date">{formattedDate}</h1>
+            <h1 className="order-date">{formattedTime} {formattedDate}</h1>
 
-            {/* Показываем только города отправления и прибытия пассажира
-            {currentPassenger ? (
-                <>
-                    <div className="departure-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className="departure-address">
-                            {searchCriteria.departureCity}
-                        </div>
-                        <div className="departure-time">{formattedTime}</div>
-                    </div>
+            <div className="departure-info">
+                <div className="route-line">
+                    <div className="circle"></div>
+                </div>
+                <div className={`departure-address ${fromCity === data.fromCity ? 'highlighted' : ''}`}>
+                    {data.fromCity}, {data.departureAddress}
+                </div>
+            </div>
 
-                    <div className="arrival-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
+            {filteredCities.length > 0 && (
+                <div className="intermediate-cities">
+                    {filteredCities.map((city, index) => (
+                        <div key={index}
+                             className={`intermediate-city ${city === fromCity || city === toCity ? 'highlighted' : ''}`}>
+                            <div className="route-line">
+                                <div className="line"></div>
+                                <div className="circle"></div>
+                                <div className="line"></div>
+                            </div>
+                            <div className="intermediate-city-name">
+                                {city}
+                            </div>
                         </div>
-                        <div className="arrival-address">
-                            {searchCriteria.arrivalCity}
-                        </div>
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className="departure-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className="departure-address">
-                            {data.fromCity}, {data.departureAddress}
-                        </div>
-                        <div className="departure-time">{formattedTime}</div>
-                    </div>
-
-                    {data.intermediate_addresses && data.intermediate_addresses.length > 0 && (
-                        <div className="intermediate-cities">
-                            {data.intermediate_addresses.map((city, index) => (
-                                <div key={index} className="intermediate-city">
-                                    <div className="route-line">
-                                        <div className="line"></div>
-                                        <div className="circle"></div>
-                                        <div className="line"></div>
-                                    </div>
-                                    <div className="intermediate-city-name">
-                                        {city}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="arrival-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className="arrival-address">
-                            {data.toCity}, {data.arrivalAddress}
-                        </div>
-                    </div>
-                </>
-            )}*/}
-            {/* Показываем все города по пути, если место не забронировано */}
-            {!isBooked ? (
-                <>
-                    <div className="departure-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className="departure-address">
-                            {data.fromCity}, {data.departureAddress}
-                        </div>
-                        <div className="departure-time">{formattedTime}</div>
-                    </div>
-
-                    {data.intermediate_addresses && data.intermediate_addresses.length > 0 && (
-                        <div className="intermediate-cities">
-                            {data.intermediate_addresses.map((city, index) => (
-                                <div key={index} className="intermediate-city">
-                                    <div className="route-line">
-                                        <div className="line"></div>
-                                        <div className="circle"></div>
-                                        <div className="line"></div>
-                                    </div>
-                                    <div className="intermediate-city-name">
-                                        {city}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="arrival-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className="arrival-address">
-                            {data.toCity}, {data.arrivalAddress}
-                        </div>
-                    </div>
-                </>
-            ) : (
-                <>
-                    {/* Если место забронировано */}
-                    <div className="departure-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className={`departure-address ${fromCity === data.fromCity ? 'highlighted' : ''}`}>
-                            {data.fromCity}, {data.departureAddress}
-                        </div>
-                        <div className="departure-time">{formattedTime}</div>
-                    </div>
-
-                    {data.intermediate_addresses && data.intermediate_addresses.length > 0 && (
-                        <div className="intermediate-cities">
-                            {data.intermediate_addresses.map((city, index) => (
-                                <div key={index} className={`intermediate-city ${city === fromCity || city === toCity ? 'highlighted' : ''}`}>
-                                    <div className="route-line">
-                                        <div className="line"></div>
-                                        <div className="circle"></div>
-                                        <div className="line"></div>
-                                    </div>
-                                    <div className="intermediate-city-name">
-                                        {city}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    <div className="arrival-info">
-                        <div className="route-line">
-                            <div className="circle"></div>
-                        </div>
-                        <div className={`arrival-address ${toCity === data.toCity ? 'highlighted' : ''}`}>
-                            {data.toCity}, {data.arrivalAddress}
-                        </div>
-                    </div>
-                </>
+                    ))}
+                </div>
             )}
 
+            <div className="arrival-info">
+                <div className="route-line">
+                    <div className="circle"></div>
+                </div>
+                <div className={`arrival-address ${toCity === data.toCity ? 'highlighted' : ''}`}>
+                    {data.toCity}, {data.arrivalAddress}
+                </div>
+            </div>
             <div className="separator"></div>
 
             <div className="price-container">
@@ -311,9 +220,14 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                                 <div style={{flex: 1}}>
                                     <span className="passenger-name">{passenger.name}</span>
                                     <div className="passenger-cities-container">
-                                        <span className="passenger-departure">{searchCriteria.departureCity}</span>
+                                        <span className="passenger-departure">{passenger.departureCity}</span>
                                         <div className="arrow">→</div>
-                                        <span className="passenger-arrival">{searchCriteria.arrivalCity}</span>
+                                        <span className="passenger-arrival">{passenger.arrivalCity}</span>
+                                        {passenger.seats >= 2 && (  // Условное отображение
+                                            <div style={{color: '#eea236', fontWeight: 'bold', marginLeft: '30px'}}>
+                                                <span> - {passenger.seats} места </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <img
@@ -324,7 +238,12 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                             </div>
                         ))
                     ) : (
-                        <p style={{color: '#eea236', fontWeight: 'bold', display: 'flex', justifyContent: 'center'}}>Будьте первыми !!!</p>
+                        <p style={{
+                            color: '#eea236',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            justifyContent: 'center'
+                        }}>Будьте первыми !!!</p>
                     )}
                 </div>
             </div>
@@ -366,7 +285,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                     {isBooked ? 'Вы забронировали место' : 'Забронировать место'}
                 </button>
             </div>
-            <NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal} />
+            <NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>
         </div>
     );
 };

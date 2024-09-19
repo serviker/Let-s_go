@@ -53,8 +53,11 @@ class Order extends Model
 
     public function passengers()
     {
-        return $this->belongsToMany(User::class, 'order_passenger', 'order_id', 'passenger_id');
+        return $this->belongsToMany(User::class, 'order_passenger', 'order_id', 'passenger_id')
+            ->withPivot('seats', 'departure_city', 'arrival_city')
+            ->withTimestamps();
     }
+
 
     public function statusOrder()
     {

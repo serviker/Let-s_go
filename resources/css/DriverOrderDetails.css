@@ -231,8 +231,17 @@
 }
 
 .highlighted {
-    color: #afafaf; /* Или другой цвет для выделения */
+    font-weight: bold;
+    color: #eea236;/* Или другой цвет для выделения */
+    font-size: 18px;
 }
+.passenger-seats {
+    /* font-weight: bold;
+    margin-left: 10px;*/
+    color: #495057;
+    font-size: 18px;
+}
+
 .passenger-cities-container {
     display: flex;
     align-items: center;

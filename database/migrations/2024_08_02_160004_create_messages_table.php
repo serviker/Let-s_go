@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('messages', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('recipient_id')->constrained('users')->onDelete('cascade');
+            $table->text('message_text'); // Поле для текста сообщения
+            $table->softDeletes();  // Добавляет столбец deleted_at
             $table->timestamps();
+
         });
     }
 

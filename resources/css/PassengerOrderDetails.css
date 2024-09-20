@@ -1,4 +1,4 @@
-.order-container-details {
+.order-details-container {
     position: relative;
     width: 40%;
     margin: auto;
@@ -10,23 +10,17 @@
     margin-top: 40px;
 }
 
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .order-date {
     font-size: 30px;
     font-weight: bold;
     text-align: center;
     margin-bottom: 20px;
     color: #eea236;
-    margin-left: 20px;
 }
-
-.btn-danger {
-    background: transparent;
+.departure-time {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: bold;
     color: #eea236;
 }
 
@@ -54,22 +48,15 @@
     margin-bottom: 5px;
 }
 
-/*.line {*/
-/*    width: 2px;*/
-/*    flex-grow: 1;*/
-/*    background-color: gray;*/
-/*}*/
-
-.departure-address {
+.line {
+    width: 2px;
     flex-grow: 1;
-    margin-left: 20px; /* Отступ от линии */
-    font-weight: bold;
+    background-color: gray;
 }
-.arrival-address {
+
+.departure-address, .arrival-address, .intermediate-city-name {
     flex-grow: 1;
     margin-left: 20px; /* Отступ от линии */
-    font-weight: bold;
-    margin-top: -8px;
 }
 
 .intermediate-cities {
@@ -81,14 +68,9 @@
     align-items: center;
 }
 
-.intermediate-city-name {
-    flex-grow: 1;
-    margin-left: 20px; /* Отступ от линии */
-}
-
 .separator {
-    margin: 10px 0; /* Проверьте это значение */
-    border-top: 4px solid #ccc; /* Убедитесь, что это только граница */
+    margin: 10px 0;
+    border-top: 4px solid #ccc;
 }
 
 .separator-thin {
@@ -96,33 +78,17 @@
     border-top: 1px solid #ccc;
 }
 
+.price-label, .price-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #eea236;
+}
+
 .price-container {
-    position: relative; /* Или absolute, в зависимости от нужного поведения */
-    top: 0; /* Убедитесь, что значение 0, чтобы убрать смещение */
     display: flex;
-    justify-content: space-between; /* Расположение элементов по краям */
-    align-items: center; /* Выровнять по центру */
-    margin: 10px 0; /* Отступы вокруг */
-    padding: 5px 0; /* Добавьте отступы для лучшего визуального эффекта */
-    background-color: #f8f9fa; /* Мягкий фон для теста */
-    border-radius: 5px;
-}
-
-
-.price-container, .separator, .arrival-address  {
-    border: 1px solid red; /* Временная граница для визуализации */
-}
-
-.price-label {
-    font-size: 18px;
-    font-weight: bold;
-    color: #eea236;
-    border: 1px solid red;
-}
-.price-value {
-    font-size: 18px;
-    font-weight: bold;
-    color: #eea236;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
 }
 
 .button-container {
@@ -131,26 +97,25 @@
 }
 /* Выровнять фото и имя водителя по горизонтали */
 
-/*.driver-info-container {*/
-/*    margin-top: 20px;*/
-/*}*/
+.driver-info-container {
+    margin-top: 20px;
+}
 
-/*.driver-info-content {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: space-between;*/
-/*    padding: 5px;*/
-/*    !*border: 1px solid #ccc;*!*/
-/*    border-radius: 10px;*/
-/*    background-color: #eaeaea;*/
-/*}*/
+.driver-info-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    /*border: 1px solid #ccc;*/
+    border-radius: 10px;
+    background-color: #eaeaea;
+}
 
 .driver-info {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
     border-radius: 10px;
-    margin-left: 0;
 }
 
 .driver-photo {
@@ -160,6 +125,7 @@
     object-fit: cover !important;
     transition: background-color 0.3s ease;
 }
+
 
 .driver-info:hover {
     background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
@@ -179,9 +145,9 @@
     margin-top: 10px;
 }
 .car-info {
-    display: flex ;
-    align-items: center ;
-    justify-content: space-between ;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     border-radius: 10px;
 }
 
@@ -189,6 +155,7 @@
     font-size: 18px;
     font-weight: bold;
     margin: 0;
+    margin-top: 10px;
 }
 
 .car-photo {

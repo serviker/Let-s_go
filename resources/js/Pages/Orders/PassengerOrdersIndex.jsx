@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from '@inertiajs/inertia-react';
-import '../../../css/OrderIndex.css';  // Импорт стилей
+import '../../../css/PassengerOrdersIndex.css';  // Импорт стилей
 
 export default function PassengerOrdersIndex({ order }) {
     if (!order) {

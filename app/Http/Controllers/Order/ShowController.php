@@ -7,10 +7,12 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Models\Passenger;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class ShowController extends Controller
@@ -154,14 +156,89 @@ class ShowController extends Controller
         $order->available_seats -= $seats;
         $order->save();
 
-        // Возвращаем Inertia ответ с данными заказа
-        return Inertia::render('Orders/PassengerOrderDetails', [
-            'order' => $order,
-            'searchCriteria' => [
-                'departureCity' => $departureCity,
-                'arrivalCity' => $arrivalCity,
-                'seats' => $seats
-            ]
-        ]);
+        return redirect()->route('order.show', ['order' => $orderId]);
     }
+
+    public function cancelOrderPassenger(Request $request, $orderId)
+    {
+        $user = Auth::user();
+
+        // Проверяем, авторизован ли пользователь
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $order = Order::find($orderId);
+
+        // Проверяем, существует ли заказ
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        // Проверяем, является ли пользователь пассажиром в этом заказе
+        $passenger = DB::table('order_passenger')
+            ->where('order_id', $orderId)
+            ->where('passenger_id', $user->id)
+            ->first();
+
+        if (!$passenger) {
+            return response()->json(['message' => 'Passenger not found in this order'], 400);
+        }
+
+        // Увеличиваем количество свободных мест
+        $order->available_seats += $passenger->seats;
+        $order->save();
+
+        // Удаляем пассажира из таблицы order_passenger
+        $order->passengers()->detach($user->id);
+
+        // Возвращаем Inertia-ответ
+       /* try {
+            return Inertia::render('Orders/PassengerOrderDetails', [
+                'order' => $order,
+            ]);
+        } catch (Exception $e) {
+            dd($e->getMessage());
+        }*/
+
+        return redirect()->route('order.show', ['order' => $orderId]);
+    }
+
+    public function cancelOrderDriver(Request $request, $orderId)
+    {
+        $user = Auth::user();
+
+        // Проверяем, авторизован ли пользователь
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not authenticated');
+        }
+
+        // Получаем заказ
+        $order = Order::find($orderId);
+
+        // Проверяем, существует ли заказ
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found');
+        }
+
+        // Проверяем, является ли пользователь водителем данного заказа
+        if ($order->driver_id !== $user->id) {
+            return redirect()->back()->with('error', 'You are not the driver of this order');
+        }
+
+        // Уведомляем пассажиров о том, что поездка отменена
+        $passengers = $order->passengers;
+        foreach ($passengers as $passenger) {
+            // Здесь можно отправить уведомление пассажирам
+            // Например, используя событие или e-mail уведомление
+        }
+
+        // Удаляем заказ
+        $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+        $order->delete(); // Удаляем сам заказ
+
+        // Перенаправляем пользователя с подтверждением отмены
+        return redirect()->route('driver.orders');//->with('success', 'Trip has been successfully canceled');
+    }
+
 }

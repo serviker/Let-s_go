@@ -1,0 +1,178 @@
+/* NewDriverOrderDetails.css */
+.order-details-container {
+    background-color: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-date {
+    margin-left: 20px;
+    font-size: 24px;
+}
+
+.btn-danger {
+    background: transparent;
+    color: #eea236;
+}
+
+.departure-info, .arrival-info {
+    display: flex;
+    align-items: center;
+}
+
+.route-line {
+    position: relative;
+}
+
+.circle {
+    width: 16px;
+    height: 16px;
+    background: #00a2ff;
+    border-radius: 50%;
+    position: absolute;
+    top: -4px;
+    left: -4px;
+}
+
+.intermediate-cities {
+    margin: 16px 0;
+}
+
+.intermediate-city {
+    display: flex;
+    align-items: center;
+}
+
+.intermediate-city-name {
+    margin-left: 24px;
+}
+
+.separator {
+    height: 1px;
+    background: #eee;
+    margin: 16px 0;
+}
+
+.price-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+}
+
+.driver-link {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.driver-photo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.trip-description {
+    margin: 16px 0;
+    font-size: 16px;
+    color: #666;
+}
+
+.available-seats {
+    font-size: 20px;
+}
+
+.passenger-seats {
+    margin-top: 16px;
+}
+
+.passenger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.passenger-name {
+    font-weight: bold;
+}
+
+.passenger-cities-container {
+    display: flex;
+    align-items: center;
+}
+
+.arrow {
+    margin: 0 8px;
+}
+
+.passenger-photo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.no-passengers {
+    color: #999;
+}
+
+.car-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.car-name {
+    font-weight: bold;
+}
+
+.car-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+}
+
+.separator-thin {
+    height: 8px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+    margin-bottom: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+}

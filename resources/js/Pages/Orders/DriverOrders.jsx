@@ -4,10 +4,11 @@ import { Link } from '@inertiajs/inertia-react';
 import DriverOrderIndex from "@/Pages/Orders/DriverOrderIndex.jsx";
 import Modal from "@/Components/Modal.jsx";
 import {Inertia} from "@inertiajs/inertia";
+import {usePage} from "@inertiajs/react";
 
 export default function DriverOrders({ orders }) {
     const [showModal, setShowModal] = useState(!Array.isArray(orders) || orders.length === 0);
-
+    const { props } = usePage();
     // Функция для закрытия модального окна
     const closeModal = () => {
         Inertia.visit(route('dashboard')); // Переход на главную страницу
@@ -37,6 +38,11 @@ export default function DriverOrders({ orders }) {
     }
     return (
         <div className="driver-orders-container">
+            {props.flash && props.flash.message && (
+                <div className="alert alert-success">
+                    {props.flash.message}
+                </div>
+            )}
             {orders.map(order => (
                 <DriverOrderIndex key={order.id} order={order} className="order-item"/>
             ))}

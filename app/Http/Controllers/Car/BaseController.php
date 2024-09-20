@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Car;
 
 use App\Http\Controllers\Controller;
-use App\Sevices\Car\Service;
+use App\Http\Sevices\Car\Service;
 
 class BaseController extends Controller
 {

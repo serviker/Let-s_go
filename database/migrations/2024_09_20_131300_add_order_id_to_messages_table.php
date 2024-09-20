@@ -12,18 +12,16 @@ return new class extends Migration
     public function up()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->softDeletes();  // Добавляет столбец deleted_at
+            $table->foreignId('order_id')->nullable()->after('id')->constrained('orders')->onDelete('cascade');
+
         });
     }
 
     public function down()
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->dropForeign(['order_id']);
-            $table->dropColumn('order_id');
-            $table->dropSoftDeletes();  // Удаляет столбец deleted_at
+            $table->dropForeign(['order_id']); // Удалите внешний ключ
+            $table->dropColumn('order_id'); // Теперь удалите столбец
         });
     }
-
 };

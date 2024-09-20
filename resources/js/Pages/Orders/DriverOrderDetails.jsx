@@ -2,12 +2,56 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, usePage } from '@inertiajs/react';
 import '../../../css/DriverOrderDetails.css';
+//import '../../../css/PassengerOrderDetails.css';
 import {Inertia} from "@inertiajs/inertia";
+//import DriverOrderIndex from "@/Pages/Orders/DriverOrderIndex.jsx";
 
-export default function DriverOrderDetails() {
+const CancelBookingModal = ({ show, onClose, onConfirm }) => {
+    if (!show) return null;
+
+    return (
+        <div className="modal-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1050 // Поверх других элементов
+        }}>
+            <div className="modal-content" style={{
+                width: '25%',
+                border: '4px solid #eea236',
+                borderRadius: '10px',
+                backgroundColor: 'white',
+                padding: '20px',
+                position: 'relative'
+            }}>
+                <h3 style={{ textAlign: 'center', color: 'black' }}>
+                    Вы уверены, что хотите отменить бронирование?
+                </h3>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
+                    <button onClick={onConfirm} className="btn btn-danger">
+                        Подтвердить
+                    </button>
+                    <button onClick={onClose} className="btn btn-secondary">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const DriverOrderDetails = React.memo(() => {
     const { order, searchCriteria } = usePage().props;
     const [data, setData] = useState(order);
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
@@ -27,17 +71,33 @@ export default function DriverOrderDetails() {
         // логикА для перехода на компонент обмена сообщениями
         Inertia.visit(`/orders/${data.id}/messages/${passengerId}`);
     };
-
-
+    const handleOpenCancelModal = () => setShowCancelModal(true);
+    const handleCloseCancelModal = () => setShowCancelModal(false);
+    const handleConfirmCancel = () => {
+        Inertia.delete(route('order.cancelForDriver', { order: data.id }), {
+            onSuccess: () => {
+                handleCloseCancelModal();
+            },
+            onError: () => {
+                // Обработка ошибки
+            },
+        });
+    };
 
     return (
-        <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
-            <h1 className="order-date">{formattedTime} {formattedDate}</h1>
+        <div className="order-container-details bg-white p-6 rounded-lg shadow-lg">
+            <div className="order-header">
+                <h1 className="order-date">{formattedTime} {formattedDate}</h1>
+                <button className="btn btn-danger"
+                        onClick={handleOpenCancelModal}>
+                    Отменить поездку
+                </button>
+            </div>
             <div className="departure-info">
                 <div className="route-line">
                     <div className="circle"></div>
                 </div>
-                <div className="departure-address" style={{ fontWeight: 'bold'}}>
+                <div className="departure-address">
                     {data.fromCity}, {data.departureAddress}
                 </div>
                 {/*<div className="departure-time">{formattedTime}</div>*/}
@@ -60,12 +120,11 @@ export default function DriverOrderDetails() {
                     ))}
                 </div>
             )}
-
             <div className="arrival-info">
                 <div className="route-line">
                     <div style={{marginTop: '-8px'}} className="circle"></div>
                 </div>
-                <div className="arrival-address"  style={{ fontWeight: 'bold', marginTop: '-8px'}}>
+                <div className="arrival-address">
                     {data.toCity}, {data.arrivalAddress}
                 </div>
             </div>
@@ -78,6 +137,8 @@ export default function DriverOrderDetails() {
             </div>
 
             <div className="separator"></div>
+
+
             <Link href={route('profile.edit', {id: data.driverId})} className="driver-link">
                 <div className="driver-info">
                     <img
@@ -113,7 +174,7 @@ export default function DriverOrderDetails() {
                 <div className="passenger-list">
                     {data.passengers.length > 0 ? (
                         data.passengers.map((passenger, index) => {
-                           // console.log(passenger); // Выводим данные пассажира в консоль
+                            // console.log(passenger); // Выводим данные пассажира в консоль
                             return (
                                 <div
                                     key={index}
@@ -127,7 +188,7 @@ export default function DriverOrderDetails() {
                                             <div className="arrow">→</div>
                                             <span className="passenger-arrival">{passenger.arrivalCity}</span>
                                             {passenger.seats >= 2 && (  // Условное отображение
-                                                <div style={{ color: '#eea236', fontWeight: 'bold', marginLeft: '30px'}}>
+                                                <div style={{color: '#eea236', fontWeight: 'bold', marginLeft: '30px'}}>
                                                     <span> - {passenger.seats} Места </span>
                                                 </div>
                                             )}
@@ -175,9 +236,14 @@ export default function DriverOrderDetails() {
                     <button className="btn btn-info">На главную</button>
                 </Link>
             </div>
+            <CancelBookingModal
+                show={showCancelModal}
+                onClose={handleCloseCancelModal}
+                onConfirm={handleConfirmCancel}
+            />
         </div>
     );
-}
+});
 
 DriverOrderDetails.propTypes = {
     order: PropTypes.shape({
@@ -198,3 +264,4 @@ DriverOrderDetails.propTypes = {
         availableSeats: PropTypes.number.isRequired, // Свободные места
     }).isRequired,
 };
+export default DriverOrderDetails;

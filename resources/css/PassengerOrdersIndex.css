@@ -1,0 +1,155 @@
+.order-container {
+    margin-top: 10px;
+    width: 40%; /* Установите ширину 100%, чтобы она подчинялась родительскому элементу */
+    max-width: 60%; /* Ограничьте максимальную ширину */
+    height: 160px;
+    border-radius: 10px;
+    border-color:#eea236;
+    position: relative;
+    background-color: white;
+    padding: 0 30px; /* Добавлено для отступов от краев */
+}
+
+.order-container:hover  {
+    background-color: #fdfbf6;
+    border-color: #eea236;
+    text-decoration: none;
+}
+
+.city-label {
+    font-size: 20px;
+    font-weight: bold;
+    position: absolute;
+    top: 20%;
+    transform: translateY(-50%);
+}
+
+.from-city {
+    left: 30px;
+}
+
+.to-city {
+    left: calc(140px + 250px);
+}
+
+.departure-time-container {
+    position: absolute;
+    top: calc(20% + 30px); /* Сместить вниз от города отправления */
+    left: 20px;
+}
+
+.departure-date, .departure-time {
+    margin-left: 20px; /* Отступ между датой и временем */
+    font-size: 18px;
+    color: #eea236;
+    font-weight: bold;
+}
+
+.line-container {
+    position: absolute;
+    top: 18%;
+    left: calc(30px + 100px); /* Отступ от города отправления + радиус круга */
+    width: 250px;
+    height: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.line {
+    width: 100%;
+    height: 1px;
+    background-color: gray;
+    position: relative;
+}
+
+.circle {
+    width: 8px;
+    height: 8px;
+    background-color: gray;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.circle-left {
+    left: -4px; /* Половина диаметра круга для выравнивания по центру линии */
+}
+
+.circle-right {
+    right: -4px; /* Половина диаметра круга для выравнивания по центру линии */
+}
+
+.price-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #eea236;
+    position: absolute;
+    top: 20%;
+    right: 30px;
+    transform: translateY(-50%);
+}
+
+.separator {
+    margin-top: 90px; /* Отступ сверху перед разделителем */
+    border-top: 1px solid #ccc;
+}
+
+.info-container {
+    display: flex;
+    margin-top: 10px;
+    align-items: center; /* Вертикальное выравнивание по центру */
+}
+
+.driver-name {
+    font-weight: bold;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.car-name {
+    font-weight: bold;
+    margin-left: 200px; /* Измените отступ до нужного значения */
+    margin-top: 10px;
+}
+
+.driver-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px; /* Отступ от фотографии до имени */
+    margin-left: 80px;
+}
+
+.btn {
+    margin-right: 0; /* Убедитесь, что нет дополнительного правого отступа */
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.btn-info {
+    background-color: #17a2b8; /* Цвет для кнопки "info" */
+    color: white;
+}
+
+.container {
+    padding: 0; /* Убедитесь, что padding не мешает */
+}
+.driver-orders-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Выравнивание элементов по центру */
+    width: 100%; /* Или ограничьте ширину контейнера, если нужно */
+}
+
+.order-item {
+    width: 60%; /* Ограничение ширины для каждого DriverOrderIndex */
+    margin-bottom: 20px; /* Отступ между элементами */
+}

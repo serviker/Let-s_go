@@ -38,6 +38,12 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [UserController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [UserController::class, 'destroy'])->name('profile.destroy');
 
+    // Добавляем маршруты для добавления авто
+    Route::get('/profile/add-car', [CarController::class, 'create'])->name('car.create');
+    Route::post('/profile/add-car', [CarController::class, 'store'])->name('car.store');
+    // Добавляем маршрут для удаления авто
+    Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
+
     Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -45,11 +51,7 @@ Route::middleware(['auth'])->group(function () {
     // Добавляем маршрут для обновления пароля
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('password.update');
 
-    // Добавляем маршруты для добавления авто
-    Route::get('/profile/add-car', [CarController::class, 'create'])->name('car.create');
-    Route::post('/profile/add-car', [CarController::class, 'store'])->name('car.store');
-    // Добавляем маршрут для удаления авто
-    Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
+
 
     // Группа маршрутов заказов с пространством имен 'Message'
     Route::namespace('App\Http\Controllers\Message')->group(function () {
@@ -71,10 +73,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders', 'StoreController')->name('order.store');
         Route::get('/orders/{order}', 'ShowController')->name('order.show');
         Route::get('/orders/{order}/edit', 'EditController')->name('order.edit');
-        Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
-        Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
+      //  Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
+      //  Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
         Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');
+
+        Route::delete('/orders/{order}/cancel/passenger', [ShowController::class, 'cancelOrderPassenger'])->name('order.cancel');
+        Route::delete('/orders/{order}/cancel/driver', [ShowController::class, 'cancelOrderDriver'])->name('order.cancelForDriver');
+
+
 
         // Добавляем маршрут для всех поездок водителя
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');

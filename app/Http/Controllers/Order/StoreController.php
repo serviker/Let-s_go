@@ -71,6 +71,9 @@ class StoreController extends Controller
             if (!empty($intermediateAddresses)) {
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
+            Log::info('Order/StoreControllerData Received:', $data);
+            Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
+
 
             return redirect()->route('order.show', $order->id)
                 ->with('success', 'Заказ успешно создан!');

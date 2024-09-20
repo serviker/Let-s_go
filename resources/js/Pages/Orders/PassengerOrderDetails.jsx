@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, usePage } from '@inertiajs/react';
-import '../../../css/DriverOrderDetails.css';
+import '../../../css/PassengerOrderDetails.css';
 import { Inertia } from '@inertiajs/inertia';
 import { Modal, Button } from 'react-bootstrap';
 
@@ -42,6 +42,47 @@ const NoDriverMessagingModal = ({ show, onClose }) => {
     );
 };
 
+const CancelBookingModal = ({ show, onClose, onConfirm }) => {
+    if (!show) return null;
+
+    return (
+        <div className="modal-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1050 // Поверх других элементов
+        }}>
+            <div className="modal-content" style={{
+                width: '25%',
+                border: '4px solid #eea236',
+                borderRadius: '10px',
+                backgroundColor: 'white',
+                padding: '20px',
+                position: 'relative'
+            }}>
+                <h3 style={{ textAlign: 'center', color: 'black' }}>
+                    Вы уверены, что хотите отменить бронирование?
+                </h3>
+                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
+                    <button onClick={onConfirm} className="btn btn-danger">
+                        Подтвердить
+                    </button>
+                    <button onClick={onClose} className="btn btn-secondary">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
@@ -52,7 +93,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const [data, setData] = useState(order);
     const [canSendMessage, setCanSendMessage] = useState(false); // Флаг для проверки отправки сообщений
     const [showErrorModal, setShowErrorModal] = useState(false); // Для отображения модального окна
-    const [errorMessage, setErrorMessage] = useState(''); // Для хранения сообщения об ошибке
+    const [showCancelModal, setShowCancelModal] = useState(false);
     const handleCloseModal = () => setShowErrorModal(false);
 
     if (!data) {
@@ -108,6 +149,22 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         } catch (error) {
             console.error('Error booking the order:', error);
         }
+    };
+
+    const handleCancelBooking = () => {
+        setShowCancelModal(true);
+    };
+
+    const confirmCancellation = () => {
+        Inertia.delete(route('order.cancel', order.id), {
+            onSuccess: () => {
+                setShowCancelModal(false);
+                // alert('Бронирование успешно отменено.');
+            },
+            onError: (errors) => {
+                alert(errors.message || 'Ошибка при отмене бронирования.');
+            }
+        });
     };
 
     const openDriverMessagingComponent = () => {
@@ -166,9 +223,10 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
             <div className="arrival-info">
                 <div className="route-line">
-                    <div className="circle"></div>
+                    <div style={{marginTop: '-8px'}} className="circle"></div>
                 </div>
-                <div className={`arrival-address ${toCity === data.toCity ? 'highlighted' : ''}`}>
+                <div className={`arrival-address ${toCity === data.toCity ? 'highlighted' : ''}`}
+                     style={{marginTop: '-8px'}}>
                     {data.toCity}, {data.arrivalAddress}
                 </div>
             </div>
@@ -277,14 +335,32 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                 <Link href={route('dashboard')} className="home-link">
                     <button type="button" className="btn btn-secondary">Назад</button>
                 </Link>
-                <button
-                    className="btn btn-info"
-                    disabled={isButtonDisabled}
-                    onClick={handleBooking}
-                >
-                    {isBooked ? 'Вы забронировали место' : 'Забронировать место'}
-                </button>
+                {/* Если место забронировано, показываем кнопку отмены */}
+                {isBooked ? (
+                    <>
+                        <CancelBookingModal
+                            show={showCancelModal}
+                            onClose={() => setShowCancelModal(false)}
+                            onConfirm={confirmCancellation}
+                        />
+                        <div>
+                            <button onClick={handleCancelBooking} className="btn btn-danger">
+                                Отменить бронирование
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    // Если место не забронировано, показываем кнопку бронирования
+                    <button
+                        className="btn btn-info"
+                        disabled={isButtonDisabled}
+                        onClick={handleBooking}
+                    >
+                        Забронировать место
+                    </button>
+                )}
             </div>
+
             <NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>
         </div>
     );

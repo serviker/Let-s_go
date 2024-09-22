@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
     // Добавляем маршрут для обновления пароля
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('password.update');
 
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
     // Группа маршрутов заказов с пространством имен 'Message'

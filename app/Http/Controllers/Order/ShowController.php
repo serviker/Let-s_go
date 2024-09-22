@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\Controller;
 use App\Models\Address;
+use App\Models\Driver;
 use App\Models\Order;
 use App\Models\Passenger;
 use App\Models\User;
@@ -17,35 +18,43 @@ use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-    public function __invoke(Request $request,Order $order)
+    public function __invoke(Request $request, Order $order)
     {
-        // Получаем текущего аутентифицированного пользователя
+        // Get the authenticated user
         $user = Auth::user();
 
-        // Извлекаем критерии поиска из сессии
+        // Извлечь критерии поиска из session
         $sessionCriteria = session('searchCriteria', []);
 
-        // Получаем критерии из запроса Извлекаем конкретные параметры
-        $departureCity = $sessionCriteria['departureCity'] ?? null;
-        $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
-        $seats = $sessionCriteria['seats'] ?? null;
-
-       // Log::info('Логируем $sessionCriteria полученные критерии in Order/ShowController:', $sessionCriteria);
-
-        // Получаем связанные адреса
+        // Extract from and to addresses
         $fromAddress = $order->fromAddress;
         $toAddress = $order->toAddress;
 
-        // Получаем промежуточные адреса, связанные с заказом
-        $intermediateAddresses = $order->intermediateAddresses()->pluck('city')->toArray();
+        // Get the driver information via driver_id
+       // $driver = User::with('cars')->find($order->driver_id);
+       // $car = $driver ? $driver->cars->first() : null; // Проверьте наличие водителя
 
-        // Получаем объект пользователя (водителя) через driver_id
-        $driver = User::with('cars')->find($order->driver_id);
-        $car = $driver ? $driver->cars->first() : null;
+        $driver = Driver::with('user.cars')->find($order->driver_id);
 
-        // Преобразуем цену в число с плавающей запятой
-        $price = (float) $order->price;
+        // Проверяем, что водитель существует и у него есть машины
+        $car = ($driver && $driver->user && $driver->user->cars->isNotEmpty()) ? $driver->user->cars->first() : null;
 
+
+        if ($driver) {
+            Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $driver->user->id]);
+        } else {
+            Log::warning('Order/ShowController: Driver not found for order', ['driver_id' => $order->driver_id]);
+        }
+        Log::info('Order/ShowController Retrieved Driver:', [
+            'driver_id' => $driver ? $driver->id : 'Not Found',
+            'user_id' => $driver && $driver->user ? $driver->user->id : 'No User'
+        ]);
+
+
+       // Log::info('Order/ShowController $driver:', ['driver_id' => $order->driver_id]);
+
+        Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $user->id]);
+        // Process passengers list
         $passengers = $order->passengers->map(function ($passenger) {
             return [
                 'id' => $passenger->id,
@@ -53,61 +62,55 @@ class ShowController extends Controller
                 'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
                 'departureCity' => $passenger->pivot->departure_city ?? 'Unknown',
                 'arrivalCity' => $passenger->pivot->arrival_city ?? 'Unknown',
-                'seats' => $passenger->pivot->seats // Добавляем количество забронированных мест
+                'seats' => $passenger->pivot->seats
             ];
         });
+        Log::info('Order/ShowController $passengers:', $passengers->toArray());
+        // Check if the user is a passenger in the order
+        $isPassenger = $order->passengers()->where('passenger_id', $user->id)->exists();
 
-
-        // Проверяем, является ли пользователь пассажиром в заказе
-        $isBooked = $order->passengers()->where('passenger_id', $user->id)->exists();
-
-        // Собираем данные для передачи в компонент
+        // Build data array for view
         $data = [
             'id' => $order->id,
             'departureAddress' => $fromAddress->street . ' ' . $fromAddress->house ?? 'Unknown',
             'arrivalAddress' => $toAddress->street . ' ' . $toAddress->house ?? 'Unknown',
             'fromCity' => $fromAddress->city ?? 'Unknown',
             'toCity' => $toAddress->city ?? 'Unknown',
-            'intermediate_addresses' => $intermediateAddresses,
-            'price' => $price,
-            'driverName' => $driver ? $driver->name : 'Unknown',
+            'intermediate_addresses' => $order->intermediateAddresses()->pluck('city')->toArray(),
+            'price' => (float)$order->price,
+            'driverName' => $driver && $driver->user ? $driver->user->name : 'Unknown',
             'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
             'carColor' => $car ? $car->color : 'No car',
             'carPhoto' => $car && $car->photoUrl ? asset('/' . $car->photoUrl) : null,
             'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
-            'driverPhotoUrl' => $driver && $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
+            'driverPhotoUrl' => $driver && $driver->user && $driver->user->photoUrl ? asset('/' . $driver->user->photoUrl) : null,
             'driverId' => $driver ? $driver->id : 0,
             'description' => $order->description ?? 'No description provided',
-            'availableSeats' => $order->available_seats ?? 'Нет свободных мест',
+            'availableSeats' => $order->available_seats ?? 'No available seats',
             'passengers' => $passengers,
-            'isBooked' => $isBooked,
-            'searchCriteria' => $sessionCriteria, // Передаем критерии поиска в компонент
+            'isBooked' => $isPassenger,
+            'searchCriteria' => $sessionCriteria
         ];
+        Log::info('Order/ShowControllerOrder Created $data:', $data);
 
-        // Проверяем, является ли пользователь водителем в этом заказе
+        // Check if the authenticated user is the driver
         if ($user && $user->id === $order->driver_id) {
+            // If the user is the driver, show the DriverOrderDetails view
             return Inertia::render('Orders/DriverOrderDetails', [
                 'order' => $data,
-                'canJoin' => false,// Водитель не может присоединиться к поездке
-                'searchCriteria' => [
-                    'departureCity' => $departureCity,
-                    'arrivalCity' => $arrivalCity,
-                    'seats' => $seats
-                ]
+                'canJoin' => false, // The driver cannot join the trip as a passenger
+                'searchCriteria' => $sessionCriteria
             ]);
         }
 
-        // Для пользователей, которые не являются водителем или пассажиром, показываем данные и возможность присоединиться
+        // If the user is not the driver, but a passenger, show PassengerOrderDetails
         return Inertia::render('Orders/PassengerOrderDetails', [
             'order' => $data,
-            'canJoin' => !$isBooked,//true,  Пользователь может присоединиться к поездке
-            'searchCriteria' => [
-                'departureCity' => $departureCity,
-                'arrivalCity' => $arrivalCity,
-                'seats' => $seats
-            ]
+            'canJoin' => !$isPassenger, // User can join if not already a passenger
+            'searchCriteria' => $sessionCriteria
         ]);
     }
+
     public function joinOrder(Request $request, $orderId)
     {
         $user = Auth::user();

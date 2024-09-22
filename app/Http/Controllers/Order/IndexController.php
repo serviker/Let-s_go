@@ -99,6 +99,9 @@ class IndexController extends Controller
             'searchCriteria' => $searchCriteria
         ]);
 
+        // Сохраняем критерии поиска в сессию для последующего использования
+        session()->put('searchCriteria', $searchCriteria);
+
         // Получаем заказы на основе критериев поиска
         $ordersQuery = Order::with(['fromAddress', 'toAddress', 'intermediateAddresses', 'driver'])
             ->whereDate('date_time_departure', $searchCriteria['date'])
@@ -201,7 +204,9 @@ class IndexController extends Controller
         ]);*/
 
        // return response()->json(['orders' => $orders->toArray(),]);
-        return response()->json(['orders' => $ordersWithUrls->toArray()
+        return response()->json(['orders' => $ordersWithUrls->toArray(),
+            // Возвращаем последние критерии поиска
+            'SearchCriteria' => session('searchCriteria')
             ]);
     }
 }

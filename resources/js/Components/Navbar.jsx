@@ -5,7 +5,8 @@ import { ru } from 'date-fns/locale';
 import Autosuggest from 'react-autosuggest';
 import { Link, usePage } from '@inertiajs/react';
 import Modal from "@/Components/Modal.jsx";
-import {Inertia} from "@inertiajs/inertia"; // Use Inertia's usePage for accessing the Laravel Breeze user data
+import {Inertia} from "@inertiajs/inertia";
+import {useLocation} from "react-router-dom"; // Use Inertia's usePage for accessing the Laravel Breeze user data
 
 const cities = [
     { name: 'Москва' },
@@ -269,7 +270,7 @@ const NoOrdersModal = ({show, onClose}) => {
     );
 };
 
-const  NoCompletedOrdersModal = ({show, onClose}) => {
+/*const  NoCompletedOrdersModal = ({show, onClose}) => {
     if (!show) return null;
 
     return (
@@ -288,7 +289,7 @@ const  NoCompletedOrdersModal = ({show, onClose}) => {
             </div>
         </div>
     );
-}
+}*/
 const userHasBookedTrips = async (userId) => {
     const response = await fetch(`/api/user/${userId}/booked-trips`, {
         headers: {
@@ -308,8 +309,8 @@ const Navbar = ({setOrders, orders}) => {
     const [cars, setCars] = useState([]);
     const [date, setDate] = useState('');
     const [fromCity, setFromCity] = useState('');
-    //  const [orders, setOrders] = useState([]);
     const [toCity, setToCity] = useState('');
+    const [seats, setSeats] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [passengerCount, setPassengerCount] = useState(1);
     const [showNoCarModal, setShowNoCarModal] = useState(false);
@@ -320,7 +321,35 @@ const Navbar = ({setOrders, orders}) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
     const inputRef = useRef(null);
+    const location = useLocation();
 
+    // Восстанавливаем состояние из URL-параметров при загрузке компонента
+   /* useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+
+        const savedDepartureCity = queryParams.get('departureCity');
+        const savedArrivalCity = queryParams.get('arrivalCity');
+        const savedDate = queryParams.get('date');
+        const savedSeats = queryParams.get('seats');
+
+        if (savedDepartureCity && savedArrivalCity) {
+            setFromCity(savedDepartureCity);
+            setToCity(savedArrivalCity);
+            setDate(savedDate);
+            setSeats(savedSeats);
+
+            // Здесь можно сделать запрос на сервер для получения поездок
+            // fetchTrips(savedDepartureCity, savedArrivalCity, savedDate, savedSeats);
+        }
+    }, [location]); */
+    // Восстанавливаем состояние из URL-параметров при загрузке компонента
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        setFromCity(queryParams.get('departureCity') || '');
+        setToCity(queryParams.get('arrivalCity') || '');
+        setDate(queryParams.get('date') || '');
+        setPassengerCount(queryParams.get('seats') || 1);
+    }, [location]);
 
     useEffect(() => {
         fetch('/api/user/cars', {
@@ -407,6 +436,35 @@ const Navbar = ({setOrders, orders}) => {
 
                 setShowNoOrdersModal(false); // Скрыть модалку, если поездки найдены
             }
+
+            // После запроса данных, редирект через Inertia на страницу с параметрами поиска
+           // const url = `/search?departureCity=${fromCity}&arrivalCity=${toCity}&date=${date}&seats=${passengerCount}`;
+           // Inertia.visit(url);
+          /*  Inertia.replace(route('dashboard', {
+                departureCity: fromCity,
+                arrivalCity: toCity,
+                date: date,
+                seats: passengerCount,
+            })); */
+            const currentParams = new URLSearchParams(location.search);
+            const currentRoute = route('dashboard', {
+                departureCity: currentParams.get('departureCity'),
+                arrivalCity: currentParams.get('arrivalCity'),
+                date: currentParams.get('date'),
+                seats: currentParams.get('seats'),
+            });
+
+            const newRoute = route('dashboard', {
+                departureCity: fromCity,
+                arrivalCity: toCity,
+                date: date,
+                seats: passengerCount,
+            });
+
+            if (currentRoute !== newRoute) {
+                Inertia.replace(newRoute);
+            }
+
         } catch (error) {
             console.error('Error searching orders:', error);
         }
@@ -462,7 +520,7 @@ const Navbar = ({setOrders, orders}) => {
                 <div className="container">
                     <div className="navigation">
                         <a href="#home" className="navbar-brand">
-                            <img src="/images/Logo-1.png" alt="Plus Icon" width="148" height="36"/>
+                            <img src="/images/logo_4.png" alt="Plus Icon" width="138" height="36" style={{ marginLeft: '15%'}}/>
                         </a>
                         <div className="navbar-header">
                             <nav className="collapse navbar-collapse" id="rock-navigation">

@@ -104,20 +104,20 @@
     align-items: center; /* Выровнять по центру */
     margin: 10px 0; /* Отступы вокруг */
     padding: 5px 0; /* Добавьте отступы для лучшего визуального эффекта */
-    background-color: #f8f9fa; /* Мягкий фон для теста */
-    border-radius: 5px;
+    /*background-color: #f8f9fa; !* Мягкий фон для теста *!*/
+    /*border-radius: 5px;*/
 }
 
 
-.price-container, .separator, .arrival-address  {
-    border: 1px solid red; /* Временная граница для визуализации */
-}
+/*.price-container, .separator, .arrival-address  {*/
+/*    border: 1px solid red; !* Временная граница для визуализации *!*/
+/*}*/
 
 .price-label {
     font-size: 18px;
     font-weight: bold;
     color: #eea236;
-    border: 1px solid red;
+    /*border: 1px solid red;*/
 }
 .price-value {
     font-size: 18px;

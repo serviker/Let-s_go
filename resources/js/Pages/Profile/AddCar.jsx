@@ -51,9 +51,9 @@ const renderSuggestionColor = suggestion => (
     <div style={{ display: 'flex', alignItems: 'center'}}>
         <div
             style={{
-                width: '100%',
+                width: '25px',
                 height: '25px',
-                borderRadius: '5px',
+                borderRadius: '15px',
                 backgroundColor: suggestion.value || '#ffffff', // Убедитесь, что это свойство правильно называется
                 marginRight: '10px',
             }}

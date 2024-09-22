@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\CityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Message\CreateController;
 use App\Http\Controllers\Message\StoreController;
@@ -53,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/api/cities', [CityController::class, 'getCities']);
+    Route::get('/api/suggestions', [CityController::class, 'getSuggestions']);
 
     // Группа маршрутов заказов с пространством имен 'Message'
     Route::namespace('App\Http\Controllers\Message')->group(function () {

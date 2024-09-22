@@ -18,7 +18,7 @@ use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-    public function __invoke(Request $request, Order $order)
+    public function __invoke(Order $order)
     {
         // Get the authenticated user
         $user = Auth::user();

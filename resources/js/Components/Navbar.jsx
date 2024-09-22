@@ -207,13 +207,41 @@ const cities = [
     { "name": "Щекино, Тул. обл." },
     { "name": "Ясногорск, Тул. обл." },
 ];
-const getSuggestions = (value) => {
+/*const getSuggestions = (value) => {
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
     return inputLength === 0 ? [] : cities.filter(city =>
         city.name.toLowerCase().slice(0, inputLength) === inputValue
     );
 };
+*/
+
+const fetchSuggestions = async (value) => {
+    const response = await fetch(`/api/cities/suggestions?value=${value}`);
+    return await response.json();
+};
+
+
+// Метод для фильтрации городов по введенному значению
+const getSuggestions = (value, uniqueCities) => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0
+        ? [] // Если ничего не введено, возвращаем пустой список
+        : uniqueCities.filter(
+            city => city.toLowerCase().slice(0, inputLength) === inputValue
+        ); // Фильтруем города по введенным буквам
+};
+/*
+const getSuggestions = (inputValue, cityList) => {
+    const inputLower = inputValue.toLowerCase();
+    return cityList.filter(city => {
+        // Проверяем, существует ли поле city и является ли оно строкой
+        return city && city.city && typeof city.city === 'string' && city.city.toLowerCase().includes(inputLower);
+    });
+};*/
+
 
 const getSuggestionValue = (suggestion) => suggestion.name;
 
@@ -301,7 +329,7 @@ const userHasBookedTrips = async (userId) => {
     return data.hasBookedTrips; // Флаг, возвращаемый сервером
 };
 
-const Navbar = ({setOrders, orders}) => {
+const Navbar = ({setOrders, orders, onSearch }) => {
     // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
     const {auth} = usePage().props;
     const user = auth.user || {};
@@ -322,26 +350,28 @@ const Navbar = ({setOrders, orders}) => {
     const [passengerDropdownOpen, setPassengerDropdownOpen] = useState(false);
     const inputRef = useRef(null);
     const location = useLocation();
+    const [cities, setCities] = useState([]); // Состояние для всех городов
+    const [citySuggestions, setCitySuggestions] = useState([]); // Состояние для предложений
+    const [data, setData] = useState([]); // Состояние для предложений
+    const [inputValue, setInputValue] = useState([] || ''); // Состояние для предложений
 
-    // Восстанавливаем состояние из URL-параметров при загрузке компонента
-   /* useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
+    const fetchCities = async () => {
+        const response = await fetch('http://localhost:8000/api/cities');
+        const data = await response.json();
+        console.log("Cities fetched from API:", data);
+        return data; // Возвращаем данные, чтобы использовать их в других местах
+    };
 
-        const savedDepartureCity = queryParams.get('departureCity');
-        const savedArrivalCity = queryParams.get('arrivalCity');
-        const savedDate = queryParams.get('date');
-        const savedSeats = queryParams.get('seats');
+    useEffect(() => {
+        // Вызываем fetchCities при монтировании компонента
+        const fetchInitialCities = async () => {
+            const data = await fetchCities();
+            setCities(data); // Сохраняем города в состояние
+        };
 
-        if (savedDepartureCity && savedArrivalCity) {
-            setFromCity(savedDepartureCity);
-            setToCity(savedArrivalCity);
-            setDate(savedDate);
-            setSeats(savedSeats);
+        fetchInitialCities();
+    }, []); // Пустой массив зависимостей для вызова один раз при монтировании
 
-            // Здесь можно сделать запрос на сервер для получения поездок
-            // fetchTrips(savedDepartureCity, savedArrivalCity, savedDate, savedSeats);
-        }
-    }, [location]); */
     // Восстанавливаем состояние из URL-параметров при загрузке компонента
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -374,8 +404,39 @@ const Navbar = ({setOrders, orders}) => {
     const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
 
     const onFromCityChange = (event, { newValue }) => { setFromCity(newValue); };
-    const onToCityChange = (event, { newValue }) => { setToCity(newValue); };
-    const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
+    const onToCityChange  = (event, { newValue }) => { setToCity(newValue); };
+   /* const onFromCityChange = (e) => {
+        const value = e.target.value;
+        setFromCity(value);
+        const suggestions = getSuggestions(value, cities); // cities - это массив объектов с названиями городов
+        setCitySuggestions(suggestions); // Установите предложения в состояние
+    };*/
+
+    // const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
+    const onSuggestionsFetchRequested = async ({ value }) => {
+        console.log("Fetching suggestions for:", value);
+
+        // Проверяем, если массив cities пуст, загружаем города
+        if (cities.length === 0) {
+            const allCities = await fetchCities(); // Здесь используем fetchCities
+            setCities(allCities);
+        }
+
+        // Извлекаем уникальные города
+        const uniqueCities = Array.from(new Set(cities.map(city => city.city)));
+
+        // Фильтруем предложения
+        const suggestions = getSuggestions(value, uniqueCities);
+        console.log("City suggestions:", suggestions);
+        setCitySuggestions(suggestions);
+    };
+
+
+    const handleCityChange = (event, { newValue }) => {
+        setData({ ...data, city: newValue });
+    };
+
+
     const onSuggestionsClearRequested = () => { setSuggestions([]); };
     const toggleDropdown = () => { setDropdownOpen(!dropdownOpen); };
     const togglePassengerDropdown = () => { setPassengerDropdownOpen(!passengerDropdownOpen); };
@@ -427,8 +488,9 @@ const Navbar = ({setOrders, orders}) => {
             } else {
                 console.log('Navbar: Received orders:', data.orders);
 
+                // Обновляем состояние orders в Dashboard, если setOrders передан
                 if (setOrders && typeof setOrders === 'function') {
-                    setOrders(data.orders); // Обновляем состояние orders в Dashboard
+                    setOrders(data.orders);
                     console.log('Navbar: setOrders вызван');
                 } else {
                     console.warn('setOrders is not provided');
@@ -437,15 +499,7 @@ const Navbar = ({setOrders, orders}) => {
                 setShowNoOrdersModal(false); // Скрыть модалку, если поездки найдены
             }
 
-            // После запроса данных, редирект через Inertia на страницу с параметрами поиска
-           // const url = `/search?departureCity=${fromCity}&arrivalCity=${toCity}&date=${date}&seats=${passengerCount}`;
-           // Inertia.visit(url);
-          /*  Inertia.replace(route('dashboard', {
-                departureCity: fromCity,
-                arrivalCity: toCity,
-                date: date,
-                seats: passengerCount,
-            })); */
+            // Обработка редиректа с использованием Inertia
             const currentParams = new URLSearchParams(location.search);
             const currentRoute = route('dashboard', {
                 departureCity: currentParams.get('departureCity'),
@@ -461,6 +515,7 @@ const Navbar = ({setOrders, orders}) => {
                 seats: passengerCount,
             });
 
+            // Если маршрут изменился, делаем замену URL через Inertia
             if (currentRoute !== newRoute) {
                 Inertia.replace(newRoute);
             }
@@ -469,6 +524,7 @@ const Navbar = ({setOrders, orders}) => {
             console.error('Error searching orders:', error);
         }
     };
+
 
     //  window.location.href = `/passenger/orders?${searchParams.toString()}`;
 
@@ -580,7 +636,8 @@ const Navbar = ({setOrders, orders}) => {
                         <div className="input-group">
                             <div className="input-wrapper">
                                 <Autosuggest
-                                    suggestions={suggestions}
+                                    // suggestions={suggestions}
+                                    suggestions={Array.isArray(suggestions) ? suggestions : []}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                     onSuggestionsClearRequested={onSuggestionsClearRequested}
                                     getSuggestionValue={getSuggestionValue}
@@ -607,7 +664,8 @@ const Navbar = ({setOrders, orders}) => {
 
                             <div className="input-wrapper">
                                 <Autosuggest
-                                    suggestions={suggestions}
+                                    // suggestions={suggestions}
+                                    suggestions={Array.isArray(suggestions) ? suggestions : []}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                     onSuggestionsClearRequested={onSuggestionsClearRequested}
                                     getSuggestionValue={getSuggestionValue}

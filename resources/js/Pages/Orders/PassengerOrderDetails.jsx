@@ -332,9 +332,10 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             <div className="separator-thin"></div>
 
             <div className="button-container">
-                <Link href={route('dashboard')} className="home-link">
-                    <button type="button" className="btn btn-secondary">Назад</button>
-                </Link>
+                {/*<Link href={route('dashboard')} className="home-link">*/}
+                {/*    <button type="button" className="btn btn-secondary">Назад</button>*/}
+                {/*</Link>*/}
+                <button className="btn btn-info" onClick={() => window.history.back()}>Назад</button>
                 {/* Если место забронировано, показываем кнопку отмены */}
                 {isBooked ? (
                     <>

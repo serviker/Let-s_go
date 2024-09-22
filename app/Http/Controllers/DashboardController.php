@@ -14,15 +14,35 @@ class DashboardController extends Controller
         $user = Auth::user();
         $orders = $user->orders; // Предполагается, что у пользователя есть связанные заказы
 
-        // Получение данных из сессии
-        $searchCriteria = session('searchCriteria', []); // Замените 'searchCriteria' на нужный вам ключ
+       /* $sessionCriteria = session('searchCriteria', []);
 
-        $searchCriteria = [
-            'departureCity' => $request->input('departureCity'),
-            'arrivalCity' => $request->input('arrivalCity'),
-            'date' => $request->input('date'),
-            'seats' => $request->input('seats'),
-        ];
+        // Извлекаем конкретные параметры
+        $departureCity = $sessionCriteria['departureCity'] ?? null;
+        $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
+        $seats = $sessionCriteria['seats'] ?? null;
+        $date = $sessionCriteria['date'] ?? null; */
+
+
+        // Получение данных из сессии
+        $searchCriteria = session('searchCriteria', [
+            'departureCity' => '',
+            'arrivalCity' => '',
+            'date' => '',
+            'seats' => 1
+        ]); // Замените 'searchCriteria' на нужный вам ключ
+        // Проверяем запрос и обновляем критерии, если они были переданы
+       /* if ($request->has(['departureCity', 'arrivalCity', 'date', 'seats'])) {
+            $searchCriteria = [
+                'departureCity' => $request->input('departureCity'),
+                'arrivalCity' => $request->input('arrivalCity'),
+                'date' => $request->input('date'),
+                'seats' => $request->input('seats'),
+            ];
+            session()->put('searchCriteria', $searchCriteria);
+        }*/
+
+        // Загружаем найденные поездки из сессии
+        $orders = session('foundOrders', []);
 
         return Inertia::render('Dashboard', [
             'auth' => ['user' => $user],

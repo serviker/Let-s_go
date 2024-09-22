@@ -94,11 +94,6 @@ class IndexController extends Controller
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
         Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
-        // Сохраняем критерии поиска в сессию
-        session([
-            'searchCriteria' => $searchCriteria
-        ]);
-
         // Сохраняем критерии поиска в сессию для последующего использования
         session()->put('searchCriteria', $searchCriteria);
 
@@ -178,35 +173,17 @@ class IndexController extends Controller
 
         // Логируем финальный массив с URL
        // Log::info('IndexController Логируем финальный массив с URLs:', ['ordersWithUrls' => $ordersWithUrls->toArray()]);
-        Log::info('Orders/IndexController with URLs:', $ordersWithUrls->toArray());
+       // Log::info('Orders/IndexController with URLs:', $ordersWithUrls->toArray());
         // Логируем конечный массив заказов перед отправкой на фронт
        // Log::info('IndexController Final Orders Array:', ['orders' => $orders->toArray()]);
 
-        // Логика для получения первого найденного заказа
-        /* $order = $orders->first(); // Пример: берем первый заказ для демонстрации
-
-         // Передача параметров в URL для ShowController
-     /*  if ($order) {
-             // Генерируем URL с параметрами городов
-             $url = route('order.show', [
-                 'order' => $order->id,
-                 'departureCity' => $searchCriteria['departureCity'],
-                 'arrivalCity' => $searchCriteria['arrivalCity']
-             ]);
-
-             // Редирект на этот URL
-             return redirect($url);
-         }*/
-
-
-       /*  return Inertia::render('Orders/PassengerOrders', [
-            'orders' => $orders,
-        ]);*/
+        // Если заказы найдены, сохраняем их в сессии
+        session()->put('foundOrders', $ordersWithUrls);
 
        // return response()->json(['orders' => $orders->toArray(),]);
         return response()->json(['orders' => $ordersWithUrls->toArray(),
             // Возвращаем последние критерии поиска
-            'SearchCriteria' => session('searchCriteria')
+            'searchCriteria' => session('searchCriteria')
             ]);
     }
 }

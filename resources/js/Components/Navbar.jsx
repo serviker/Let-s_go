@@ -207,53 +207,6 @@ const cities = [
     { "name": "Щекино, Тул. обл." },
     { "name": "Ясногорск, Тул. обл." },
 ];
-/*const getSuggestions = (value) => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-    return inputLength === 0 ? [] : cities.filter(city =>
-        city.name.toLowerCase().slice(0, inputLength) === inputValue
-    );
-};
-*/
-
-const fetchSuggestions = async (value) => {
-    const response = await fetch(`/api/cities/suggestions?value=${value}`);
-    return await response.json();
-};
-
-
-// Метод для фильтрации городов по введенному значению
-const getSuggestions = (value, uniqueCities) => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-
-    return inputLength === 0
-        ? [] // Если ничего не введено, возвращаем пустой список
-        : uniqueCities.filter(
-            city => city.toLowerCase().slice(0, inputLength) === inputValue
-        ); // Фильтруем города по введенным буквам
-};
-/*
-const getSuggestions = (inputValue, cityList) => {
-    const inputLower = inputValue.toLowerCase();
-    return cityList.filter(city => {
-        // Проверяем, существует ли поле city и является ли оно строкой
-        return city && city.city && typeof city.city === 'string' && city.city.toLowerCase().includes(inputLower);
-    });
-};*/
-
-
-const getSuggestionValue = (suggestion) => suggestion.name;
-
-const renderSuggestion = (suggestion) => (
-    <div>{suggestion.name}</div>
-);
-
-const getPassengerLabel = (count) => {
-    if (count === 1) return 'пассажир';
-    if (count >= 2 && count <= 4) return 'пассажира';
-    return 'пассажиров';
-};
 
 const NoCarModal = ({ show, onClose, onAddCar }) => {
     if (!show) return null;
@@ -329,12 +282,49 @@ const userHasBookedTrips = async (userId) => {
     return data.hasBookedTrips; // Флаг, возвращаемый сервером
 };
 
+/*
+const getSuggestions = (inputValue, cityList) => {
+    const inputLower = inputValue.toLowerCase();
+    return cityList.filter(city => {
+        // Проверяем, существует ли поле city и является ли оно строкой
+        return city && city.city && typeof city.city === 'string' && city.city.toLowerCase().includes(inputLower);
+    });
+};*/
+
+/*const getSuggestions = (value) => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+    return inputLength === 0 ? [] : cities.filter(city =>
+        city.name.toLowerCase().slice(0, inputLength) === inputValue
+    );
+};
+*/
+// Метод для фильтрации городов по введенному значению
+/*const getSuggestions = (value, uniqueCities) => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : uniqueCities.filter(city =>
+        city.toLowerCase().includes(inputValue)
+    );
+};*/
+
+
+const getPassengerLabel = (count) => {
+    if (count === 1) return 'пассажир';
+    if (count >= 2 && count <= 4) return 'пассажира';
+    return 'пассажиров';
+};
+
 const Navbar = ({setOrders, orders, onSearch }) => {
     // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
     const {auth} = usePage().props;
     const user = auth.user || {};
 
     const [cars, setCars] = useState([]);
+   /* const today = new Date().toISOString().split('T')[0];
+    console.log("Today:", today); // Проверяем правильность today's date
+    const [date, setDate] = useState(today || ''); // Установите сегодняшнюю дату*/
     const [date, setDate] = useState('');
     const [fromCity, setFromCity] = useState('');
     const [toCity, setToCity] = useState('');
@@ -354,13 +344,50 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const [citySuggestions, setCitySuggestions] = useState([]); // Состояние для предложений
     const [data, setData] = useState([]); // Состояние для предложений
     const [inputValue, setInputValue] = useState([] || ''); // Состояние для предложений
+    const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
+
+
+    // Метод для фильтрации городов по введенному значению
+    function getSuggestions(value, list) {
+        const inputValue = value.trim().toLowerCase();
+      //  console.log("Input value:", inputValue);
+        const inputLength = inputValue.length;
+        return inputLength === 0 ?  []: list.filter(item => item.toLowerCase().slice(0, inputLength) === inputValue);
+    }
+
+    const getSuggestionValue = (suggestion) => suggestion;
+
+    const renderSuggestion = (suggestion) => {
+        return <div style={{ borderRadius: '10px', borderColor: 'darkred'}}>{suggestion}</div>; // Убедитесь, что suggestion - это объект с свойством city
+    };
+
 
     const fetchCities = async () => {
-        const response = await fetch('http://localhost:8000/api/cities');
-        const data = await response.json();
-        console.log("Cities fetched from API:", data);
-        return data; // Возвращаем данные, чтобы использовать их в других местах
+        const response = await fetch('/api/cities');
+        return await response.json();
+        // console.log("Cities fetched from API:", data);
     };
+
+    const fetchSuggestions = async (value) => {
+        const response = await fetch(`/api/suggestions?value=${value}`);
+        return await response.json();
+    };
+
+  /*  useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const citiesData = await fetchCities();
+                setCities(citiesData);
+                setIsCitiesLoaded(true);
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
 
     useEffect(() => {
         // Вызываем fetchCities при монтировании компонента
@@ -371,6 +398,34 @@ const Navbar = ({setOrders, orders, onSearch }) => {
 
         fetchInitialCities();
     }, []); // Пустой массив зависимостей для вызова один раз при монтировании
+*/
+
+    useEffect(() => {
+        // Функция для загрузки городов из базы данных
+        const fetchCities = async () => {
+            try {
+                const response = await axios.get('/api/cities');
+            //    console.log("Fetched cities:", response.data);  // Добавляем вывод в консоль
+                setCities(response.data);  // Сохраняем список городов в состоянии
+                setIsCitiesLoaded(true);  // Помечаем, что города загружены
+            } catch (error) {
+                console.error("Ошибка при загрузке городов:", error);
+            }
+        };
+
+        // Загрузка городов только при монтировании компонента
+        if (cities.length === 0) {
+            fetchCities();
+        }
+    }, []);  // Пустой массив зависимостей гарантирует выполнение только один раз при монтировании.
+
+
+    useEffect(() => {
+        if (data.city && isCitiesLoaded) {
+            onSuggestionsFetchRequested({ value: data.city });
+        }
+    }, [data.city, isCitiesLoaded]);
+
 
     // Восстанавливаем состояние из URL-параметров при загрузке компонента
     useEffect(() => {
@@ -400,21 +455,50 @@ const Navbar = ({setOrders, orders, onSearch }) => {
         }
     }, [orders]);
 
-    const handleDateChange = (event) => { setDate(event.target.value); };
-    const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
 
-    const onFromCityChange = (event, { newValue }) => { setFromCity(newValue); };
-    const onToCityChange  = (event, { newValue }) => { setToCity(newValue); };
-   /* const onFromCityChange = (e) => {
-        const value = e.target.value;
-        setFromCity(value);
-        const suggestions = getSuggestions(value, cities); // cities - это массив объектов с названиями городов
-        setCitySuggestions(suggestions); // Установите предложения в состояние
+
+   /* let formattedDate = '';
+    if (date) {
+        try {
+            formattedDate = (date === today ? 'Сегодня' : format(parseISO(date), 'EE, d MMMM', { locale: ru }));
+        } catch (error) {
+            console.error("Error formatting date:", error);
+        }
+    }
+    useEffect(() => {
+        console.log("Date updated:", date);
+        console.log("Formatted Date useEffect:", formattedDate);
+    }, [date]);
+
+    console.log(date);
+    console.log("Formatted Date:", formattedDate);
+
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        console.log("New Date:", newDate);
+        setDate(newDate || today); // Возвращайте today's date, если новое значение пустое
     };*/
 
-    // const onSuggestionsFetchRequested = ({ value }) => { setSuggestions(getSuggestions(value)); };
+    const handleDateChange = (e) => {
+        const newDate = e.target.value;
+        setDate(newDate ); // Возвращайте today's date, если новое значение пустое
+    };
+
+    const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
+
+    const onFromCityChange = (event, { newValue }) => {
+        // Обновляем как состояние для автозаполнения, так и данные формы
+        setFromCity(newValue); // обновляем отображаемое значение в инпуте
+        setData({ ...data, fromCity: newValue }); // обновляем данные формы
+    };
+     const onToCityChange = (event, { newValue }) => {
+        // Обновите входное значение города
+         setToCity(newValue); // обновляем отображаемое значение в инпуте
+        setData({ ...data, toCity: newValue });
+    };
+
     const onSuggestionsFetchRequested = async ({ value }) => {
-        console.log("Fetching suggestions for:", value);
+      //  console.log("Fetching suggestions for:", value);
 
         // Проверяем, если массив cities пуст, загружаем города
         if (cities.length === 0) {
@@ -427,15 +511,14 @@ const Navbar = ({setOrders, orders, onSearch }) => {
 
         // Фильтруем предложения
         const suggestions = getSuggestions(value, uniqueCities);
-        console.log("City suggestions:", suggestions);
-        setCitySuggestions(suggestions);
+        const limitedSuggestions = suggestions.slice(0, 10);
+      //  console.log("City suggestions:", suggestions);
+        setCitySuggestions(limitedSuggestions);
     };
-
 
     const handleCityChange = (event, { newValue }) => {
         setData({ ...data, city: newValue });
     };
-
 
     const onSuggestionsClearRequested = () => { setSuggestions([]); };
     const toggleDropdown = () => { setDropdownOpen(!dropdownOpen); };
@@ -600,7 +683,7 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                     </a>
                                 </li>
                                 <li className="dropdown" ref={dropdownRef}>
-                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
+                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown} >
                                         {auth.user ? (
                                             <>
                                                 <img src={auth.user.photoUrl || "/images/user_icon.svg"} alt="" width="37" height="35"/>
@@ -636,8 +719,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                         <div className="input-group">
                             <div className="input-wrapper">
                                 <Autosuggest
-                                    // suggestions={suggestions}
-                                    suggestions={Array.isArray(suggestions) ? suggestions : []}
+                                    suggestions={citySuggestions}
+                                    // suggestions={Array.isArray(suggestions) ? suggestions : []}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                     onSuggestionsClearRequested={onSuggestionsClearRequested}
                                     getSuggestionValue={getSuggestionValue}
@@ -664,8 +747,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
 
                             <div className="input-wrapper">
                                 <Autosuggest
-                                    // suggestions={suggestions}
-                                    suggestions={Array.isArray(suggestions) ? suggestions : []}
+                                    suggestions={citySuggestions}
+                                    // suggestions={Array.isArray(suggestions) ? suggestions : []}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
                                     onSuggestionsClearRequested={onSuggestionsClearRequested}
                                     getSuggestionValue={getSuggestionValue}
@@ -697,7 +780,10 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                     className="input-field-calendar"
                                     value={date}
                                     onChange={handleDateChange}
+                                   // onBlur={() => console.log("Input value on blur:", date)}
                                     ref={inputRef}
+                                    style={{border: 'none', outline: 'none', flex: 1}}
+                                    onFocus={() => inputRef.current?.showPicker()}
                                 />
                                 <div className="button-overlay">
                                     <span>{formattedDate}</span>
@@ -706,6 +792,7 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                     <img src="/images/calendar-1.png" alt="Calendar Icon" width="20" height="20"/>
                                 </div>
                             </div>
+
 
                             <div className="input-wrapper" onClick={togglePassengerDropdown}>
                                 <div className="button-overlay">
@@ -716,7 +803,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                 </div>
                             </div>
                             {passengerDropdownOpen && (
-                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}} ref={passengerDropdownRef}>
+                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}}
+                                     ref={passengerDropdownRef}>
                                     <span>Пассажиров</span>
                                     <button onClick={decrementPassenger}>-</button>
                                     <span>{passengerCount}</span>
@@ -726,8 +814,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                             <button type="submit" className="search-button">Поиск</button>
                         </div>
                     </form>
-                    <NoCarModal show={showNoCarModal} onClose={closeNoCarModal} onAddCar={redirectToAddCar} />
-                    <NoOrdersModal show={showNoOrdersModal} onClose={closeNoOrdersModal} />
+                    <NoCarModal show={showNoCarModal} onClose={closeNoCarModal} onAddCar={redirectToAddCar}/>
+                    <NoOrdersModal show={showNoOrdersModal} onClose={closeNoOrdersModal}/>
                     {/*<NoCompletedOrdersModal show={showNoCompletedOrdersModal} onClose={closeNoCompletedOrdersModal} />*/}
                 </div>
             </div>

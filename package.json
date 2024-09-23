@@ -25,6 +25,7 @@
         "date-fns": "^3.6.0",
         "react-autosuggest": "^10.1.0",
         "react-bootstrap": "^2.10.4",
+        "react-dadata": "^2.23.3",
         "react-modal": "^3.16.1",
         "react-places-autocomplete": "^7.3.0",
         "react-router-dom": "^6.26.0"

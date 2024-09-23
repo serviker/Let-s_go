@@ -57,6 +57,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/cities', [CityController::class, 'getCities']);
     Route::get('/api/suggestions', [CityController::class, 'getSuggestions']);
 
+    Route::get('/api/search/{query}', [CityController::class, 'search']);
+
     // Группа маршрутов заказов с пространством имен 'Message'
     Route::namespace('App\Http\Controllers\Message')->group(function () {
         // Route to show the user's incoming trips

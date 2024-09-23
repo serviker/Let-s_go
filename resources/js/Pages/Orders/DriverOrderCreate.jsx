@@ -37,7 +37,10 @@ export default function DriverOrderCreate({ className = '' }) {
     // Установка сегодняшней даты и времени 08:00 по умолчанию при загрузке компонента
     useEffect(() => {
         const today = new Date().toISOString().split('T')[0];
-        const defaultTime = '08:00';
+        const now = new Date();
+        const currentHours = String(now.getHours()).padStart(2, '0'); // Форматируем часы
+        const currentMinutes = String(now.getMinutes()).padStart(2, '0'); // Форматируем минуты
+        const defaultTime = `${currentHours}:${currentMinutes}`; // Текущее время в формате HH:MM
 
         if (!data.date_time_departure) {
             setData('date_time_departure', today);
@@ -47,6 +50,7 @@ export default function DriverOrderCreate({ className = '' }) {
             setData('departure_time', defaultTime);
         }
     }, [data.date_time_departure, data.departure_time, setData]);
+
 
     const handleIncrease = () => {
         if (data.available_seats < 4) {

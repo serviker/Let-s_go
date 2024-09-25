@@ -238,7 +238,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             </div>
 
             <div className="separator"></div>
-            <Link href={route('profile.show', {user: data.driverId})} className="driver-link">
+            <a href={route('profile.showDriver', {user: data.driverId})} className="driver-link">
                 <div className="driver-info">
                     <img
                         src={data.driverPhotoUrl ? data.driverPhotoUrl : '/images/user_icon.svg'}
@@ -247,7 +247,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                     />
                     <p className="driver-name">{data.driverName}</p>
                 </div>
-            </Link>
+            </a>
 
             <div className="separator-thin"></div>
 
@@ -271,18 +271,20 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                 <span className="passenger-seats-label">Пассажиры:</span>
                 <div className="passenger-list">
                     {data.passengers.length > 0 ? (
-                        data.passengers.map((passenger, index) => (
-                            <div key={index} className="passenger"
-                                 onClick={() => window.location.href = route('profile.show', {user: passenger.id})}>
-                                {/* Имя пассажира слева */}
-                                <div style={{flex: 1}}>
+                        data.passengers.map((passenger) => (
+                            <Link
+                                key={passenger.id}
+                                href={route('profile.showPassenger', {user: passenger.id})}
+                                className="passenger"
+                            >
+                                <div className="passenger_div">
                                     <span className="passenger-name">{passenger.name}</span>
                                     <div className="passenger-cities-container">
                                         <span className="passenger-departure">{passenger.departureCity}</span>
                                         <div className="arrow">→</div>
                                         <span className="passenger-arrival">{passenger.arrivalCity}</span>
-                                        {passenger.seats >= 2 && (  // Условное отображение
-                                            <div style={{color: '#eea236', fontWeight: 'bold', marginLeft: '30px'}}>
+                                        {passenger.seats >= 2 && (
+                                            <div className="passenger_seats">
                                                 <span> - {passenger.seats} места </span>
                                             </div>
                                         )}
@@ -293,15 +295,10 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                                     alt={passenger.name}
                                     className="passenger-photo"
                                 />
-                            </div>
+                            </Link>
                         ))
                     ) : (
-                        <p style={{
-                            color: '#eea236',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            justifyContent: 'center'
-                        }}>Будьте первыми !!!</p>
+                        <p className="p_seats">Будьте первыми !!!</p>
                     )}
                 </div>
             </div>

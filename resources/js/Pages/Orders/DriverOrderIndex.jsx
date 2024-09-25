@@ -43,7 +43,7 @@ export default function DriverOrderIndex({ order }) {
     };
 
     return (
-        <Link href={`/orders/${order.id}`} className="order-container bg-white p-6 rounded-lg shadow-lg relative">
+        <a href={`/orders/${order.id}`} className="order-container bg-white p-6 rounded-lg shadow-lg relative">
             <div className="city-label from-city">
                 {extractCityName(order.fromCity)}
             </div>
@@ -74,7 +74,7 @@ export default function DriverOrderIndex({ order }) {
                     <p className="car-name">{order.carName}</p>
                 )}
             </div>
-        </Link>
+        </a>
     );
 }
 

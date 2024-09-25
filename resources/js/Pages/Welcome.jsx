@@ -17,15 +17,15 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <Head title="Welcome" />
             <div className="bg-gray-50 text-black/50 white:bg-white dark:text-black/50">
                 <img
-                    src="/imagesCar/Zastavka.jpg"
+                    src="/images/car_1.jpg"
                     alt="Заставка"
                     className="absolute inset-0 w-full h-full object-cover"
                     style={{
-                        width: '100%',
+                        width: '100hv',
                         objectFit: 'cover',  // Обрезаем изображение, чтобы оно занимало всю ширину и высоту без скролла
                         height: '100vh',     // Ограничиваем высоту до размера окна
                         zIndex: '-1', // Ставим изображение на задний план
-                        filter: 'brightness(50%)', // Применение затемнения для лучшей читабельности текста поверх изображения
+                       // filter: 'brightness(80%)', // Применение затемнения для лучшей читабельности текста поверх изображения
                     }}
                 />
                 <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">

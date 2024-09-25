@@ -38,35 +38,3 @@ PassengerOrders.propTypes = {
         driverPhotoUrl: PropTypes.string,
     })).isRequired,
 };
-/* const [showModal, setShowModal] = useState(!Array.isArray(orders) || orders.length === 0);
-
-   useEffect(() => {
-       setShowModal(!Array.isArray(orders) || orders.length === 0);
-   }, [orders]);
-
-   const closeModal = () => {
-       setShowModal(false);
-       Inertia.visit(route('home'), {
-           preserveState: true, // Сохранение состояния текущей страницы
-           replace: true, // Заменить текущую запись в истории
-       });
-   };
-
-   if (showModal) {
-       return (
-           <Modal show={showModal} onClose={closeModal}>
-               <div className="modal-content" style={{ width: '25%', border: '4px solid #eea236', borderRadius: '10px',
-                   position: 'fixed', top: '30%',   // Смещение на 30% сверху
-                   left: '50%',    // Горизонтальное центрирование
-                   transform: 'translateX(-50%)'   // Центрирование элемента по горизонтали
-               }}>
-                   <h2 style={{ textAlign: 'center'}} className="modal-body">
-                       Нет поездок, соответствующих вашему запросу.
-                   </h2>
-                   <div style={{display: 'flex', justifyContent: 'center', margin: '10px'}}>
-                       <button onClick={closeModal} className="btn btn-secondary">Вернуться назад</button>
-                   </div>
-               </div>
-           </Modal>
-       );
-   }*/

@@ -28,10 +28,10 @@ function StreetSuggestInput({ value, onChange, cityBoundingBox }) {
         }
     };
 
-    const getSuggestionValue = (suggestion) => suggestion.display_name;
+    const getSuggestionValue = (suggestion) => suggestion.name;
 
     const renderSuggestion = (suggestion) => (
-        <div>{suggestion.display_name}</div>
+        <div>{suggestion.name}</div>
     );
 
     const inputProps = {
@@ -45,7 +45,7 @@ function StreetSuggestInput({ value, onChange, cityBoundingBox }) {
             // borderColor: '#eea236', // Цвет границы
             textAlign: 'center', // Выравнивание текста по центру
             padding: '0 10px', // Отступы внутри поля
-            borderRadius: '4px', // Радиус границ
+            borderRadius: '10px', // Радиус границ
             border: '1px solid #eea236', // Граница цвета #eea236
         },
         onMouseEnter: (e) => {

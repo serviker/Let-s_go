@@ -63,7 +63,27 @@ export default function Dashboard({ auth, orders, searchCriteria }) {
                     setPassengerCount={setPassengerCount} // Если нужно, можно также передать
                     onSearch={handleSearch}
                 />
-                <PassengerOrders orders={ordersState} />
+                {ordersState.length === 0 ? (
+                    // Если заказов нет, показываем картинку
+                    <div className="flex items-center justify-center h-screen bg-gray-100">
+                        <img
+                            src="/images/car_fon.png"
+                            alt="No orders"
+                            className="max-w-full h-auto"
+                            style={{
+                                width: '100%',
+                                marginTop: '15%',
+                                objectFit: 'cover',  // Обрезаем изображение, чтобы оно занимало всю ширину и высоту без скролла
+                                height: '60vh',     // Ограничиваем высоту до размера окна
+                                zIndex: '-1', // Ставим изображение на задний план
+                               // filter: 'brightness(50%)', // Применение затемнения для лучшей читабельности текста поверх изображения
+                            }}
+                        />
+                    </div>
+                ) : (
+                    // Если заказы есть, отображаем их
+                    <PassengerOrders orders={ordersState} />
+                )}
             </AuthenticatedLayout>
         </Router>
     );

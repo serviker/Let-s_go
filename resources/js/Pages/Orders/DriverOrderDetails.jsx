@@ -2,9 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, usePage } from '@inertiajs/react';
 import '../../../css/DriverOrderDetails.css';
-//import '../../../css/PassengerOrderDetails.css';
 import {Inertia} from "@inertiajs/inertia";
-//import DriverOrderIndex from "@/Pages/Orders/DriverOrderIndex.jsx";
 
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     if (!show) return null;
@@ -139,7 +137,7 @@ const DriverOrderDetails = React.memo(() => {
             <div className="separator"></div>
 
 
-            <Link href={route('profile.edit', {id: data.driverId})} className="driver-link">
+            <a href={route('profile.edit', {id: data.driverId})} className="driver-link">
                 <div className="driver-info">
                     <img
                         src={data.driverPhotoUrl ? data.driverPhotoUrl : '/images/user_icon.svg'}
@@ -149,7 +147,7 @@ const DriverOrderDetails = React.memo(() => {
                     <p className="driver-name">{data.driverName}</p>
 
                 </div>
-            </Link>
+            </a>
 
             <div className="separator-thin"></div>
 
@@ -229,12 +227,13 @@ const DriverOrderDetails = React.memo(() => {
             <div className="separator-thin"></div>
 
             <div className="button-container">
-                <Link href={route('driver.orders')} className="home-link">
-                    <button type="button" className="btn btn-secondary">К поездкам</button>
-                </Link>
-                <Link href={route('dashboard')} className="home-link">
+                <button type="button" className="btn btn-secondary"
+                        onClick={() => window.location.href = route('driver.orders')}>
+                    К поездкам
+                </button>
+                <a href={route('dashboard')} className="home-link">
                     <button className="btn btn-info">На главную</button>
-                </Link>
+                </a>
             </div>
             <CancelBookingModal
                 show={showCancelModal}

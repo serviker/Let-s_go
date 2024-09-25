@@ -137,6 +137,11 @@
     text-decoration: none;
     color: inherit;
 }
+.driver-link:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+    color: #eea236;
+}
 
 .driver-name {
     font-weight: bold !important;
@@ -260,6 +265,7 @@
 
 .passenger:hover {
     background-color: rgba(0, 0, 0, 0.05); /* Цвет затемнения при наведении */
+    text-decoration: none;
 }
 
 .passenger-info {
@@ -307,4 +313,19 @@
 .passenger-arrival {
     font-size: 18px;
     color: #555;
+}
+.passenger_seats {
+    color: #eea236;
+    font-weight: bold;
+    margin-left: 30px;
+}
+
+.p_seats {
+    color: #eea236;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+}
+.passenger_div {
+    flex: 1;
 }

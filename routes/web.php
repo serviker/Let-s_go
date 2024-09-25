@@ -45,7 +45,12 @@ Route::middleware(['auth'])->group(function () {
     // Добавляем маршрут для удаления авто
     Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
 
-    Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+    // Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+    // Маршрут для профиля водителя
+    Route::get('/profile/driver/{user}', [ProfileController::class, 'showDriver'])->name('profile.showDriver');
+
+    // Маршрут для профиля пассажира
+    Route::get('/profile/passenger/{user}', [ProfileController::class, 'showPassenger'])->name('profile.showPassenger');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

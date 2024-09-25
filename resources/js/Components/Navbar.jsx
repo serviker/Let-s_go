@@ -7,6 +7,10 @@ import { Link, usePage } from '@inertiajs/react';
 import Modal from "@/Components/Modal.jsx";
 import {Inertia} from "@inertiajs/inertia";
 import {useLocation} from "react-router-dom"; // Use Inertia's usePage for accessing the Laravel Breeze user data
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css'; // Стандартные стили библиотеки
+import '../../css/customDatepickerStyles.css'; // Ваши кастомные стили
+
 
 const cities = [
     { name: 'Москва' },
@@ -320,11 +324,10 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     // console.log('Navbar: setOrders:', setOrders); // Добавьте это для проверки
     const {auth} = usePage().props;
     const user = auth.user || {};
-
     const [cars, setCars] = useState([]);
-   /* const today = new Date().toISOString().split('T')[0];
-    console.log("Today:", today); // Проверяем правильность today's date
-    const [date, setDate] = useState(today || ''); // Установите сегодняшнюю дату*/
+   // const today = new Date().toISOString().split('T')[0];
+   // console.log("Today:", today); // Проверяем правильность today's date
+   //  const [date, setDate] = useState(today || ''); // Установите сегодняшнюю дату
     const [date, setDate] = useState('');
     const [fromCity, setFromCity] = useState('');
     const [toCity, setToCity] = useState('');
@@ -358,7 +361,7 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const getSuggestionValue = (suggestion) => suggestion;
 
     const renderSuggestion = (suggestion) => {
-        return <div style={{ borderRadius: '10px', borderColor: 'darkred'}}>{suggestion}</div>; // Убедитесь, что suggestion - это объект с свойством city
+        return <div>{suggestion}</div>; // Убедитесь, что suggestion - это объект с свойством city
     };
 
 
@@ -372,33 +375,6 @@ const Navbar = ({setOrders, orders, onSearch }) => {
         const response = await fetch(`/api/suggestions?value=${value}`);
         return await response.json();
     };
-
-  /*  useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const citiesData = await fetchCities();
-                setCities(citiesData);
-                setIsCitiesLoaded(true);
-
-            } catch (error) {
-                console.error("Ошибка при загрузке данных:", error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-
-    useEffect(() => {
-        // Вызываем fetchCities при монтировании компонента
-        const fetchInitialCities = async () => {
-            const data = await fetchCities();
-            setCities(data); // Сохраняем города в состояние
-        };
-
-        fetchInitialCities();
-    }, []); // Пустой массив зависимостей для вызова один раз при монтировании
-*/
 
     useEffect(() => {
         // Функция для загрузки городов из базы данных
@@ -456,35 +432,35 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     }, [orders]);
 
 
+    /*
+            let formattedDate = '';
+            if (date) {
+                try {
+                    formattedDate = (date === today ? 'Сегодня' : format(parseISO(date), 'EE, d MMMM', { locale: ru }));
+                } catch (error) {
+                    console.error("Error formatting date:", error);
+                }
+            }
+            useEffect(() => {
+                console.log("Date updated:", date);
+                console.log("Formatted Date useEffect:", formattedDate);
+            }, [date]);
 
-   /* let formattedDate = '';
-    if (date) {
-        try {
-            formattedDate = (date === today ? 'Сегодня' : format(parseISO(date), 'EE, d MMMM', { locale: ru }));
-        } catch (error) {
-            console.error("Error formatting date:", error);
-        }
-    }
-    useEffect(() => {
-        console.log("Date updated:", date);
-        console.log("Formatted Date useEffect:", formattedDate);
-    }, [date]);
+            console.log(date);
+            console.log("Formatted Date:", formattedDate);
 
-    console.log(date);
-    console.log("Formatted Date:", formattedDate);
+            const handleDateChange = (e) => {
+                const newDate = e.target.value;
+                console.log("New Date:", newDate);
+                setDate(newDate  today); // Возвращайте today's date, если новое значение пустое
+            };
+     */
+            const handleDateChange = (e) => {
+                const newDate = e.target.value;
+                setDate(newDate ); // Возвращайте today's date, если новое значение пустое
+            };
 
-    const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        console.log("New Date:", newDate);
-        setDate(newDate || today); // Возвращайте today's date, если новое значение пустое
-    };*/
-
-    const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        setDate(newDate ); // Возвращайте today's date, если новое значение пустое
-    };
-
-    const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
+            const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
 
     const onFromCityChange = (event, { newValue }) => {
         // Обновляем как состояние для автозаполнения, так и данные формы
@@ -511,7 +487,7 @@ const Navbar = ({setOrders, orders, onSearch }) => {
 
         // Фильтруем предложения
         const suggestions = getSuggestions(value, uniqueCities);
-        const limitedSuggestions = suggestions.slice(0, 10);
+        const limitedSuggestions = suggestions.slice(0, 15);
       //  console.log("City suggestions:", suggestions);
         setCitySuggestions(limitedSuggestions);
     };
@@ -587,7 +563,7 @@ const Navbar = ({setOrders, orders, onSearch }) => {
             const currentRoute = route('dashboard', {
                 departureCity: currentParams.get('departureCity'),
                 arrivalCity: currentParams.get('arrivalCity'),
-                date: currentParams.get('date'),
+                date: currentParams.get('date' ),
                 seats: currentParams.get('seats'),
             });
 
@@ -664,21 +640,21 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                         <div className="navbar-header">
                             <nav className="collapse navbar-collapse" id="rock-navigation">
                                 <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
-                                    <li><a href="#home" className="smoothScroll">С попутчиками</a></li>
-                                    <li><a href="#help" className="smoothScroll">Центр помощи</a></li>
+                                    <li><a href="#home" className="smooth">С попутчиками</a></li>
+                                    <li><a href="#help" className="smooth">Центр помощи</a></li>
                                 </ul>
                             </nav>
                         </div>
 
                         <nav className="navbar-collapse" id="rock-navigation">
                             <ul className="nav navbar-nav navbar-right main-navigation text-capitalize">
-                                <li><a href="#home" className="smoothScroll"></a></li>
-                                <li><a href="#work" className="smoothScroll"></a></li>
-                                <li><a href="#portfolio" className="smoothScroll"></a></li>
+                                <li><a href="#home" className="smooth"></a></li>
+                                <li><a href="#work" className="smooth"></a></li>
+                                <li><a href="#portfolio" className="smooth"></a></li>
                                 <li></li>
                                 <li>
-                                    <a onClick={handlePublishClick} className="smoothScroll" style={{ cursor: 'pointer'}}>
-                                        <img src="/images/icons_plus.svg" alt="" width="25" height="25"/>
+                                    <a onClick={handlePublishClick} className="smooth" style={{ cursor: 'pointer'}}>
+                                        <img src="/images/icons_plus.svg" alt="" width="25" height="25" style={{ marginRight: '15px', marginBottom: '3px'}}/>
                                         Опубликовать поездку
                                     </a>
                                 </li>
@@ -793,6 +769,20 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                 </div>
                             </div>
 
+                            {/*<div className="input-wrapper-calendar">*/}
+                            {/*    <DatePicker*/}
+                            {/*        value={date} // Ваше состояние даты*/}
+                            {/*        onChange={handleDateChange} // Обработчик изменения даты*/}
+                            {/*        dateFormat="yyyy-MM-dd" // Формат отображения даты*/}
+                            {/*        placeholderText="Выберите дату" // Плейсхолдер*/}
+                            {/*        className="input-field-calendar" // Кастомный класс для стилей*/}
+                            {/*        calendarClassName="custom-datepicker-calendar" // Кастомные стили для календаря*/}
+                            {/*    />*/}
+                            {/*    <div className="icon-wrapper">*/}
+                            {/*        <img src="/images/calendar-1.png" alt="Calendar Icon" width="20" height="20"/>*/}
+                            {/*    </div>*/}
+                            {/*</div>*/}
+
 
                             <div className="input-wrapper" onClick={togglePassengerDropdown}>
                                 <div className="button-overlay">
@@ -803,15 +793,16 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                 </div>
                             </div>
                             {passengerDropdownOpen && (
-                                <div className="passenger-dropdown" style={{borderColor: '#eea236'}}
+                                <div className="passenger-dropdown"
                                      ref={passengerDropdownRef}>
-                                    <span>Пассажиров</span>
+                                    <span style={{ marginLeft: '10px'}}>Пассажиров</span>
                                     <button onClick={decrementPassenger}>-</button>
-                                    <span>{passengerCount}</span>
+                                    <span style={{ fontSize: '22px'}}>{passengerCount}</span>
                                     <button onClick={incrementPassenger}>+</button>
                                 </div>
                             )}
-                            <button type="submit" className="search-button">Поиск</button>
+                            <button type="submit" className="search-button" style={{borderColor: '#eea236'}}>Поиск
+                            </button>
                         </div>
                     </form>
                     <NoCarModal show={showNoCarModal} onClose={closeNoCarModal} onAddCar={redirectToAddCar}/>

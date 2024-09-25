@@ -26,15 +26,24 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function showDriver($id)
     {
         $user = User::findOrFail($id);
         $cars = Car::where('user_id', $id)->get(); // Если у пользователя есть автомобили
-        return Inertia::render('Profile/ShowProfile', [
+        return Inertia::render('Profile/ShowDriverProfile', [
             'user' => $user,
             'cars' => $cars,
         ]);
     }
+
+    public function showPassenger($id)
+    {
+        $user = User::findOrFail($id);
+        return Inertia::render('Profile/ShowPassengerProfile', [
+            'user' => $user,
+        ]);
+    }
+
 
 
     /**

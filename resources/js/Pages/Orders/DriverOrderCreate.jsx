@@ -8,6 +8,7 @@ import SecondaryButton from "@/Components/SecondaryButton.jsx";
 import '../../../css/DriverOrderCreate.css';
 import CitySuggestInput from "@/Components/CitySuggestInput.jsx";
 import StreetSuggestInput from "@/Components/StreetSuggestInput.jsx";
+import Autosuggest from "react-autosuggest";
 
 
 export default function DriverOrderCreate({ className = '' }) {
@@ -28,6 +29,83 @@ export default function DriverOrderCreate({ className = '' }) {
         available_seats: 1,
         description: '',
     });
+    const [city, setCity] = useState('');
+    const [citySuggestions, setCitySuggestions] = useState([]);
+    const [cities, setCities] = useState([]); // Состояние для всех городов
+    const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
+    const fetchCities = async () => {
+        const response = await fetch('/api/cities');
+        return await response.json();
+        // console.log("Cities fetched from API:", data);
+    };
+
+    // Метод для фильтрации городов по введенному значению
+    function getSuggestions(value, list) {
+        const inputValue = value.trim().toLowerCase();
+        //  console.log("Input value:", inputValue);
+        const inputLength = inputValue.length;
+        return inputLength === 0 ?  []: list.filter(item => item.toLowerCase().slice(0, inputLength) === inputValue);
+    }
+    const getSuggestionValue = (suggestion) => suggestion;
+
+    const renderSuggestion = (suggestion) => (
+        <div>{suggestion}</div>
+    );
+
+    // const onCityChange = (event, { newValue }) => {
+    //     // Обновите входное значение города
+    //     setCity(newValue); // обновляем отображаемое значение в инпуте
+    //     setData({ ...data, toCity: newValue });
+    // };
+
+    useEffect(() => {
+        // Функция для загрузки городов из базы данных
+        const fetchCities = async () => {
+            try {
+                const response = await axios.get('/api/cities');
+                //    console.log("Fetched cities:", response.data);  // Добавляем вывод в консоль
+                setCities(response.data);  // Сохраняем список городов в состоянии
+                setIsCitiesLoaded(true);  // Помечаем, что города загружены
+            } catch (error) {
+                console.error("Ошибка при загрузке городов:", error);
+            }
+        };
+
+        // Загрузка городов только при монтировании компонента
+        if (cities.length === 0) {
+            fetchCities();
+        }
+    }, []);  // Пустой массив зависимостей гарантирует выполнение только один раз при монтировании.
+
+
+    useEffect(() => {
+        if (data.city && isCitiesLoaded) {
+            onSuggestionsFetchRequested({ value: data.city });
+        }
+    }, [data.city, isCitiesLoaded]);
+
+    const onSuggestionsFetchRequested = async ({ value }) => {
+        //  console.log("Fetching suggestions for:", value);
+
+        // Проверяем, если массив cities пуст, загружаем города
+        if (cities.length === 0) {
+            const allCities = await fetchCities(); // Здесь используем fetchCities
+            setCities(allCities);
+        }
+
+        // Извлекаем уникальные города
+        const uniqueCities = Array.from(new Set(cities.map(city => city.city)));
+
+        // Фильтруем предложения
+        const suggestions = getSuggestions(value, uniqueCities);
+        const limitedSuggestions = suggestions.slice(0, 5);
+        //  console.log("City suggestions:", suggestions);
+        setCitySuggestions(limitedSuggestions);
+    };
+
+    const onSuggestionsClearRequested = () => {
+        setCitySuggestions([]);
+    };
 
     useEffect(() => {
         setData('intermediate_addresses', intermediate_addresses);
@@ -309,7 +387,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Куда вы едете?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="to_house" value="Дом" style={{color: '#eea236'}}/>
+                        <InputLabel htmlFor="to_house" value="Дом" style={{color: '#eea236'}} className="inputLabel"/>
                         <TextInput
                             id="to_house"
                             value={data.to_house}
@@ -334,20 +412,31 @@ export default function DriverOrderCreate({ className = '' }) {
                     <div className="card-header text-center">
                         <h2>Добавьте промежуточные адреса</h2>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body" style={{overflow: 'visible', position: 'relative'}}>
                         {intermediate_addresses.map((address, index) => (
                             <div key={index} className="intermediate-address">
-                                <InputLabel htmlFor={`intermediate_address_${index}`} value={`Промежуточный адрес ${index + 1}`} style={{ color: '#eea236' }} />
-                                <TextInput
-                                    id={`intermediate_address_${index}`}
-                                    value={address} // Убедитесь, что передаете правильное значение
-                                    onChange={(e) => handleIntermediateAddressChange(index, e.target.value)}
-                                    placeholder="Введите промежуточный город"
-                                    className="form-control"
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' , padding: '0 20px'}}>
+                                    <InputLabel htmlFor={`intermediate_address_${index}`} value={`${index + 1} - промежуточный адрес `} style={{ color: '#eea236', fontSize: '20px', fontWeight: 'normal', marginTop: '12px' }} />
+                                    <SecondaryButton type="button" onClick={() => handleRemoveIntermediateAddress(index)} className="btn btn-danger" style={{background:'transparent', color: "#f65900", fontSize: '18px'}}>
+                                        Удалить этот адрес
+                                    </SecondaryButton>
+                                </div>
+
+                                <div className="input-wrapper">
+                                <Autosuggest
+                                    suggestions={citySuggestions}
+                                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    inputProps={{
+                                        id: `intermediate_address_${index}`,
+                                        placeholder: 'Введите промежуточный город',
+                                        value: address, // Передавайте значение промежуточного города
+                                        onChange: (e, { newValue }) => handleIntermediateAddressChange(index, newValue) // Используем вашу функцию для обработки изменений
+                                    }}
                                 />
-                                <SecondaryButton type="button" onClick={() => handleRemoveIntermediateAddress(index)} className="btn btn-danger">
-                                    Удалить
-                                </SecondaryButton>
+                                </div>
                             </div>
                         ))}
                         <div className="flex">

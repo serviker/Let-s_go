@@ -35,15 +35,15 @@ export default function Modal({ children, show = false, maxWidth = '2xl', closea
                     {/*<div className="absolute inset-0 bg-gray-500/75" />*/}
                     {/* Заменяем фон на изображение */}
                     <img
-                        src="/imagesCar/Zastavka.jpg"
-                        alt="Заставка"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        src="/images/car_1.jpg"
+                        alt="No orders"
+                        className="max-w-full h-auto"
                         style={{
                             width: '100%',
-                            objectFit: 'cover',
-                            height: '100vh',
-                            zIndex: '-1',
-                            filter: 'brightness(50%)', // Применяем затемнение
+                            objectFit: 'cover',  // Обрезаем изображение, чтобы оно занимало всю ширину и высоту без скролла
+                            height: '100vh',     // Ограничиваем высоту до размера окна
+                            zIndex: '-1', // Ставим изображение на задний план
+                            // filter: 'brightness(50%)', // Применение затемнения для лучшей читабельности текста поверх изображения
 
                         }}
                     />

@@ -36,7 +36,7 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return Inertia::render('Profile/ShowProfile', [
+        return Inertia::render('Profile/ShowDriverProfile', [
             'user' => $user,
         ]);
     }

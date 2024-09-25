@@ -98,14 +98,15 @@ hr {
 
 .input-group {
     display: flex;
-    width: 105%;
+    width: 100%;
+    margin-bottom: 5px;
 }
 
 .input-wrapper-calendar {
     flex: 1;
     display: flex;
     align-items: center;
-    border: 1px solid #228BE6;
+    border: 1px solid #eea236;
     border-radius: 15px;
     margin-right: 10px;
     padding: 5px;
@@ -115,13 +116,17 @@ hr {
 
 .input-field-calendar {
     position: absolute;
+    margin-top: 10px;
     width: 100%;
     height: 100%;
+    border: 1px solid #eea236;
+    border-radius: 10px;
     opacity: 0;
     cursor: pointer;
     z-index: 2;
     padding: 10px;
 }
+
 
 .button-overlay {
     position: relative;
@@ -147,8 +152,8 @@ hr {
     display: flex;
     align-items: center;
     font-size: 20px;
-    border: 1px solid #228BE6;
-    border-radius: 15px;
+    border: 1px solid #eea236;
+    border-radius: 10px;
     margin-right: 10px;
     padding: 5px;
     cursor: default;
@@ -181,21 +186,37 @@ hr {
 
 .search-button {
     padding: 10px 20px;
-    border: 1px solid #228BE6;
+    border: 1px solid #eea236;
     background-color: #eaeaea;
-    color: #228BE6;
-    border-radius: 15px;
+    color: #eea236;
+    border-radius: 10px;
     cursor: pointer;
 }
 
 .search-button:hover {
-    background-color: #228BE6;
+    background-color: #eea236;
     color: #eaeaea;
 }
 
 .dropdown {
     position: relative;
 }
+
+/* Стандартный цвет ссылки */
+a.smooth {
+    color: inherit; /* Это позволит использовать основной цвет текста или установить свой */
+    text-decoration: none; /* Убирает подчеркивание ссылки, если это необходимо */
+    transition: color 0.3s ease; /* Плавный переход цвета */
+}
+
+/* Цвет при наведении курсора */
+a.smooth:hover {
+    color: #eea236; /* Изменение цвета на #eea236 при наведении */
+}
+/*li {*/
+/*    list-style-type: none; !* Убирает стандартные маркеры списка *!*/
+/*    margin: 10px 0; !* Добавляет отступы между пунктами списка *!*/
+/*}*/
 
 .dropdown-toggle {
     /*background-color: rgba(221, 246, 255, 0.6);*/
@@ -239,13 +260,14 @@ hr {
     top: 100%;
     left: 0;
     background: white;
+    border-color: #eea236;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    width: 200px; /* Adjust width as necessary */
+    width: 250px; /* Adjust width as necessary */
     z-index: 1000;
     text-align: left;
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 10px 0;
 }
 
@@ -261,11 +283,12 @@ hr {
 }
 
 .dropdown-menu li:hover {
-    /* background-color: rgba(221, 246, 255, 0.6);  Hover effect */
-}
+    background-color: rgba(255, 221, 189, 0.6); /* Hover effect
+     background-color: #eea236;*/
+ }
 
-.dropdown-menu li a {
-    color: #ccc; /* Darker color for better readability */
+ .dropdown-menu li a {
+     color: #ccc; /* Darker color for better readability */
     text-decoration: none;
     width: 100%; /* Ensure link takes full width */
     height: 100%; /* Ensure link takes full height */
@@ -281,6 +304,15 @@ hr {
     border-radius: 10px;
     font-size: 18px;
 }
+
+.react-autosuggest__input:hover,
+.react-autosuggest__input:active,
+.react-autosuggest__input:focus {
+    outline: none; /* Убираем стандартный outline */
+    border-color: transparent; /* Оставляем бордюр прозрачным */
+    background-color: #eaeaea; /* Цвет фона остается прежним */
+}
+
 
 .react-autosuggest__input {
     width: 100%;
@@ -299,9 +331,12 @@ hr {
 .react-autosuggest__suggestions-container--open {
     display: block;
     position: absolute;
+    margin-top: 15px;
+    margin-left: -10px;
     top: 100%;
     width: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid #eea236;
+    border-radius: 10px;
     background-color: #fff;
     font-size: 18px;
     z-index: 5;
@@ -316,33 +351,38 @@ hr {
 .react-autosuggest__suggestion {
     padding: 3px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .react-autosuggest__suggestion--highlighted {
-    background-color: #fff;
+    background-color: #eea236;
+    color: white;
 }
 
 .passenger-dropdown {
     position: absolute;
     top: 6rem;
-    left: 71%;
+    left: 69%;
     background-color: white;
-    border: 1px solid #ccc;
+    border: 1px solid #eea236;
     border-radius: 8px;
     padding: 0.5rem;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     cursor: pointer;
-    width: 230px;
-    height: 40px;
+    width: 260px;
+    height: 50px;
     gap: 1rem;
 }
 
 .passenger-dropdown button {
     background-color: #fff;
-    color: #007bff;
+    color: #eea236;
+    font-size: 24px;
+    margin-bottom: 7px;
     border: none;
     border-radius: 5rem;
     width: 3rem;
@@ -412,23 +452,23 @@ hr {
 }
 .navbar-default .navbar-nav li a {
   color: #303030;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: normal;
   line-height: 45px;
   letter-spacing: 1px;
-    padding: 15px; /* Подходящий отступ для ссылок */
+    padding: 15px; /* Подходящий отступ для ссылок*/
     transition: color 0.3s ease, background-color 0.3s ease;
 }
-.navbar-default .navbar-nav li a:hover { color: #228BE6; }
+.navbar-default .navbar-nav li a:hover { color: #eea236; }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
-  color: #228BE6;
+  color: #eea236;
   background-color: transparent;
 }
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
-  color: #228BE6;
+  color: #5f5f5f;
   background-color: transparent;
 }
 .navbar-default .navbar-toggle {

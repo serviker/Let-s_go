@@ -1,0 +1,238 @@
+.order-details-container {
+    position: relative;
+    width: 40%;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-color: #eea236;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+    margin-top: 40px;
+}
+
+.order-date {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.departure-time {
+    font-size: 18px;
+    margin-left: 10px;
+    font-weight: bold;
+    color: #eea236;
+}
+
+.departure-info, .arrival-info, .intermediate-city {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Отступы между городами */
+}
+
+.route-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px; /* Отступ справа от линии */
+    margin-left: 20px;
+    top: 10px;
+}
+
+.circle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: gray;
+    margin-bottom: 5px;
+}
+
+.line {
+    width: 2px;
+    flex-grow: 1;
+    background-color: gray;
+}
+
+.departure-address, .arrival-address, .intermediate-city-name {
+    flex-grow: 1;
+    margin-left: 20px; /* Отступ от линии */
+}
+
+.intermediate-cities {
+    margin-bottom: 20px; /* Отступы от других секций */
+}
+
+.intermediate-city {
+    display: flex;
+    align-items: center;
+}
+
+.separator {
+    margin: 10px 0;
+    border-top: 4px solid #ccc;
+}
+
+.separator-thin {
+    margin: 5px 0;
+    border-top: 1px solid #ccc;
+}
+
+.price-label, .price-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #eea236;
+}
+
+.price-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+}
+/* Выровнять фото и имя водителя по горизонтали */
+
+.driver-info-container {
+    margin-top: 20px;
+}
+
+.driver-info-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+    /*border: 1px solid #ccc;*/
+    border-radius: 10px;
+    background-color: #eaeaea;
+}
+
+.driver-info {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    border-radius: 10px;
+}
+
+.user-photo {
+    display: flex;
+    align-items: center; /* Вертикальное центрирование */
+    justify-content: center; /* Горизонтальное центрирование */
+    gap: 20px; /* Расстояние между фото и именем */
+}
+
+.user-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.user-name {
+    margin-left: 50px;
+    font-size: 1.25rem; /* text-xl в Tailwind CSS */
+    font-weight: 500; /* font-medium в Tailwind CSS */
+    color: gray; /* text-gray-900 в Tailwind CSS */
+}
+
+
+.driver-info:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+
+.driver-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.driver-name {
+    font-weight: bold !important;
+    font-size: 22px !important;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+.car-info {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-radius: 10px;
+}
+
+.car-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+    margin-top: 10px;
+}
+
+.car-photo {
+    width: 120px !important;
+    height: 90px !important;
+    border-radius: 20% !important;
+    object-fit: cover !important;
+    transition: background-color 0.3s ease;
+}
+
+.trip-description {
+    font-size: 18px;
+    color: #495057;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.available-seats {
+    font-size: 16px;
+    color: #495057;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.available-seats-label {
+    /*font-weight: bold;*/
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+.available-seats-value {
+    font-weight: bold;
+    margin-left: 30px;
+    color: #eea236;
+    font-size: 22px;
+}
+
+.communication {
+    font-size: 18px;
+    font-weight: bold;
+    color: #eea236;
+    align-items: center;
+    margin: 20px 0;
+}
+.communication-value {
+    font-weight: bold;
+    /*margin-left: 10px;*/
+    color: #eea236;
+    font-size: 18px;
+}
+.communication:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Затемнение фона */
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+.home-link {
+    text-decoration: none;
+    text-align: right;
+}
+.label-profile {
+    font-size: 18px;
+    font-weight: bold;
+    color: #eea236;
+}.label-profile-email {
+     font-size: 18px;
+     font-weight: normal;
+ }

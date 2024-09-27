@@ -95,12 +95,28 @@ class ShowController extends Controller
 
         // Check if the authenticated user is the driver
         if ($user && $user->id === $order->driver_id) {
-            // If the user is the driver, show the DriverOrderDetails view
-            return Inertia::render('Orders/DriverOrderDetails', [
-                'order' => $data,
-                'canJoin' => false, // The driver cannot join the trip as a passenger
-                'searchCriteria' => $sessionCriteria
-            ]);
+            // Проверяем, есть ли в сессии флаг isOrderCreated
+            $isOrderCreated = session('isOrderCreated', false);
+
+            // Если поездка создается впервые, устанавливаем флаг в сессию
+            if ($isOrderCreated === false) {
+                session(['isOrderCreated' => true]);
+                return Inertia::render('Orders/DriverOrderDetails', [
+                    'order' => $data,
+                    'canJoin' => false,
+                    'searchCriteria' => $sessionCriteria,
+                    'isOrderCreated' => true // Указываем, что поездка успешно создана
+                ]);
+            } else {
+                // После перезагрузки не передаем параметр для предотвращения повторной перезагрузки
+                session(['isOrderCreated' => false]);
+                return Inertia::render('Orders/DriverOrderDetails', [
+                    'order' => $data,
+                    'canJoin' => false,
+                    'searchCriteria' => $sessionCriteria,
+                    'isOrderCreated' => false // Перезагрузка больше не нужна
+                ]);
+            }
         }
 
         // If the user is not the driver, but a passenger, show PassengerOrderDetails

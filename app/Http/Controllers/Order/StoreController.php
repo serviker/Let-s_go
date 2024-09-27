@@ -79,7 +79,8 @@ class StoreController extends Controller
 
 
             return redirect()->route('order.show', $order->id)
-                ->with('success', 'Заказ успешно создан!');
+                ->with('success', 'Заказ успешно создан!')
+                ->with(['preserveScroll' => true]);
         } catch (\Exception $e) {
           //  Log::error('Failed to create order', ['error' => $e->getMessage(), 'data' => $data]);
             return redirect()->back()->with('error', 'Ошибка создания заказа');

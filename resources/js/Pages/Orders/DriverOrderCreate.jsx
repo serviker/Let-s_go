@@ -9,6 +9,7 @@ import '../../../css/DriverOrderCreate.css';
 import CitySuggestInput from "@/Components/CitySuggestInput.jsx";
 import StreetSuggestInput from "@/Components/StreetSuggestInput.jsx";
 import Autosuggest from "react-autosuggest";
+import axios from "axios";
 
 
 export default function DriverOrderCreate({ className = '' }) {
@@ -29,10 +30,10 @@ export default function DriverOrderCreate({ className = '' }) {
         available_seats: 1,
         description: '',
     });
-    const [city, setCity] = useState('');
     const [citySuggestions, setCitySuggestions] = useState([]);
     const [cities, setCities] = useState([]); // Состояние для всех городов
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
+
     const fetchCities = async () => {
         const response = await fetch('/api/cities');
         return await response.json();
@@ -75,8 +76,7 @@ export default function DriverOrderCreate({ className = '' }) {
         if (cities.length === 0) {
             fetchCities();
         }
-    }, []);  // Пустой массив зависимостей гарантирует выполнение только один раз при монтировании.
-
+    }, []);  // Пустой массив зависимостей гарантирует выполнение только один раз при монтировании.useEffect(() => {
 
     useEffect(() => {
         if (data.city && isCitiesLoaded) {
@@ -98,7 +98,7 @@ export default function DriverOrderCreate({ className = '' }) {
 
         // Фильтруем предложения
         const suggestions = getSuggestions(value, uniqueCities);
-        const limitedSuggestions = suggestions.slice(0, 5);
+        const limitedSuggestions = suggestions.slice(0, 10);
         //  console.log("City suggestions:", suggestions);
         setCitySuggestions(limitedSuggestions);
     };
@@ -168,7 +168,7 @@ export default function DriverOrderCreate({ className = '' }) {
     const handleCitySelect = (suggestion, cityField) => {
         const boundingBox = suggestion.boundingbox.join(','); // Формат: minLon,minLat,maxLon,maxLat
         setCityBoundingBox(boundingBox);
-        setData(cityField, suggestion.display_name);
+        setData(cityField, suggestion);
     };
 
     const handleAddIntermediateAddress = () => {
@@ -190,7 +190,7 @@ export default function DriverOrderCreate({ className = '' }) {
 
 
     return (
-        <form onSubmit={handleSubmit} className={`container ${className}`}>
+        <form onSubmit={handleSubmit} className={`create-order-container ${className}`}>
             {step === 1 && (
                 <div className="card">
                     <div className="card-header text-center">
@@ -253,7 +253,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Откуда вы выезжаете ?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="from_city" value="Город" style={{ color: '#eea236' }} />
+                        <InputLabel htmlFor="from_city" value="Город" className="inputLabel"/>
                         <CitySuggestInput
                             id="from_city"
                             value={data.from_city}
@@ -280,7 +280,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Откуда вы выезжаете ?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="from_street" value="Улица" style={{ color: '#eea236' }} />
+                        <InputLabel htmlFor="from_street" value="Улица" className="inputLabel"/>
                         <StreetSuggestInput
                             id="from_street"
                             value={data.from_street}
@@ -307,7 +307,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Откуда вы выезжаете ?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="from_house" value="Дом" style={{color: '#eea236'}}/>
+                        <InputLabel htmlFor="from_house" value="Дом" className="inputLabel"/>
                         <TextInput
                             id="from_house"
                             value={data.from_house}
@@ -333,7 +333,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Куда вы едете?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="to_city" value="Город" style={{ color: '#eea236' }} />
+                        <InputLabel htmlFor="to_city" value="Город" className="inputLabel"/>
                         <CitySuggestInput
                             id="to_city"
                             value={data.to_city}
@@ -360,7 +360,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Куда вы едете?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="to_street" value="Улица" style={{ color: '#eea236' }} />
+                        <InputLabel htmlFor="to_street" value="Улица" className="inputLabel"/>
                         <StreetSuggestInput
                             id="to_street"
                             value={data.to_street}
@@ -387,7 +387,7 @@ export default function DriverOrderCreate({ className = '' }) {
                         <h2>Куда вы едете?</h2>
                     </div>
                     <div className="card-body">
-                        <InputLabel htmlFor="to_house" value="Дом" style={{color: '#eea236'}} className="inputLabel"/>
+                        <InputLabel htmlFor="to_house" value="Дом" className="inputLabel"/>
                         <TextInput
                             id="to_house"
                             value={data.to_house}
@@ -435,6 +435,7 @@ export default function DriverOrderCreate({ className = '' }) {
                                         value: address, // Передавайте значение промежуточного города
                                         onChange: (e, { newValue }) => handleIntermediateAddressChange(index, newValue) // Используем вашу функцию для обработки изменений
                                     }}
+
                                 />
                                 </div>
                             </div>

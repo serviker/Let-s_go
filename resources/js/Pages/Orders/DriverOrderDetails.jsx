@@ -45,11 +45,21 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
 };
 
 const DriverOrderDetails = React.memo(() => {
-    const { order, searchCriteria } = usePage().props;
+
+    const { order, isOrderCreated } = usePage().props;
+    // Добавляем состояние для контроля перезагрузки
+    const [hasReloaded, setHasReloaded] = useState(false);
     const [data, setData] = useState(order);
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
     const [showCancelModal, setShowCancelModal] = useState(false);
 
+    useEffect(() => {
+        // Если поездка успешно создана и перезагрузка еще не выполнялась
+        if (isOrderCreated && !hasReloaded) {
+            window.location.reload();
+            setHasReloaded(true); // Устанавливаем, что перезагрузка уже произошла
+        }
+    }, [isOrderCreated, hasReloaded]);
 
     if (!data) {
         return <div>Error: Order data is missing</div>;
@@ -81,6 +91,9 @@ const DriverOrderDetails = React.memo(() => {
             },
         });
     };
+
+
+
 
     return (
         <div className="order-container-details bg-white p-6 rounded-lg shadow-lg">
@@ -243,6 +256,7 @@ const DriverOrderDetails = React.memo(() => {
         </div>
     );
 });
+
 
 DriverOrderDetails.propTypes = {
     order: PropTypes.shape({

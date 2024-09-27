@@ -1,12 +1,18 @@
 /* Общие стили для контейнера */
 .create-order-container {
-    margin-top: 40px;
-    width: 60%;
+    width: 50%;
     max-width: 100%;
+    height: 100vh;
     border-radius: 10px;
     position: relative;
-    background-color: white;
+    background-color: #eaeaea;
     padding: 20px 30px;
+    overflow: visible;
+    margin: auto;
+    /* Flexbox для центровки */
+    display: flex;
+    justify-content: center; /* Центровка по горизонтали */
+    /*align-items: center;     Центровка по вертикали */
 }
 
 /* Стили для заголовков */
@@ -73,8 +79,10 @@
     margin-bottom: 20px;
     border-radius: 10px;
     background-color: #eaeaea;
+    height: auto;
     padding: 20px;
     width: 60%;
+    overflow: visible;
 }
 
 .card-header {
@@ -86,6 +94,7 @@
 
 .card-body {
     padding: 0 10px;
+    overflow: visible;
 }
 
 .form-control{
@@ -285,22 +294,15 @@
     width: 60%; /* Ограничение ширины для каждого DriverOrderIndex */
     margin-bottom: 20px; /* Отступ между элементами */
 }
+
 .react-autosuggest__container {
     position: relative;
     width: 100%;
-    /*height: 100%;*/
+    height: 100%;
     border: 1px solid transparent;
     border-radius: 10px;
     font-size: 18px;
 }
-
-/*.react-autosuggest__input:hover,*/
-/*.react-autosuggest__input:active,*/
-/*.react-autosuggest__input:focus {*/
-/*    outline: none; !* Убираем стандартный outline *!*/
-/*    border-color: transparent; !* Оставляем бордюр прозрачным *!*/
-/*    background-color: #eaeaea; !* Цвет фона остается прежним *!*/
-/*}*/
 
 
 .react-autosuggest__input {
@@ -327,8 +329,8 @@
     border-radius: 10px;
     background-color: #fff;
     font-size: 18px;
-    z-index: 5;
-    max-height: 500px; /* Ограничьте высоту списка для предотвращения появления скролла */
+    z-index: 999;
+    height: auto; /* Ограничьте высоту списка для предотвращения появления скролла */
     overflow-y: auto; /* Добавляем вертикальный скролл для длинного списка */
 }
 
@@ -360,10 +362,12 @@
     padding: 5px;
     cursor: default;
     height: 50px;
+    color: black;
 }
 
 .inputLabel {
     display: flex;
+    color: #eea236;
     align-items: center; /* Выравнивание по вертикали */
     justify-content: center; /* Выравнивание по горизонтали */
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Message\CreateController;
 use App\Http\Controllers\Message\StoreController;
 use App\Http\Controllers\Order\ShowController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StreetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CarDataController;
 use Illuminate\Foundation\Application;
@@ -61,8 +62,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/api/cities', [CityController::class, 'getCities']);
     Route::get('/api/suggestions', [CityController::class, 'getSuggestions']);
-
     Route::get('/api/search/{query}', [CityController::class, 'search']);
+
+    Route::get('/api/streets', [StreetController::class, 'getStreets']);
+    Route::get('/api/street-suggestions', [StreetController::class, 'getSuggestions']);
 
     // Группа маршрутов заказов с пространством имен 'Message'
     Route::namespace('App\Http\Controllers\Message')->group(function () {

@@ -87,8 +87,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders', 'StoreController')->name('order.store');
         Route::get('/orders/{order}', 'ShowController')->name('order.show');
         Route::get('/orders/{order}/edit', 'EditController')->name('order.edit');
-      //  Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
-      //  Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
+        Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
+        Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
         Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');
 
@@ -101,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');
         // Добавляем маршрут для всех поездок пассажира
         Route::get('/passenger/orders', 'IndexController@passengerOrders')->name('passenger.orders');
+        Route::get('/passenger/search', 'IndexController@ordersPassenger')->name('passenger.search');
 
         Route::get('/api/user/{user}/booked-trips', [UserController::class, 'checkBookedTrips']);
 

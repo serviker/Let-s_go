@@ -47,13 +47,13 @@ export default function ProfileRoutes({ auth, mustVerifyEmail, status }) {
                     <nav className="mb-4">
                         <ul className="flex space-x-4">
                             <li>
-                                <Link to="/profile">Профиль</Link>
+                                <Link to="/profile" style={{ color: 'gray'}}>Изменить профиль</Link>
                             </li>
                             <li>
-                                <Link to="/profile/change-password">Изменить пароль</Link>
+                                <Link to="/profile/change-password" style={{ color: 'gray'}}>Изменить пароль</Link>
                             </li>
                             <li>
-                                <Link to="/profile/delete-account">Удалить аккаунт</Link>
+                                <Link to="/profile/delete-account" style={{ color: 'gray'}}>Удалить аккаунт</Link>
                             </li>
                         </ul>
                     </nav>

@@ -4,22 +4,22 @@ import { Link } from '@inertiajs/inertia-react';
 import PassengerOrdersIndex from "@/Pages/Orders/PassengerOrdersIndex.jsx";
 import Modal from "@/Components/Modal.jsx";
 import { Inertia } from "@inertiajs/inertia";
+import {usePage} from "@inertiajs/react";
 
-export default function PassengerOrders({ orders }) {
+export default function PassengerOrders() {
+    const { orders } = usePage().props;
+
+    // Сортировка заказов по времени отправления
+    const sortedOrders = orders.sort((a, b) => {
+        return new Date(a.dateTimeDeparture) - new Date(b.dateTimeDeparture);
+    });
 
     return (
-        <div className="driver-orders-container" style={{ marginTop: '80px', width: '160%'}}>
-            {orders.map(order => (
+        <div className="driver-orders-container" style={{ marginTop: '80px', width: '160%' }}>
+            {sortedOrders.map(order => (
                 <PassengerOrdersIndex key={order.id} order={order} />
             ))}
-
-            {/*<div className="d-flex justify-content-end mt-4">*/}
-            {/*    <Link href={route('dashboard')} className="btn btn-info">*/}
-            {/*        Назад*/}
-            {/*    </Link>*/}
-            {/*</div>*/}
         </div>
-
     );
 }
 
@@ -28,10 +28,7 @@ PassengerOrders.propTypes = {
         id: PropTypes.number.isRequired,
         fromCity: PropTypes.string.isRequired,
         toCity: PropTypes.string.isRequired,
-        price: PropTypes.oneOfType([
-            PropTypes.string,
-            PropTypes.number,
-        ]).isRequired,
+        price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         driverName: PropTypes.string,
         carName: PropTypes.string,
         dateTimeDeparture: PropTypes.string.isRequired,

@@ -54,7 +54,8 @@ export default function PassengerOrdersIndex({ order }) {
         <Link
             key={order.id}
             href={`/orders/${order.id}`}
-            className="order-container bg-white p-6 rounded-lg shadow-lg relative"
+            // className="order-container bg-white p-6 rounded-lg shadow-lg relative"
+            className="order-container"
         >
             <div className="city-label from-city">
                 {extractCityName(order.fromCity)}

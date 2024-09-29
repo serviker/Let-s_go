@@ -82,7 +82,7 @@ export default function Dashboard({ auth, orders, searchCriteria }) {
                     </div>
                 ) : (
                     // Если заказы есть, отображаем их
-                    <PassengerOrders orders={ordersState} />
+                    <PassengerOrders orders={ordersState}/>
                 )}
             </AuthenticatedLayout>
         </Router>

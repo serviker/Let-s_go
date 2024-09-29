@@ -11,61 +11,86 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
     //console.log('Auth Data:', auth); // Добавьте эту строку для отладки
     const user = auth.user || {};
     const cars = Array.isArray(auth.cars) ? auth.cars : [];
-    // Замените это на статические данные для отладки
-    /*const cars = [
-         { id: 1, photoUrl: 'imagesCar/Camry.png', brand: 'Toyota', model: 'Corolla', color: 'White' },
-          { id: 2, photoUrl: 'imagesCar/mbvb.png', brand: 'Honda', model: 'Civic', color: 'White'  }
-    ];
 
-    console.log('User Data:', user);
-    console.log('Car Information:', cars); // Убедитесь, что это массив и что он содержит данные*/
+   // console.log('User Data:', user);
+   // console.log('Car Information:', cars); // Убедитесь, что это массив и что он содержит данные*/
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
         name: user.name,
         lastName: user.lastName,
         email: user.email,
         phone: user.phone,
-        photo: null,
+        photoUrl: user.photoUrl,
         registrationDate: user.registrationDate || user.created_at,
     });
+
+    useEffect(() => {
+        setData({
+            name: user.name || '',
+            lastName: user.lastName || '',
+            email: user.email || '',
+            phone: user.phone || '',
+            photoUrl: null,
+            registrationDate: user.registrationDate || user.created_at,
+        });
+    }, [user]);
 
     const [photoPreview, setPhotoPreview] = useState(user.photoUrl ? `/${user.photoUrl}` : null);
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setData('photo', file);
+            setData('photoUrl', file);
             setPhotoPreview(URL.createObjectURL(file));
         }
     };
 
-    useEffect(() => {
+   /* useEffect(() => {
         const baseUrl = window.location.origin;
         const fullPhotoUrl = user.photoUrl ? `${baseUrl}/${user.photoUrl}` : null;
         setPhotoPreview(fullPhotoUrl);
+    }, [user.photoUrl]);*/
+
+    useEffect(() => {
+        if (user.photoUrl) {
+            const baseUrl = window.location.origin;
+            setPhotoPreview(`${baseUrl}/${user.photoUrl}`);
+        } else {
+            setPhotoPreview(null);
+        }
     }, [user.photoUrl]);
+
 
     const submit = (e) => {
         e.preventDefault();
 
+        // Создаем объект данных
         const formData = new FormData();
+        // Добавляем данные в FormData
         formData.append('name', data.name);
         formData.append('lastName', data.lastName);
         formData.append('email', data.email);
         formData.append('phone', data.phone);
-        if (data.photo) {
-            formData.append('photo', data.photo);
+        if (data.photoUrl) {
+            formData.append('photoUrl', data.photoUrl); // Обработка загрузки фото
         }
 
+        console.log('formData being sent:', formData); // Отладка
+
         patch(route('profile.update'), {
-            data: formData,
-            forceFormData: true,
-        }).then(() => {
-            console.log('Profile updated successfully.');
-        }).catch((error) => {
-            console.error('Error updating profile:', error);
+            data: formData,  // Используем обновленные данные
+            preserveScroll: true,
+            onSuccess: () => {
+                // Обновляем данные страницы после успешного обновления профиля
+                router.reload({ preserveScroll: true });
+                console.log('Profile updated successfully.');
+            },
+            onError: (error) => {
+                console.error('Error updating profile:', error);
+            }
         });
     };
+
     const deleteCar = async (id) => {
             try {
                 await router.delete(`/profile/delete-car/${id}`, {
@@ -167,25 +192,25 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                     </div>
                 </div>
                 <div>
-                    <InputLabel htmlFor="photo" value="Фото"/>
+                    <InputLabel htmlFor="photoUrl" value="Фото"/>
                     <input
-                        id="photo"
+                        id="photoUrl"
                         type="file"
-                        name="photo"
+                        name="photoUrl"
                         onChange={handlePhotoChange}
                         className="form-control w-100"
                     />
-                    <InputError message={errors.photo} className="mt-2 text-red-500"/>
+                    <InputError message={errors.photoUrl} className="mt-2 text-red-500"/>
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
                         <p className="text-sm mt-2 text-gray-800">
                             Your email address is unverified.
-                            <Link href={route('verification.send')} method="post" as="button"
+                            <a href={route('verification.send')} method="post" as="button"
                                   className="text-blue-600 hover:text-blue-800">
                                 Click here to re-send the verification email.
-                            </Link>
+                            </a>
                         </p>
                         {status === 'verification-link-sent' && (
                             <div className="mt-2 text-green-600">A new verification link has been sent to your email
@@ -196,9 +221,9 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
 
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing} className="btn btn-primary">Сохранить</PrimaryButton>
-                    <Link href={route('dashboard')} className="btn btn-info" style={{marginLeft: '250px'}}>
+                    <a href={route('dashboard')} className="btn btn-info" style={{marginLeft: '250px'}}>
                         На главную
-                    </Link>
+                    </a>
 
                     {recentlySuccessful && <span className="text-green-600 ml-3">Saved.</span>}
                 </div>
@@ -238,9 +263,9 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                         </div>
                     ))
                 ) : (
-                    <Link href={route('car.create')} className="btn btn-primary">
+                    <a href={route('car.create')} className="btn btn-primary">
                         Add Car
-                    </Link>
+                    </a>
                 )}
             </div>
         </section>

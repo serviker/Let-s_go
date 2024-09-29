@@ -55,7 +55,8 @@ class Order extends Model
     {
         return $this->belongsToMany(User::class, 'order_passenger', 'order_id', 'passenger_id')
             ->withPivot('seats', 'departure_city', 'arrival_city')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withTrashed(); // Включает soft deletes;
     }
 
 

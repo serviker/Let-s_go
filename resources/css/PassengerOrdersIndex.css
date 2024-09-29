@@ -1,18 +1,20 @@
 .order-container {
     margin-top: 10px;
-    width: 40%; /* Установите ширину 100%, чтобы она подчинялась родительскому элементу */
+    width: 50%; /* Установите ширину 100%, чтобы она подчинялась родительскому элементу */
     max-width: 60%; /* Ограничьте максимальную ширину */
     height: 70%;
     border-radius: 10px;
     position: relative;
     background-color: #f6f6f6;
     padding: 0 30px; /* Добавлено для отступов от краев */
+    color: #8f8f8f;
 }
 
 .order-container:hover  {
     /*background-color: #fdfbf6;*/
     background-color: #ffffff;
     text-decoration: none;
+    color: grey;
 }
 
 .city-label {

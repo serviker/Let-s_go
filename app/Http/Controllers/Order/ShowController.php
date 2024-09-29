@@ -8,11 +8,13 @@ use App\Models\Driver;
 use App\Models\Order;
 use App\Models\Passenger;
 use App\Models\User;
+use App\Notifications\OrderCancelled;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -40,7 +42,7 @@ class ShowController extends Controller
         $car = ($driver && $driver->user && $driver->user->cars->isNotEmpty()) ? $driver->user->cars->first() : null;
 
 
-        if ($driver) {
+       /* if ($driver) {
             Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $driver->user->id]);
         } else {
             Log::warning('Order/ShowController: Driver not found for order', ['driver_id' => $order->driver_id]);
@@ -48,12 +50,12 @@ class ShowController extends Controller
         Log::info('Order/ShowController Retrieved Driver:', [
             'driver_id' => $driver ? $driver->id : 'Not Found',
             'user_id' => $driver && $driver->user ? $driver->user->id : 'No User'
-        ]);
+        ]);*/
 
 
        // Log::info('Order/ShowController $driver:', ['driver_id' => $order->driver_id]);
 
-        Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $user->id]);
+      //  Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $user->id]);
         // Process passengers list
         $passengers = $order->passengers->map(function ($passenger) {
             return [
@@ -65,7 +67,7 @@ class ShowController extends Controller
                 'seats' => $passenger->pivot->seats
             ];
         });
-        Log::info('Order/ShowController $passengers:', $passengers->toArray());
+      //  Log::info('Order/ShowController $passengers:', $passengers->toArray());
         // Check if the user is a passenger in the order
         $isPassenger = $order->passengers()->where('passenger_id', $user->id)->exists();
 
@@ -91,7 +93,7 @@ class ShowController extends Controller
             'isBooked' => $isPassenger,
             'searchCriteria' => $sessionCriteria
         ];
-        Log::info('Order/ShowControllerOrder Created $data:', $data);
+       // Log::info('Order/ShowControllerOrder Created $data:', $data);
 
         // Check if the authenticated user is the driver
         if ($user && $user->id === $order->driver_id) {
@@ -223,8 +225,13 @@ class ShowController extends Controller
         return redirect()->route('order.show', ['order' => $orderId]);
     }
 
-    public function cancelOrderDriver(Request $request, $orderId)
+ /*   public function cancelOrderDriver(Request $request, $orderId)
     {
+        // Валидация: проверяем, что причина отмены передана в запросе
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+        ]);
+
         $user = Auth::user();
 
         // Проверяем, авторизован ли пользователь
@@ -240,10 +247,21 @@ class ShowController extends Controller
             return redirect()->back()->with('error', 'Order not found');
         }
 
-        // Проверяем, является ли пользователь водителем данного заказа
-        if ($order->driver_id !== $user->id) {
-            return redirect()->back()->with('error', 'You are not the driver of this order');
+        // Получаем причину отмены из запроса
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+        ]);
+
+        $cancellationReason = $request->input('cancellation_reason');
+
+        // Уведомляем пассажиров о том, что поездка отменена
+        $passengers = $order->passengers;
+        foreach ($passengers as $passenger) {
+            Log::info('Notifying passenger: ' . $passenger->id);
+            // Отправляем уведомление каждому пассажиру
+            Notification::send($passenger, new OrderCancelled($order, $cancellationReason));
         }
+
 
         // Уведомляем пассажиров о том, что поездка отменена
         $passengers = $order->passengers;
@@ -258,6 +276,52 @@ class ShowController extends Controller
 
         // Перенаправляем пользователя с подтверждением отмены
         return redirect()->route('driver.orders');//->with('success', 'Trip has been successfully canceled');
+    }*/
+
+    public function cancelOrderDriver(Request $request, $orderId)
+    {
+        $user = Auth::user();
+
+        // Проверяем, авторизован ли пользователь
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not authenticated');
+        }
+
+        // Получаем заказ
+        $order = Order::find($orderId);
+
+        // Проверяем, существует ли заказ
+        if (!$order) {
+            Log::error('Order not found: ' . $orderId);
+            return redirect()->back()->with('error', 'Order not found');
+        }
+
+        // Проверяем, является ли пользователь водителем данного заказа
+        if ($order->driver_id !== $user->id) {
+            Log::error('User is not the driver of this order: ' . $user->id);
+            return redirect()->back()->with('error', 'You are not the driver of this order');
+        }
+
+        // Валидация причины отмены
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+        ]);
+
+        // Уведомляем пассажиров о том, что поездка отменена
+        $passengers = $order->passengers;
+        foreach ($passengers as $passenger) {
+            Log::info('Notifying passenger: ' . $passenger->id);
+            Notification::send($passenger, new OrderCancelled($order, $request->cancellation_reason));
+        }
+
+        // Удаляем заказ
+        $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+        $order->delete(); // Удаляем сам заказ
+        Log::info('Order deleted: ' . $orderId);
+
+        // Перенаправляем пользователя с подтверждением отмены
+        return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
     }
+
 
 }

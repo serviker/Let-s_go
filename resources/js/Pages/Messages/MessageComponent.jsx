@@ -9,11 +9,6 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
     const [messages, setMessages] = useState(initialMessages || []); // Объявляем состояние для списка сообщений
 
     // Проверка и обновление сообщений при изменении initialMessages
-   /* useEffect(() => {
-        if (initialMessages && initialMessages.length > 0) {
-            setMessages(initialMessages);
-        }
-    }, [initialMessages]);*/
     useEffect(() => {
         setMessages(initialMessages);
     }, [initialMessages]);

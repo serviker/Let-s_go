@@ -54,8 +54,8 @@ class StoreController extends Controller
         // Проверяем, существует ли запись в таблице drivers для этого пользователя
         $driver = Driver::firstOrCreate(['user_id' => $userId]);
 
-        Log::info('Order/StoreControllerData $userId:', ['driver_id' => $driver->id]);
-        Log::info('Order/StoreController Driver info:', ['driver_id' => $driver->id, 'user_id' => $userId]);
+       // Log::info('Order/StoreControllerData $userId:', ['driver_id' => $driver->id]);
+       // Log::info('Order/StoreController Driver info:', ['driver_id' => $driver->id, 'user_id' => $userId]);
 
         try {
             $order = Order::create([
@@ -73,9 +73,9 @@ class StoreController extends Controller
             if (!empty($intermediateAddresses)) {
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
-            Log::info('Order/StoreControllerData Received:', $data);
-            Log::info('Order/StoreControllerData $order:', $order->toArray());
-            Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
+           // Log::info('Order/StoreControllerData Received:', $data);
+           // Log::info('Order/StoreControllerData $order:', $order->toArray());
+           // Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
 
 
             return redirect()->route('order.show', $order->id)

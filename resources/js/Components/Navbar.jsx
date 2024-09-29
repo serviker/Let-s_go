@@ -673,7 +673,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                         <ul className="dropdown-menu">
                                             {auth.user ? (
                                                 <>
-                                                    <li><Link href={route('driver.orders')}>Ваши поездки</Link></li>
+                                                    <li><Link href={route('driver.orders')}>Мои поездки Водителем</Link></li>
+                                                    <li><Link href={route('passenger.search')}>Мои поездки Пассажиром</Link></li>
                                                     <li><Link href={route('incoming.show')}>Входящие</Link></li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>

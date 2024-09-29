@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -92,15 +93,19 @@ class IndexController extends Controller
 
         // Получаем данные из запроса
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
-        Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
+       // Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
         // Сохраняем критерии поиска в сессию для последующего использования
         session()->put('searchCriteria', $searchCriteria);
+
+        // Получаем текущую дату и время
+        $now = Carbon::now();
 
         // Получаем заказы на основе критериев поиска
         $ordersQuery = Order::with(['fromAddress', 'toAddress', 'intermediateAddresses', 'driver'])
             ->whereDate('date_time_departure', $searchCriteria['date'])
             ->where('available_seats', '>=', $searchCriteria['seats'])
+            ->where('date_time_departure', '>', $now) // Фильтрация по актуальному времени
             ->where(function ($query) use ($searchCriteria) {
                 $query->whereHas('fromAddress', function ($query) use ($searchCriteria) {
                     $query->where('city', $searchCriteria['departureCity']);
@@ -114,6 +119,7 @@ class IndexController extends Controller
                     });
             });
 
+        $orders = $ordersQuery->get();
 
         // Логируем SQL запрос для отладки
        /* Log::info('IndexController Generated SQL Query:', ['query' => $ordersQuery->toSql()]);
@@ -123,18 +129,6 @@ class IndexController extends Controller
             $toAddress = $order->toAddress;
             $driver = $order->driver;
             $car = $driver ? $driver->cars->first() : null; // Получаем первую машину водителя
-
-            // Логируем информацию по каждому заказу
-            Log::info('IndexController Order:', [
-                'id' => $order->id,
-                'fromCity' => $fromAddress->city ?? 'Unknown',
-                'toCity' => $toAddress->city ?? 'Unknown',
-                'price' => (string) $order->price,
-                'driverName' => $driver->name ?? 'Unknown',
-                'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
-                'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
-                'driverPhotoUrl' => $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
-            ]);
 
             return [
                 'id' => $order->id,
@@ -148,7 +142,7 @@ class IndexController extends Controller
             ];
         }); */
 
-        $orders = $ordersQuery->get();
+
         Log::info('IndexController/Orders:', $orders->toArray());
         // Перебор всех заказов и генерация URL для каждого
         $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
@@ -171,20 +165,53 @@ class IndexController extends Controller
             ];
         });
 
-        // Логируем финальный массив с URL
-       // Log::info('IndexController Логируем финальный массив с URLs:', ['ordersWithUrls' => $ordersWithUrls->toArray()]);
-       // Log::info('Orders/IndexController with URLs:', $ordersWithUrls->toArray());
-        // Логируем конечный массив заказов перед отправкой на фронт
-       // Log::info('IndexController Final Orders Array:', ['orders' => $orders->toArray()]);
-
         // Если заказы найдены, сохраняем их в сессии
         session()->put('foundOrders', $ordersWithUrls);
 
-       // return response()->json(['orders' => $orders->toArray(),]);
         return response()->json(['orders' => $ordersWithUrls->toArray(),
             // Возвращаем последние критерии поиска
             'searchCriteria' => session('searchCriteria')
             ]);
     }
+
+    public function ordersPassenger()
+    {
+        $passenger = Auth::user(); // Получаем текущего аутентифицированного пользователя
+
+        if (!$passenger) {
+            return Inertia::render('Orders/PassengerOrders', [
+                'orders' => [],
+            ]);
+        }
+
+        // Получаем заказы, где текущий пользователь является пассажиром
+        $orders = Order::with(['fromAddress', 'toAddress', 'driver'])
+            ->whereHas('passengers', function ($query) use ($passenger) {
+                $query->where('passenger_id', $passenger->id);
+            })
+            ->get()
+            ->map(function ($order) {
+                $fromAddress = $order->fromAddress;
+                $toAddress = $order->toAddress;
+                $driver = $order->driver; // Получаем водителя из заказа
+                $car = $driver ? $driver->cars->first() : null; // Получаем первую машину водителя
+
+                return [
+                    'id' => $order->id,
+                    'fromCity' => $fromAddress->city ?? 'Unknown',
+                    'toCity' => $toAddress->city ?? 'Unknown',
+                    'price' => (string) $order->price, // Преобразуем в строку
+                    'driverName' => $driver ? $driver->name : 'Unknown',
+                    'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
+                    'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
+                    'driverPhotoUrl' => $driver && $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
+                ];
+            });
+
+        return Inertia::render('Orders/PassengerTripsOrders', [
+            'orders' => $orders,
+        ]);
+    }
+
 }
 

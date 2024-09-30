@@ -101,7 +101,7 @@ class ShowController extends Controller
             $isOrderCreated = session('isOrderCreated', false);
 
             // Если поездка создается впервые, устанавливаем флаг в сессию
-            if ($isOrderCreated === false) {
+          /*  if ($isOrderCreated === false) {
                 session(['isOrderCreated' => true]);
                 return Inertia::render('Orders/DriverOrderDetails', [
                     'order' => $data,
@@ -109,7 +109,7 @@ class ShowController extends Controller
                     'searchCriteria' => $sessionCriteria,
                     'isOrderCreated' => true // Указываем, что поездка успешно создана
                 ]);
-            } else {
+            } else {*/
                 // После перезагрузки не передаем параметр для предотвращения повторной перезагрузки
                 session(['isOrderCreated' => false]);
                 return Inertia::render('Orders/DriverOrderDetails', [
@@ -118,7 +118,7 @@ class ShowController extends Controller
                     'searchCriteria' => $sessionCriteria,
                     'isOrderCreated' => false // Перезагрузка больше не нужна
                 ]);
-            }
+            //}
         }
 
         // If the user is not the driver, but a passenger, show PassengerOrderDetails
@@ -225,58 +225,90 @@ class ShowController extends Controller
         return redirect()->route('order.show', ['order' => $orderId]);
     }
 
- /*   public function cancelOrderDriver(Request $request, $orderId)
-    {
-        // Валидация: проверяем, что причина отмены передана в запросе
-        $request->validate([
-            'cancellation_reason' => 'required|string|max:255',
-        ]);
+    /*   public function cancelOrderDriver(Request $request, $orderId)
+      {
+          $user = Auth::user();
 
-        $user = Auth::user();
+          // Проверяем, авторизован ли пользователь
+          if (!$user) {
+              return redirect()->back()->with('error', 'User not authenticated');
+          }
 
-        // Проверяем, авторизован ли пользователь
-        if (!$user) {
-            return redirect()->back()->with('error', 'User not authenticated');
-        }
+          // Получаем заказ
+          $order = Order::find($orderId);
 
-        // Получаем заказ
-        $order = Order::find($orderId);
+          // Проверяем, существует ли заказ
+          if (!$order) {
+              return redirect()->back()->with('error', 'Order not found');
+          }
 
-        // Проверяем, существует ли заказ
-        if (!$order) {
-            return redirect()->back()->with('error', 'Order not found');
-        }
+          // Уведомляем пассажиров о том, что поездка отменена
+          $passengers = $order->passengers;
+          foreach ($passengers as $passenger) {
+              // Здесь можно отправить уведомление пассажирам
+              // Например, используя событие или e-mail уведомление
+          }
 
-        // Получаем причину отмены из запроса
-        $request->validate([
-            'cancellation_reason' => 'required|string|max:255',
-        ]);
+          // Удаляем заказ
+          $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+          $order->delete(); // Удаляем сам заказ
 
-        $cancellationReason = $request->input('cancellation_reason');
+          // Перенаправляем пользователя с подтверждением отмены
+          return redirect()->route('driver.orders');//->with('sucs', 'Trip has been successfully canceled');
+      }*/
+     /*   // Отмена поездки с уведомлением на почту
+         public function cancelOrderDriver(Request $request, $orderId)
+         {
+             $user = Auth::user();
 
-        // Уведомляем пассажиров о том, что поездка отменена
-        $passengers = $order->passengers;
-        foreach ($passengers as $passenger) {
-            Log::info('Notifying passenger: ' . $passenger->id);
-            // Отправляем уведомление каждому пассажиру
-            Notification::send($passenger, new OrderCancelled($order, $cancellationReason));
-        }
+             // Проверяем, авторизован ли пользователь
+             if (!$user) {
+                 return redirect()->back()->with('error', 'User not authenticated');
+             }
+
+             // Получаем заказ
+             $order = Order::find($orderId);
+
+             // Проверяем, существует ли заказ
+             if (!$order) {
+                 Log::error('Order not found: ' . $orderId);
+                 return redirect()->back()->with('error', 'Order not found');
+             }
+
+             // Проверяем, является ли пользователь водителем данного заказа
+             if ($order->driver_id !== $user->id) {
+                 Log::error('User is not the driver of this order: ' . $user->id);
+                 return redirect()->back()->with('error', 'You are not the driver of this order');
+             }
+
+             // Валидация причины отмены
+             $request->validate([
+                 'cancellation_reason' => 'required|string|max:255',
+             ]);
+
+             Log::info('Cancellation reason validated: ' . $request->cancellation_reason);
+
+             // Уведомляем пассажиров о том, что поездка отменена
+             $passengers = $order->passengers;
+             foreach ($passengers as $passenger) {
+                 Log::info('Notifying passenger: ' . $passenger->id);
+                 try {
+                     Notification::send($passenger, new OrderCancelled($order, $request->cancellation_reason));
+                     Log::info('Notification sent to passenger: ' . $passenger->id);
+                 } catch (\Exception $e) {
+                     Log::error('Failed to send notification to passenger: ' . $passenger->id . '. Error: ' . $e->getMessage());
+                 }
+             }
 
 
-        // Уведомляем пассажиров о том, что поездка отменена
-        $passengers = $order->passengers;
-        foreach ($passengers as $passenger) {
-            // Здесь можно отправить уведомление пассажирам
-            // Например, используя событие или e-mail уведомление
-        }
+             // Удаляем заказ
+             $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+             $order->delete(); // Удаляем сам заказ
+             Log::info('Order deleted: ' . $orderId);
 
-        // Удаляем заказ
-        $order->passengers()->detach(); // Убираем всех пассажиров из заказа
-        $order->delete(); // Удаляем сам заказ
-
-        // Перенаправляем пользователя с подтверждением отмены
-        return redirect()->route('driver.orders');//->with('success', 'Trip has been successfully canceled');
-    }*/
+             // Перенаправляем пользователя с подтверждением отмены
+             return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
+         }*/
 
     public function cancelOrderDriver(Request $request, $orderId)
     {
@@ -311,7 +343,7 @@ class ShowController extends Controller
         $passengers = $order->passengers;
         foreach ($passengers as $passenger) {
             Log::info('Notifying passenger: ' . $passenger->id);
-            Notification::send($passenger, new OrderCancelled($order, $request->cancellation_reason));
+            $passenger->notify(new OrderCancelled($order, $request->cancellation_reason));
         }
 
         // Удаляем заказ
@@ -322,6 +354,5 @@ class ShowController extends Controller
         // Перенаправляем пользователя с подтверждением отмены
         return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
     }
-
 
 }

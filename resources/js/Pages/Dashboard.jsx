@@ -5,6 +5,7 @@ import Navbar from "@/Components/Navbar.jsx";
 import PassengerOrders from "@/Pages/Orders/PassengerOrders.jsx";
 import { BrowserRouter as Router } from 'react-router-dom';
 import {Inertia} from "@inertiajs/inertia";
+import NotificationIncomingComponent from "@/Pages/Notifications/NotificationIncomingComponent.jsx";
 
 export default function Dashboard({ auth, orders, searchCriteria }) {
    /* const [searchCriteria, setSearchCriteria] = useState({
@@ -84,6 +85,7 @@ export default function Dashboard({ auth, orders, searchCriteria }) {
                     // Если заказы есть, отображаем их
                     <PassengerOrders orders={ordersState}/>
                 )}
+                {/*<NotificationIncomingComponent />*/}
             </AuthenticatedLayout>
         </Router>
     );

@@ -5,6 +5,28 @@ import '../../../css/DriverOrderDetails.css';
 import {Inertia} from "@inertiajs/inertia";
 
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
+    const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
+
+    const reasons = [
+        'Изменились планы',
+        'Проблемы с транспортом',
+        'Плохие погодные условия',
+        'Неудобное время выезда',
+        'Другая причина',
+    ];
+
+    const handleReasonChange = (event) => {
+        setSelectedReason(event.target.value);
+    };
+
+    const handleConfirm = () => {
+        if (!selectedReason) {
+            alert('Пожалуйста, выберите причину отмены');
+            return;
+        }
+        onConfirm(selectedReason); // Передаем выбранную причину в функцию onConfirm
+    };
+
     if (!show) return null;
 
     return (
@@ -21,7 +43,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
             zIndex: 1050 // Поверх других элементов
         }}>
             <div className="modal-content" style={{
-                width: '25%',
+                width: '30%',
                 border: '4px solid #eea236',
                 borderRadius: '10px',
                 backgroundColor: 'white',
@@ -31,8 +53,28 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                 <h3 style={{ textAlign: 'center', color: 'black' }}>
                     Вы уверены, что хотите отменить бронирование?
                 </h3>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
-                    <button onClick={onConfirm} className="btn btn-danger">
+                <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
+
+                <div className="cancel-reasons" style={{ marginBottom: '20px' }}>
+                    {reasons.map((reason, index) => (
+                        <div key={index} style={{  display: 'flex', alignItems: 'center' }}>
+                            <input
+                                type="radio"
+                                id={`reason-${index}`}
+                                name="cancelReason"
+                                value={reason}
+                                onChange={handleReasonChange}
+                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236' }}
+                            />
+                            <label htmlFor={`reason-${index}`} style={{ color: 'gray' }}>
+                                {reason}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                    <button onClick={handleConfirm} className="btn btn-danger">
                         Подтвердить
                     </button>
                     <button onClick={onClose} className="btn btn-secondary">
@@ -43,6 +85,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
         </div>
     );
 };
+
 
 const DriverOrderDetails = React.memo(() => {
 
@@ -81,8 +124,8 @@ const DriverOrderDetails = React.memo(() => {
     };
     const handleOpenCancelModal = () => setShowCancelModal(true);
     const handleCloseCancelModal = () => setShowCancelModal(false);
-    const handleConfirmCancel = () => {
-        Inertia.delete(route('order.cancelForDriver', { order: data.id }), {
+    const handleConfirmCancel = (reason) => {
+        Inertia.delete(route('order.cancelForDriver', { order: data.id, reason  }), {
             onSuccess: () => {
                 handleCloseCancelModal();
             },
@@ -91,9 +134,6 @@ const DriverOrderDetails = React.memo(() => {
             },
         });
     };
-
-
-
 
     return (
         <div className="order-container-details bg-white p-6 rounded-lg shadow-lg">
@@ -256,9 +296,40 @@ const DriverOrderDetails = React.memo(() => {
         </div>
     );
 });
-
-
 DriverOrderDetails.propTypes = {
+    order: PropTypes.shape({
+        departureAddress: PropTypes.string,
+        arrivalAddress: PropTypes.string,
+        fromCity: PropTypes.string,
+        toCity: PropTypes.string,
+        intermediate_addresses: PropTypes.arrayOf(PropTypes.string),
+        price: PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.number,
+        ]).isRequired,
+        passengers: PropTypes.arrayOf(
+            PropTypes.shape({
+                id: PropTypes.number.isRequired,
+                name: PropTypes.string.isRequired,
+                departureCity: PropTypes.string.isRequired,
+                arrivalCity: PropTypes.string.isRequired,
+                seats: PropTypes.number,
+                photoUrl: PropTypes.string,
+            })
+        ).isRequired,
+        availableSeats: PropTypes.number.isRequired,
+        dateTimeDeparture: PropTypes.string.isRequired,
+        description: PropTypes.string,
+        driverId: PropTypes.number.isRequired,
+        driverName: PropTypes.string.isRequired,
+        driverPhotoUrl: PropTypes.string,
+        carName: PropTypes.string.isRequired,
+        carColor: PropTypes.string.isRequired,
+        carPhoto: PropTypes.string,
+    }).isRequired,
+};
+
+/*DriverOrderDetails.propTypes = {
     order: PropTypes.shape({
         departureAddress: PropTypes.string,
         arrivalAddress: PropTypes.string,
@@ -276,5 +347,5 @@ DriverOrderDetails.propTypes = {
         description: PropTypes.string, // Описание поездки
         availableSeats: PropTypes.number.isRequired, // Свободные места
     }).isRequired,
-};
+};*/
 export default DriverOrderDetails;

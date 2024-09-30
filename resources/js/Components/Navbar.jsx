@@ -230,9 +230,7 @@ const NoCarModal = ({ show, onClose, onAddCar }) => {
                 <button className="btn btn-success" onClick={onAddCar}>Добавить авто</button>
             </div>
         </div>
-
-    )
-        ;
+    );
 };
 
 const NoOrdersModal = ({show, onClose}) => {
@@ -675,7 +673,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                                 <>
                                                     <li><Link href={route('driver.orders')}>Мои поездки Водителем</Link></li>
                                                     <li><Link href={route('passenger.search')}>Мои поездки Пассажиром</Link></li>
-                                                    <li><Link href={route('incoming.show')}>Входящие</Link></li>
+                                                    <li><Link href={route('incoming.show')}>Входящие сообщения</Link></li>
+                                                    <li><Link href={route('notifications.index')}>Уведомления</Link></li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
                                                 </>

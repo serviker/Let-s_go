@@ -22,10 +22,21 @@ class OrderCancelled extends Notification
 
     public function via($notifiable)
     {
-        return ['mail', 'database']; // Уведомление по email и сохранение в базе
+       // return ['mail', 'database']; // Уведомление по email и сохранение в базе
+        return ['database']; // Уведомление при сохранение в базе
     }
 
-    public function toMail($notifiable)
+    // Определите данные уведомления
+    public function toDatabase($notifiable)
+    {
+        return [
+            'order_id' => $this->order->id,
+            'cancellation_reason' => $this->cancellationReason,
+            'message' => 'Ваш заказ #' . $this->order->id . ' был отменен.',
+        ];
+    }
+
+   /* public function toMail($notifiable)
     {
         return (new MailMessage) // Создаем новый объект MailMessage
         ->subject('Order Cancelled') // Устанавливаем тему письма
@@ -41,6 +52,6 @@ class OrderCancelled extends Notification
             'order_id' => $this->order->id,
             'cancellation_reason' => $this->cancellationReason,
         ];
-    }
+    }*/
 }
 

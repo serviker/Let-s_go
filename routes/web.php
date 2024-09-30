@@ -5,6 +5,7 @@ use App\Http\Controllers\CityController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Message\CreateController;
 use App\Http\Controllers\Message\StoreController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Order\ShowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StreetController;
@@ -45,6 +46,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/add-car', [CarController::class, 'store'])->name('car.store');
     // Добавляем маршрут для удаления авто
     Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
+    // Маршрут для уведомлений
+    Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
+    Route::post('/api/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
     // Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     // Маршрут для профиля водителя

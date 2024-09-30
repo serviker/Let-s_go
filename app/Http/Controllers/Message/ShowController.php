@@ -72,7 +72,7 @@ class ShowController extends Controller
             });
 
         // Логирование данных $driverIncoming
-        Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
+       // Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
 
         // Поездки, где пользователь является пассажиром
         $passengerIncoming = $user->passengerOrders()
@@ -89,7 +89,7 @@ class ShowController extends Controller
             });
 
         // Логирование данных $passengerIncoming
-        Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
+       // Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
 
         // Передаем данные в Inertia компонент
         return Inertia::render('Messages/IncomingMessagesComponent', [

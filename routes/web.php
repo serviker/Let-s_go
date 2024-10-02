@@ -46,9 +46,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/add-car', [CarController::class, 'store'])->name('car.store');
     // Добавляем маршрут для удаления авто
     Route::delete('/profile/delete-car/{id}', [CarController::class, 'destroy'])->name('car.destroy');
+
     // Маршрут для уведомлений
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
-    Route::post('/api/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
 
     // Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     // Маршрут для профиля водителя

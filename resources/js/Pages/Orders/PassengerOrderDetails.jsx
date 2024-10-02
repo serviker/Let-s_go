@@ -5,7 +5,30 @@ import '../../../css/PassengerOrderDetails.css';
 import { Inertia } from '@inertiajs/inertia';
 import { Modal, Button } from 'react-bootstrap';
 
-const NoDriverMessagingModal = ({ show, onClose }) => {
+const CancelBookingModal = ({ show, onClose, onConfirm }) => {
+    const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
+
+    const cancellation_reason = [
+        'Изменились планы',
+        'Проблемы с транспортом',
+        'Плохие погодные условия',
+        'Изменилась дата и время выезда',
+        'Другая причина',
+    ];
+
+    const handleReasonChange = (event) => {
+        setSelectedReason(event.target.value);
+    };
+
+    const handleConfirm = () => {
+        if (!selectedReason) {
+            alert('Пожалуйста, выберите причину отмены');
+            return;
+        }
+        onConfirm(selectedReason); // Передаем выбранную причину в функцию onConfirm
+        console.log('CancelBookingModal - handleConfirm:', onConfirm(selectedReason));
+    };
+
     if (!show) return null;
 
     return (
@@ -29,48 +52,31 @@ const NoDriverMessagingModal = ({ show, onClose }) => {
                 padding: '20px',
                 position: 'relative'
             }}>
-                <h2 style={{ textAlign: 'center', color: 'black' }}>
-                    Чтобы связаться с водителем, забронируйте место в поездке.
-                </h2>
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                    <button onClick={onClose} className="btn btn-secondary">
-                        Вернуться назад
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const CancelBookingModal = ({ show, onClose, onConfirm }) => {
-    if (!show) return null;
-
-    return (
-        <div className="modal-overlay" style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1050 // Поверх других элементов
-        }}>
-            <div className="modal-content" style={{
-                width: '25%',
-                border: '4px solid #eea236',
-                borderRadius: '10px',
-                backgroundColor: 'white',
-                padding: '20px',
-                position: 'relative'
-            }}>
                 <h3 style={{ textAlign: 'center', color: 'black' }}>
                     Вы уверены, что хотите отменить бронирование?
                 </h3>
-                <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '20px' }}>
-                    <button onClick={onConfirm} className="btn btn-danger">
+                <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
+
+                <div className="cancel-reasons" style={{ marginBottom: '20px' }}>
+                    {cancellation_reason.map((reason, index) => (
+                        <div key={index} style={{  display: 'flex', alignItems: 'center' }}>
+                            <input
+                                type="radio"
+                                id={`reason-${index}`}
+                                name="cancelReason"
+                                value={reason}
+                                onChange={handleReasonChange}
+                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236' }}
+                            />
+                            <label htmlFor={`reason-${index}`} style={{ color: 'gray' }}>
+                                {reason}
+                            </label>
+                        </div>
+                    ))}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                    <button onClick={handleConfirm} className="btn btn-danger">
                         Подтвердить
                     </button>
                     <button onClick={onClose} className="btn btn-secondary">
@@ -81,7 +87,6 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
         </div>
     );
 };
-
 
 const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
@@ -150,16 +155,15 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             console.error('Error booking the order:', error);
         }
     };
-
-    const handleCancelBooking = () => {
-        setShowCancelModal(true);
-    };
-
-    const confirmCancellation = () => {
-        Inertia.delete(route('order.cancel', order.id), {
+    // Открыть модальное окно
+    const handleCancelBooking = () => { setShowCancelModal(true); };
+    const handleCloseCancelModal = () => setShowCancelModal(false);
+    const confirmCancellation = (cancellation_reason) => {
+        Inertia.delete(route('order.cancel', { order: data.id, cancellation_reason  }), {
             onSuccess: () => {
-                setShowCancelModal(false);
+                handleCloseCancelModal();
                 // alert('Бронирование успешно отменено.');
+                // Действия после успешной отмены бронирования
             },
             onError: (errors) => {
                 alert(errors.message || 'Ошибка при отмене бронирования.');
@@ -359,7 +363,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                 )}
             </div>
 
-            <NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>
+            {/*<NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>*/}
         </div>
     );
 };

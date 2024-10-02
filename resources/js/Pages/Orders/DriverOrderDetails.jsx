@@ -52,7 +52,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                 position: 'relative'
             }}>
                 <h3 style={{ textAlign: 'center', color: 'black' }}>
-                    Вы уверены, что хотите отменить бронирование?
+                    Вы уверены, что хотите отменить поездку?
                 </h3>
                 <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
 

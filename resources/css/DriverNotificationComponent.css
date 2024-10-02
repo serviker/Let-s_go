@@ -1,0 +1,138 @@
+.notification-container {
+    padding: 5px;
+    border-radius: 8px;
+    background-color: #eaeaea;
+    font-size: 18px;
+    color: black;
+    width: 30%;
+    border: 4px solid #eea236;
+    position: fixed;
+    top: 11%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.btn-outline-info {
+    background: #eaeaea;
+    color: #eea236;
+}
+
+.notifications-list {
+    list-style-type: none; /* Убираем стандартные маркеры списка */
+    width: 100%; /* Задаём ширину для списка */
+}
+
+.notification-item {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-top: 10px;
+    height: auto;
+}
+
+.notification-small {
+    display: flex;
+    justify-content: space-between; /* Размещаем содержимое по разные стороны */
+    align-items: center;
+    font-size: 18px;
+
+}
+
+.notifications-container {
+    display: flex;
+    justify-content: center; /* Центрирование списка уведомлений по горизонтали */
+    align-items: center; /* Центрирование по вертикали, если это необходимо */
+    width: 100%;
+    margin-bottom: -10px;
+}
+
+.notification-container h2 {
+    margin-bottom: 20px;
+}
+
+.notification-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.notification-container li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.notification-container li.unread {
+    background-color: #fff3dd; /* Цвет для непрочитанных уведомлений */
+}
+
+.notification-container li.read {
+    background-color: #f1f1f1; /* Цвет для прочитанных уведомлений */
+}
+
+.notification-container button {
+    margin-left: 10px;
+}
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    background-color: #eaeaea;
+    font-weight: bold;
+}
+.notification-header .btn {
+    /*position: absolute;  Position the back arrow absolutely */
+    left: -40%; /* Align to the left edge of the container */
+    /*top: 50%;  Vertically center the arrow */
+    /* transform: translateY(-50%);Adjust for vertical centering */
+    font-size: 24px; /* Adjust the size of the arrow */
+    color: #eea236; /* The color of the arrow */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+    z-index: 1; /* Ensure it appears above other content */
+}
+
+.notification-header .btn:hover {
+    text-decoration: none; /* Убирает подчеркивание при наведении */
+}
+.item .btn {
+    padding: 0 5px;
+    background: none;
+    border: none;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.item .btn:hover {
+    color: #f1f1f1;
+}
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #999;
+    text-align: center;
+}
+.notification-text {
+    align-items: center;
+}

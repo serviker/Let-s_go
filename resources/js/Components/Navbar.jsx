@@ -147,6 +147,23 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const [data, setData] = useState([]); // Состояние для предложений
     const [inputValue, setInputValue] = useState([] || ''); // Состояние для предложений
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    // Функция для получения количества непрочитанных уведомлений
+    const fetchUnreadCount = async () => {
+        try {
+            const response = await fetch('/notifications/unread-count');
+            const data = await response.json();
+            setUnreadCount(data.unreadCount);
+        } catch (error) {
+            console.error("Error fetching unread notifications:", error);
+        }
+    };
+
+    // Вызываем функцию при монтировании компонента
+    useEffect(() => {
+        fetchUnreadCount();
+    }, []);
 
 
     // Метод для фильтрации городов по введенному значению
@@ -458,24 +475,47 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                     </a>
                                 </li>
                                 <li className="dropdown" ref={dropdownRef}>
-                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown} >
+                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
                                         {auth.user ? (
                                             <>
-                                                <img src={auth.user.photoUrl || "/images/user_icon.svg"} alt="" width="37" height="35"/>
+                                                <div className="user-photo-container">
+                                                    <img
+                                                        src={auth.user.photoUrl || "/images/user_icon.svg"}
+                                                        alt=""
+                                                        width="37"
+                                                        height="35"
+                                                    />
+                                                    {unreadCount > 0 && (
+                                                        <span className="notification-badge-foto" style={{ color: 'white'}}>{unreadCount}</span>
+                                                    )}
+                                                </div>
                                                 <span>{auth.user.name}</span>
                                             </>
                                         ) : (
-                                            <img src="/images/user_icon.svg" alt="User" width="37" height="35" />
+                                            <img src="/images/user_icon.svg" alt="User" width="37" height="35"/>
                                         )}
                                     </a>
+
                                     {dropdownOpen && (
                                         <ul className="dropdown-menu">
                                             {auth.user ? (
                                                 <>
-                                                    <li><Link href={route('driver.orders')}>Мои поездки Водителем</Link></li>
-                                                    <li><Link href={route('passenger.search')}>Мои поездки Пассажиром</Link></li>
-                                                    <li><Link href={route('incoming.show')}>Входящие сообщения</Link></li>
-                                                    <li><Link href={route('notifications.index')}>Уведомления</Link></li>
+                                                    <li><Link href={route('driver.orders')}>Мои поездки Водителем</Link>
+                                                    </li>
+                                                    <li><Link href={route('passenger.search')}>Мои поездки
+                                                        Пассажиром</Link></li>
+                                                    <li><Link href={route('incoming.show')}>Входящие сообщения</Link>
+                                                    </li>
+                                                    {/*<li><Link href={route('notifications.index')}>Уведомления</Link></li>*/}
+                                                    <li>
+                                                        <Link href={route('notifications.index')}>
+                                                            Уведомления
+                                                            {unreadCount > 0 && (
+                                                                <span
+                                                                    className="notification-badge">{unreadCount}</span>
+                                                            )}
+                                                        </Link>
+                                                    </li>
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
                                                 </>

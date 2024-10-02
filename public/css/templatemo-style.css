@@ -258,6 +258,40 @@ a.smooth:hover {
     color: #333; /* Цвет текста */
 }
 
+.notification-badge {
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px; /* установите ширину */
+    height: 20px; /* установите высоту, чтобы она была равна ширине */
+    display: inline-block;
+    text-align: center;
+    line-height: 20px; /* выравнивает текст по центру */
+    font-size: 12px;
+    margin-left: 8px;
+    position: relative;
+    top: -5px;
+}
+
+
+.notification-badge-foto {
+        background-color: #d30505;
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+        font-size: 10px;
+        display: inline-block;
+        text-align: center;
+        line-height: 15px;
+        position: absolute;
+        top: 25px;
+        right: -25px;
+}
+.user-photo-container {
+    position: relative;
+    display: inline-block;
+}
+
 .dropdown-menu {
     position: absolute;
     top: 100%;

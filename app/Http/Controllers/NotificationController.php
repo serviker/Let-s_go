@@ -12,26 +12,34 @@ class NotificationController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
         // Логирование пользователя
        // Log::info('Текущий пользователь:', ['id' => $user->id]);
 
         $notifications = $user->notifications()->orderBy('created_at', 'desc')->get();
         // Возвращаем Inertia ответ с уведомлениями
-        return Inertia::render('Notifications/NotificationIncomingComponent', [
-            'notifications' => $notifications,
-        ]);
-      /*  // Логирование извлеченных уведомлений
-        Log::info('Уведомления пользователя:', ['notifications' => $notifications]);
-        return response()->json($notifications);*/
+           return Inertia::render('Notifications/NotificationIncomingComponent', [
+              'notifications' => $notifications,
+          ]);
+       // Логирование извлеченных уведомлений
+       /* Log::info('Уведомления пользователя:', ['notifications' => $notifications]);
+          return response()->json($notifications);*/
     }
 
     public function markAsRead($id)
     {
-        $notification = Auth::user()->notifications()->find($id);
-        if ($notification) {
-            $notification->markAsRead();
-            return response()->json(['message' => 'Notification marked as read.']);
+        $user = Auth::user();
+        $notification = $user->notifications()->find($id);
+
+        if (!$notification) {
+            return response()->json(['error' => 'Notification not found'], 404);
         }
-        return response()->json(['message' => 'Notification not found.'], 404);
+
+        $notification->markAsRead();
+
+        return response()->json(['message' => 'Notification marked as read']);
     }
 }

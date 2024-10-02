@@ -1,106 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { usePage } from '@inertiajs/react';
 import '../../../css/NotificationIncomingComponent.css';
-import {Button} from "@headlessui/react"; // Ваши кастомные стили
+import { Button } from "@headlessui/react";
+import {Inertia} from "@inertiajs/inertia"; // Ваши кастомные стили
 
 const NotificationsList = ({ notifications, onMarkAsRead }) => {
-    console.log('Уведомления:', notifications);
     return (
-        <div>
-            <div className="header">
-                <Button onClick={() => window.history.back()} className="btn btn-link text-decoration-none">
+        <div className="notification-container">
+            <div className="notification-header">
+                <Button onClick={() => window.history.back()} className="btn btn-link">
                     &larr;
                 </Button>
                 <h2>Уведомления</h2>
             </div>
 
-            {notifications.length === 0 ? (
-                <p>Список уведомлений пуст</p>
-            ) : (
-                <ul>
-                    {notifications.map(notification => (
-                        <li key={notification.id} className={notification.read_at ? 'read' : 'unread'}>
-                            <p>{notification.data.cancellation_reason} от {notification.data.driver_name}</p>
-                            <small>{new Date(notification.created_at).toLocaleString()}</small>
-                            {!notification.read_at && (
-                                <button onClick={() => onMarkAsRead(notification.id)}>Прочитать</button>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            )}
+            <div className="notifications-container">
+                {/*{notifications.length === 0 ? (*/}
+                {/*    <p>Список уведомлений пуст</p>*/}
+                {/*) : (*/}
+                    <ul className="notifications-list">
+                        {notifications.map(notification => (
+                            <li key={notification.id}
+                                className={`notification-item ${notification.read_at ? 'read' : 'unread'}`}>
+                                <p className="notification-text">{notification.data.driver_name} {notification.data.cancellation_reason}</p>
+                                <div className="notification-small">
+                                    <small style={{ fontSize: '20px'}}>{new Date(notification.created_at).toLocaleString()}</small>
+                                    {!notification.read_at && (
+                                        <button className="btn btn-outline-info"
+                                                onClick={() => onMarkAsRead(notification.id)}>Прочитать</button>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                {/*)}*/}
+            </div>
         </div>
     );
 };
 
 const NotificationIncomingComponent = () => {
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        console.log('Текущее состояние уведомлений:', notifications);
-    }, [notifications]);
-
-
-    // Функция для получения уведомлений
-    const fetchNotifications = async () => {
-        try {
-            const response = await axios.get('/api/notifications');
-            console.log('Ответ от сервера:', response.data);
-            console.log('Тип данных:', typeof response.data);
-            console.log('Количество уведомлений:', response.data.length);
-            setNotifications(Array.isArray(response.data) ? response.data : []);
-        } catch (error) {
-            console.error('Ошибка при получении уведомлений:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
-
-   /* const fetchNotifications = async () => {
-        try {
-            const response = await axios.get('/api/notifications', {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-            console.log('Ответ от сервера:', response.data);
-            setNotifications(Array.isArray(response.data) ? response.data : []);
-        } catch (error) {
-            console.error('Ошибка при получении уведомлений:', error);
-        }
-    };*/
-
+    // Получаем данные через Inertia
+    const {props} = usePage();
+    const {notifications} = props;
 
     // Обработка прочтения уведомления
     const markAsRead = async (notificationId) => {
         try {
-            await axios.post(`/api/notifications/${notificationId}/read`);
-            setNotifications((prevNotifications) =>
-                prevNotifications.map(notification =>
-                    notification.id === notificationId ? { ...notification, read_at: new Date() } : notification
-                )
-            );
+            await axios.post(`/notifications/${notificationId}/read`);
+
+            // После успешного запроса, перезапросить уведомления
+            await axios.get('/notifications').then((response) => {
+                const updatedNotifications = response.data.props.notifications;
+                Inertia.reload(); // Перезагрузить страницу с новыми уведомлениями
+            });
+
         } catch (error) {
             console.error('Ошибка при пометке уведомления как прочитанного:', error);
         }
     };
 
-    // Загрузка уведомлений при монтировании компонента
-    useEffect(() => {
-        fetchNotifications();
-    }, []);
-
-    console.log('Текущее состояние уведомлений:', notifications); // Это покажет, что происходит с состоянием
-
-    if (loading) {
-        return <div>Загрузка...</div>;
-    }
 
     return (
-        <div className="notifications-container">
+        <div>
             {notifications.length > 0 ? (
                 <NotificationsList notifications={notifications} onMarkAsRead={markAsRead}/>
             ) : (

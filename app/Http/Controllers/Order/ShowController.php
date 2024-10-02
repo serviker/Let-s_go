@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class ShowController extends Controller
@@ -330,13 +331,28 @@ class ShowController extends Controller
 
         // Проверяем, является ли пользователь водителем данного заказа
         if ($order->driver_id !== $user->id) {
-            Log::error('User is not the driver of this order: ' . $user->id);
+            Log::error('Пользователь не является водителем этого заказа: ' . $user->id);
             return redirect()->back()->with('error', 'You are not the driver of this order');
         }
+        Log::error('Order found: ' . $orderId);
+        Log::error('User found: ' . $user);
+        Log::error('Driver found: ' . $user->id);
+        // Логируем все данные запроса
+        Log::info('Request data:', $request->all());
 
         // Валидация причины отмены
-        $request->validate([
-            'cancellation_reason' => 'required|string|max:255',
+        try {
+            $request->validate([
+                'cancellation_reason' => 'required|string|max:255',
+            ]);
+        } catch (ValidationException $e) {
+            Log::error('Validation error: ' . $e->getMessage());
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        }
+
+        // Логируем значение cancellation_reason
+        Log::info('Cancellation reason:', [
+            'cancellation_reason' => $request->input('cancellation_reason'),
         ]);
 
         // Уведомляем пассажиров о том, что поездка отменена
@@ -354,5 +370,4 @@ class ShowController extends Controller
         // Перенаправляем пользователя с подтверждением отмены
         return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
     }
-
 }

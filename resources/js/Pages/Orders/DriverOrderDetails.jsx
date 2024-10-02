@@ -7,7 +7,7 @@ import {Inertia} from "@inertiajs/inertia";
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
 
-    const reasons = [
+    const cancellation_reason = [
         'Изменились планы',
         'Проблемы с транспортом',
         'Плохие погодные условия',
@@ -25,6 +25,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
             return;
         }
         onConfirm(selectedReason); // Передаем выбранную причину в функцию onConfirm
+        console.log('CancelBookingModal - handleConfirm:', onConfirm(selectedReason));
     };
 
     if (!show) return null;
@@ -56,7 +57,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                 <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
 
                 <div className="cancel-reasons" style={{ marginBottom: '20px' }}>
-                    {reasons.map((reason, index) => (
+                    {cancellation_reason.map((reason, index) => (
                         <div key={index} style={{  display: 'flex', alignItems: 'center' }}>
                             <input
                                 type="radio"
@@ -124,8 +125,8 @@ const DriverOrderDetails = React.memo(() => {
     };
     const handleOpenCancelModal = () => setShowCancelModal(true);
     const handleCloseCancelModal = () => setShowCancelModal(false);
-    const handleConfirmCancel = (reason) => {
-        Inertia.delete(route('order.cancelForDriver', { order: data.id, reason  }), {
+    const handleConfirmCancel = (cancellation_reason) => {
+        Inertia.delete(route('order.cancelForDriver', { order: data.id, cancellation_reason  }), {
             onSuccess: () => {
                 handleCloseCancelModal();
             },
@@ -327,6 +328,7 @@ DriverOrderDetails.propTypes = {
         carColor: PropTypes.string.isRequired,
         carPhoto: PropTypes.string,
     }).isRequired,
+    isOrderCreated: PropTypes.bool.isRequired,
 };
 
 /*DriverOrderDetails.propTypes = {

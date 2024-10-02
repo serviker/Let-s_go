@@ -143,7 +143,7 @@ class IndexController extends Controller
         }); */
 
 
-        Log::info('IndexController/Orders:', $orders->toArray());
+        // Log::info('IndexController/Orders:', $orders->toArray());
         // Перебор всех заказов и генерация URL для каждого
         $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
             return [

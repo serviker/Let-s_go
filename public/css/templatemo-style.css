@@ -107,11 +107,12 @@ hr {
     display: flex;
     align-items: center;
     border: 1px solid #eea236;
-    border-radius: 15px;
+    border-radius: 10px;
     margin-right: 10px;
     padding: 5px;
     position: relative;
     cursor: pointer;
+    background-color: #e7e7e7;
 }
 
 .input-field-calendar {
@@ -125,6 +126,7 @@ hr {
     cursor: pointer;
     z-index: 2;
     padding: 10px;
+    background-color: #e7e7e7;
 }
 
 
@@ -157,6 +159,7 @@ hr {
     margin-right: 10px;
     padding: 5px;
     cursor: default;
+    background-color: #e7e7e7;
 }
 
 .icon-wrapper {
@@ -174,8 +177,8 @@ hr {
     padding: 5px;
     box-sizing: border-box;
     font-size: 16px;
-    color: #ccc;
-
+    color: #e8e8e8;
+    background-color: #e7e7e7;
 }
 
 .search-icon {
@@ -187,7 +190,7 @@ hr {
 .search-button {
     padding: 10px 20px;
     border: 1px solid #eea236;
-    background-color: #eaeaea;
+    background-color: #e7e7e7;
     color: #eea236;
     border-radius: 10px;
     cursor: pointer;
@@ -195,7 +198,7 @@ hr {
 
 .search-button:hover {
     background-color: #eea236;
-    color: #eaeaea;
+    color: #e7e7e7;
 }
 
 .dropdown {
@@ -264,7 +267,7 @@ a.smooth:hover {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    width: 330px; /* Adjust width as necessary */
+    width: 300px; /* Adjust width as necessary */
     z-index: 1000;
     text-align: left;
     border-radius: 10px;
@@ -274,7 +277,7 @@ a.smooth:hover {
 .dropdown-menu li {
     list-style: none;
     margin: 0;
-    padding: 8px 15px; /* Adjust padding for better spacing */
+    /*padding: 8px;  Adjust padding for better spacing */
     height: 40px; /* Set height for smaller vertical space */
     cursor: pointer;
     transition: background-color 0.8s;
@@ -303,6 +306,7 @@ a.smooth:hover {
     border: 1px solid transparent;
     border-radius: 10px;
     font-size: 18px;
+    background-color: #e7e7e7;
 }
 
 .react-autosuggest__input:hover,
@@ -310,14 +314,14 @@ a.smooth:hover {
 .react-autosuggest__input:focus {
     outline: none; /* Убираем стандартный outline */
     border-color: transparent; /* Оставляем бордюр прозрачным */
-    background-color: #eaeaea; /* Цвет фона остается прежним */
+    background-color: #e7e7e7; /* Цвет фона остается прежним */
 }
 
 
 .react-autosuggest__input {
     width: 100%;
     height: 100%;
-    background: #eaeaea;
+    background: #e7e7e7;
     border: 1px solid transparent;
     border-radius: 10px;
     cursor: pointer;

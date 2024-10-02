@@ -3,11 +3,12 @@
     width: 40%; /* Установите ширину 100%, чтобы она подчинялась родительскому элементу */
     max-width: 60%; /* Ограничьте максимальную ширину */
     height: 160px;
+    border: 1px solid #ccc;
     border-radius: 10px;
-    border-color:#eea236;
     position: relative;
-    background-color: white;
+    background-color: #f6f6f6;
     padding: 0 30px; /* Добавлено для отступов от краев */
+    color: #8f8f8f;
 }
 
 .order-container:hover  {

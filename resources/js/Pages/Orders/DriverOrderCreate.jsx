@@ -34,11 +34,6 @@ export default function DriverOrderCreate({ className = '' }) {
     const [cities, setCities] = useState([]); // Состояние для всех городов
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
 
-    const fetchCities = async () => {
-        const response = await fetch('/api/cities');
-        return await response.json();
-        // console.log("Cities fetched from API:", data);
-    };
 
     // Метод для фильтрации городов по введенному значению
     function getSuggestions(value, list) {

@@ -231,24 +231,21 @@ class ShowController extends Controller
         // Уведомление через систему уведомлений Laravel
         $driver->notify(new PassengerCancelledOrder(
             $order,
-
+            $request->cancellation_reason,
+            $user->name, // Имя водителя
             $order->date_time_departure, // Дата поездки
             $order->fromAddress->city, // Город отправления
-            $order->toAddress->city, // Город прибытия
-            $user->name, // Имя пассажира
-            $passenger->seats, // Количество мест, которое было забронировано
-            $request->cancellation_reason,
-
+            $order->toAddress->city // Город прибытия
         ));
 
+        //$passenger->seats, // Количество мест, которое было забронировано
 
         // Уведомление по email
-       /* try {
+      /* try {
             Notification::route('mail', $driver->email)
                 ->notify(new PassengerCancelledOrder(
                     $order,
                     $user->name, // Имя пассажира
-                    $passenger->seats, // Количество мест, которое было забронировано
                     $order->fromAddress->city, // Город отправления
                     $order->toAddress->city, // Город прибытия
                     $order->date_time_departure,

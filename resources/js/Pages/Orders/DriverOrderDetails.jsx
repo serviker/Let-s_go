@@ -8,11 +8,11 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
 
     const cancellation_reason = [
-        'Изменились планы',
-        'Проблемы с транспортом',
+        'Изменились личные обстоятельства ',
+        'Необходимость ремонта автомобиля',
         'Плохие погодные условия',
-        'Неудобное время выезда',
-        'Другая причина',
+        'Изменение времени или даты поездки',
+        'Другие причины',
     ];
 
     const handleReasonChange = (event) => {

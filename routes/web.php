@@ -49,6 +49,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Маршрут для уведомлений
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
+    // Маршрут для водителя
+   // Route::get('/notifications/driver', [NotificationController::class, 'driverShow'])->name('notifications.driverShow');
+
+    // Маршрут для пассажира
+   // Route::get('/notifications/passenger', [NotificationController::class, 'passengerShow'])->name('notifications.passengerShow');
+
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
@@ -68,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/api/cities', [CityController::class, 'getCities']);
+    Route::get('/api/colors', [CityController::class, 'getColors']);
     Route::get('/api/suggestions', [CityController::class, 'getSuggestions']);
     Route::get('/api/search/{query}', [CityController::class, 'search']);
 

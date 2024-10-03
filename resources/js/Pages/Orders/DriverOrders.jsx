@@ -47,9 +47,9 @@ export default function DriverOrders({ orders }) {
     return (
         <div className="driver-orders-container">
             <div className="header">
-                <Button onClick={() => window.history.back()} className="btn btn-link text-decoration-none">
+                <a href={route('dashboard')} className="btn btn-link text-decoration-none">
                     &larr;
-                </Button>
+                </a>
                 <h2>Мои поездки водителем</h2>
             </div>
             {props.flash && props.flash.message && (

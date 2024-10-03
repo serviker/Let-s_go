@@ -22,11 +22,11 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => 'integer',
-            'brand' =>'string',
-            'model'=>'string',
-            'color'=>'string',
-            'photoUrl'=>'string',
+            'user_id' => 'required|exists:users,id',
+            'brand_id' => 'required|exists:car_brands,id',
+            'model_id' => 'required|exists:car_brands,id',
+            'color' => 'required|string',
+            'photoUrl' => 'nullable|string',
         ];
     }
 }

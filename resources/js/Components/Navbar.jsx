@@ -148,6 +148,29 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const [inputValue, setInputValue] = useState([] || ''); // Состояние для предложений
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    // Управление вторичным выпадающим списком для уведомлений
+    const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false);
+
+    const toggleNotificationsDropdown = () => {
+        setNotificationsDropdownOpen(!notificationsDropdownOpen);
+    };
+
+    // Закрытие выпадающих списков при клике вне них
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setDropdownOpen(false);
+            setNotificationsDropdownOpen(false); // Закрыть также и вторичное меню
+        }
+    };
+
+    // Добавляем слушателя событий для кликов вне меню
+    React.useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
 
     // Функция для получения количества непрочитанных уведомлений
     const fetchUnreadCount = async () => {
@@ -445,6 +468,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
         };
     }, []);
 
+
+
     return (
         <header>
             <div className="navbar navbar-default bs-dos-nav navbar-fixed-top" role="navigation">
@@ -469,12 +494,13 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                 <li><a href="#portfolio" className="smooth"></a></li>
                                 <li></li>
                                 <li>
-                                    <a onClick={handlePublishClick} className="smooth" style={{ cursor: 'pointer'}}>
-                                        <img src="/images/icons_plus.svg" alt="" width="25" height="25" style={{ marginRight: '15px', marginBottom: '3px'}}/>
+                                    <a onClick={handlePublishClick} className="smooth" style={{cursor: 'pointer'}}>
+                                        <img src="/images/icons_plus.svg" alt="" width="25" height="25"
+                                             style={{marginRight: '15px', marginBottom: '3px'}}/>
                                         Опубликовать поездку
                                     </a>
                                 </li>
-                                <li className="dropdown" ref={dropdownRef}>
+                                {/*<li className="dropdown" ref={dropdownRef}>
                                     <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
                                         {auth.user ? (
                                             <>
@@ -506,16 +532,37 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                                         Пассажиром</Link></li>
                                                     <li><Link href={route('incoming.show')}>Входящие сообщения</Link>
                                                     </li>
-                                                    {/*<li><Link href={route('notifications.index')}>Уведомления</Link></li>*/}
-                                                    <li>
-                                                        <Link href={route('notifications.index')}>
+
+                                                    <li className="dropdown-menu">
+                                                        <button
+                                                            className="btn btn-link dropdown-toggle"
+                                                            type="button"
+                                                            id="dropdownMenuButton"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true"
+                                                            aria-expanded="false"
+                                                        >
                                                             Уведомления
                                                             {unreadCount > 0 && (
                                                                 <span
                                                                     className="notification-badge">{unreadCount}</span>
                                                             )}
-                                                        </Link>
+                                                        </button>
+
+                                                        <div className="dropdown-menu dropdown-menu-right"
+                                                             aria-labelledby="dropdownMenuButton">
+                                                            <Link className="dropdown-item"
+                                                                  href={route('notifications.driverShow')}>
+                                                                Уведомления для Водителя
+                                                            </Link>
+                                                            <Link className="dropdown-item"
+                                                                  href={route('notifications.passengerShow')}>
+                                                                Уведомления для Пассажира
+                                                            </Link>
+                                                        </div>
                                                     </li>
+
+
                                                     <li><a href="/profile">Профиль</a></li>
                                                     <li><Link href="/logout" method="post">Выйти</Link></li>
                                                 </>
@@ -527,7 +574,97 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                             )}
                                         </ul>
                                     )}
+                                </li>*/}
+                                {/*<li><Link href={route('notifications.index')}>Уведомления</Link></li>*/}
+                                <li className="dropdown" ref={dropdownRef}>
+                                    <a className="dropdown-toggle user-info" onClick={toggleDropdown}>
+                                        {auth.user ? (
+                                            <>
+                                                <div className="user-photo-container">
+                                                    <img
+                                                        src={auth.user.photoUrl || "/images/user_icon.svg"}
+                                                        alt=""
+                                                        width="37"
+                                                        height="35"
+                                                    />
+                                                    {unreadCount > 0 && (
+                                                        <span className="notification-badge-foto"
+                                                              style={{color: 'white'}}>{unreadCount}</span>
+                                                    )}
+                                                </div>
+                                                <span>{auth.user.name}</span>
+                                            </>
+                                        ) : (
+                                            <img src="/images/user_icon.svg" alt="User" width="37" height="35"/>
+                                        )}
+                                    </a>
+
+                                    {dropdownOpen && (
+                                        <ul className="dropdown-menu">
+                                            {auth.user ? (
+                                                <>
+                                                    <li>
+                                                        <Link className="dropdown-item"
+                                                              href={route('notifications.index')}>
+                                                            Уведомления
+                                                            {unreadCount > 0 && (
+                                                                <span
+                                                                    className="notification-badge">{unreadCount}</span>
+                                                            )}
+                                                        </Link>
+                                                    </li>
+                                                    <li>
+                                                        <Link href={route('incoming.show')}>Входящие сообщения</Link>
+                                                    </li>
+
+                                                    {/* Основной пункт для уведомлений */}
+                                                    <li className="dropdown-submenu">
+                                                        <a
+                                                            onClick={toggleNotificationsDropdown}>
+                                                            Мои поездки
+                                                            <div className="arrow"
+                                                                 style={{flex: 0, margin: '0 10px', marginLeft: '60px'}}>→
+                                                            </div>
+                                                        </a>
+
+                                                        {/* Вторичный выпадающий список для уведомлений */}
+                                                        {notificationsDropdownOpen && (
+                                                            <ul className="dropdown-menu dropdown-menu-right">
+
+                                                                <li>
+                                                                    <Link href={route('driver.orders')}>
+                                                                        Водителем</Link>
+                                                                </li>
+                                                                <li>
+                                                                    <Link href={route('passenger.search')}>
+                                                                        Пассажиром</Link>
+                                                                </li>
+                                                            </ul>
+                                                        )}
+
+                                                    </li>
+
+                                                    <li>
+                                                        <a href="/profile">Профиль</a>
+                                                    </li>
+                                                    <li>
+                                                        <Link href="/logout" method="post">Выйти</Link>
+                                                    </li>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <li>
+                                                    <Link href="/login">Вход</Link>
+                                                    </li>
+                                                    <li>
+                                                    <Link href="/register">Регистрация</Link>
+                                                    </li>
+                                                </>
+                                            )}
+                                        </ul>
+                                    )}
                                 </li>
+
                             </ul>
                         </nav>
                     </div>

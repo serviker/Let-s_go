@@ -77,7 +77,6 @@ class NotificationController extends Controller
         return response()->json(['message' => 'Notification deleted']);
     }
 
-    // В вашем NotificationsController
     public function unreadCount()
     {
         $unreadCount = auth()->user()->unreadNotifications()->count();

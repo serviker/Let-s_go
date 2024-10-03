@@ -3,7 +3,7 @@
     width: 50%; /* Установите ширину 100%, чтобы она подчинялась родительскому элементу */
     max-width: 60%; /* Ограничьте максимальную ширину */
     height: 70%;
-    border: 1px solid #ccc;
+    border: 1px solid grey;
     border-radius: 10px;
     position: relative;
     background-color: #f8f8f8; /*#fafafa;*/

@@ -5,8 +5,15 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import { Head } from '@inertiajs/react';
+import ProfileInformationForm from "@/Pages/Profile/Partials/ProfileInformationForm.jsx";
 
 function Profile({ auth, mustVerifyEmail, status }) {
+    return (
+        <div className="mb-4 p-3 bg-light shadow rounded">
+            <ProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
+        </div>
+    );
+}function ChangeProfile({ auth, mustVerifyEmail, status }) {
     return (
         <div className="mb-4 p-3 bg-light shadow rounded">
             <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
@@ -47,20 +54,24 @@ export default function ProfileRoutes({ auth, mustVerifyEmail, status }) {
                     <nav className="mb-4">
                         <ul className="flex space-x-4">
                             <li>
-                                <Link to="/profile" style={{ color: 'gray'}}>Изменить профиль</Link>
+                                <Link to="/profile" style={{color: 'gray'}}>Профиль</Link>
                             </li>
                             <li>
-                                <Link to="/profile/change-password" style={{ color: 'gray'}}>Изменить пароль</Link>
+                                <Link to="/profile/change-profile" style={{color: 'gray'}}>Изменить профиль</Link>
                             </li>
                             <li>
-                                <Link to="/profile/delete-account" style={{ color: 'gray'}}>Удалить аккаунт</Link>
+                                <Link to="/profile/change-password" style={{color: 'gray'}}>Изменить пароль</Link>
+                            </li>
+                            <li>
+                                <Link to="/profile/delete-account" style={{color: 'gray'}}>Удалить аккаунт</Link>
                             </li>
                         </ul>
                     </nav>
                         <Routes>
-                            <Route path="/profile/change-password" element={<ChangePassword />} />
-                            <Route path="/profile/delete-account" element={<DeleteAccount />} />
                             <Route path="/profile" element={<Profile auth={auth} mustVerifyEmail={mustVerifyEmail} status={status} />} />
+                            <Route path="/profile/change-profile" element={<ChangeProfile auth={auth} mustVerifyEmail={mustVerifyEmail} status={status} />} />
+                            <Route path="/profile/change-password" element={<ChangePassword/>}/>
+                            <Route path="/profile/delete-account" element={<DeleteAccount/>}/>
                         </Routes>
                     </div>
                 </div>

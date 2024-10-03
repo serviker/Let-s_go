@@ -32,7 +32,7 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                         alignContent: "space-between"
                                     }}>
 
-                                        <div style={{flex: 1, fontSize: '20px', color: '#eea236', fontWeight: 'bold', marginLeft: '10px'}}>
+                                        <div style={{flex: 1, fontSize: '20px', color: 'grey', fontWeight: 'bold', marginLeft: '10px'}}>
                                             {notification.data.date_time_departure ? new Date(notification.data.date_time_departure).toLocaleDateString() : 'Не указано'}
                                         </div>
 
@@ -40,7 +40,7 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                             <div style={{
                                                 flex: 1,
                                                 fontSize: '20px',
-                                                color: '#eea236',
+                                                color: 'grey',
                                                 fontWeight: 'bold'
                                             }}>
                                                 {notification.data.fromCity || 'Не указано'}
@@ -49,18 +49,18 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                             <div style={{
                                                 flex: 1,
                                                 fontSize: '20px',
-                                                color: '#eea236',
+                                                color: 'grey',
                                                 fontWeight: 'bold'
                                             }}>
                                                 {notification.data.toCity || 'Не указано'}
                                             </div>
                                         </div>
-                                        <div style={{flex: 1,textAlign: 'right' , fontSize: '20px', color: '#eea236', fontWeight: 'bold'}}>
-                                            {notification.data.driverName || 'Не указано'}
+                                        <div style={{flex: 1,textAlign: 'right' , fontSize: '20px', color: 'grey', fontWeight: 'bold'}}>
+                                            {notification.data.name || 'Не указано'}
                                         </div>
                                     </div>
-                                    <div style={{ marginLeft: '10px', marginTop: '10px'}}>
-                                    Причина отмены: {notification.data.cancellation_reason || 'Не указано'}
+                                    <div style={{ marginLeft: '10px', marginTop: '10px', display: 'flex', justifyContent: 'space-between'}}>
+                                        Причина отмены: <div style={{ color: 'grey', fontWeight: 'bold'}}>{notification.data.cancellation_reason || 'Не указано'}</div>
                                 </div>
                                 </div>
 
@@ -71,12 +71,12 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                         justifyContent: 'space-between', // Это выравнивает элементы по ширине
                                         gap: '10px' // Добавляет пространство между элементами
                                     }}>
-                                        <small style={{fontSize: '18px'}}>
+                                        <small style={{fontSize: '18px', marginLeft: '10px'}}>
                                             Дата/Время отмены поездки
                                         </small>
                                         <div style={{
                                             fontSize: '20px',
-                                            color: '#eea236',
+                                            color: 'grey',
                                             fontWeight: 'bold',
                                             marginLeft: '50px'
                                         }}>

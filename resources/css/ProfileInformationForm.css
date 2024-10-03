@@ -1,0 +1,50 @@
+.items-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+}
+.separator {
+    margin: 10px 0;
+    border-top: 4px solid #ccc;
+}
+
+.separator-thin {
+    margin: 5px 0;
+    border-top: 1px solid #ccc;
+}
+.items-labal {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+.item-name {
+    object-fit: cover;
+    flex:1;
+    color: #eea236;
+    font-weight: bold;
+}
+
+.car-info {
+    display: flex ;
+    align-items: center ;
+    justify-content: space-between ;
+    border-radius: 10px;
+}
+
+.car-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.car-photo {
+    width: 120px !important;
+    height: 90px !important;
+    border-radius: 20% !important;
+    object-fit: cover !important;
+    transition: background-color 0.3s ease;
+}
+.btn-info {
+    white-space: nowrap
+}

@@ -15,11 +15,11 @@ use Illuminate\Notifications\Notification;
     protected $order;
     protected $cancellation_reason;
 
-    public function __construct($order, $cancellation_reason, $driverName, $date_time_departure, $fromCity, $toCity)
+    public function __construct($order, $cancellation_reason, $name, $date_time_departure, $fromCity, $toCity)
     {
         $this->order = $order;
         $this->cancellation_reason = $cancellation_reason;
-        $this->driverName = $driverName;
+        $this->name = $name;
         $this->date_time_departure = $date_time_departure;
         $this->fromCity = $fromCity;
         $this->toCity = $toCity;
@@ -28,7 +28,7 @@ use Illuminate\Notifications\Notification;
     public function toArray($notifiable)
     {
         return [
-            'driverName' => $this->driverName,
+            'name' => $this->name,
             'date_time_departure' => str_replace(' ', 'T', $this->date_time_departure),
             'fromCity' => $this->fromCity,
             'toCity' => $this->toCity,
@@ -48,7 +48,7 @@ use Illuminate\Notifications\Notification;
     {
         return [
             'order_id' => $this->order->id,
-            'driverName' => $this->driverName,
+            'name' => $this->name,
             'date_time_departure' => str_replace(' ', 'T', $this->date_time_departure),
             'fromCity' => $this->fromCity,
             'toCity' => $this->toCity,

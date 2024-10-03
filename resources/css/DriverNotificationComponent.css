@@ -1,6 +1,6 @@
 .notification-container {
     padding: 5px;
-    border-radius: 8px;
+    border-radius: 10px;
     background-color: #eaeaea;
     font-size: 18px;
     color: black;
@@ -14,7 +14,9 @@
 
 .btn-outline-info {
     background: #eaeaea;
-    color: #eea236;
+    color: grey;
+    font-weight: bold;
+    border: 1px solid #eea236;
 }
 
 .notifications-list {

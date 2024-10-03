@@ -32,7 +32,7 @@ function StreetSuggestInput({ value, onChange}) {
         const fetchStreets = async () => {
             try {
                 const response = await axios.get('/api/streets');
-                console.log("Fetched streets:", response.data);  // Добавляем вывод в консоль
+               // console.log("Fetched streets:", response.data);  // Добавляем вывод в консоль
                 setStreets(response.data);  // Сохраняем список городов в состоянии
                 setIsStreetsLoaded(true);  // Помечаем, что города загружены
             } catch (error) {
@@ -54,7 +54,7 @@ function StreetSuggestInput({ value, onChange}) {
 
     // Пример метода для обработки запросов автодополнения улиц
     const onStreetSuggestionsFetchRequested = async ({ value }) => {
-        console.log("Fetching suggestions for:", value);
+       // console.log("Fetching suggestions for:", value);
 
         // Проверяем, если массив cities пуст, загружаем города
         if (streets.length === 0) {
@@ -68,7 +68,7 @@ function StreetSuggestInput({ value, onChange}) {
         // Фильтруем предложения
         const suggestions = getSuggestions(value, uniqueStreets);
         const limitedSuggestions = suggestions.slice(0, 15);
-        console.log("Street suggestions:", suggestions);
+       // console.log("Street suggestions:", suggestions);
         setSuggestions(limitedSuggestions);
     };
 

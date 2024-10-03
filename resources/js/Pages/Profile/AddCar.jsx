@@ -5,7 +5,8 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import '../../../css/Car.css'; // Подключение стилей
+import '../../../css/Car.css';
+import axios from "axios"; // Подключение стилей
 
 const fetchBrands = async () => {
     const response = await fetch('/api/brands');
@@ -28,7 +29,7 @@ function getSuggestions(value, list, type) {
     const inputLength = inputValue.length;
 
     if (inputLength === 0) {
-        return [];
+        return list;
     }
 
     if (type === 'color') {
@@ -47,20 +48,8 @@ const renderSuggestion = suggestion => (
     </div>
 );
 
-const renderSuggestionColor = suggestion => (
-    <div style={{ display: 'flex', alignItems: 'center'}}>
-        <div
-            style={{
-                width: '25px',
-                height: '25px',
-                borderRadius: '15px',
-                backgroundColor: suggestion.value || '#ffffff', // Убедитесь, что это свойство правильно называется
-                marginRight: '10px',
-            }}
-        />
-        {suggestion.name || 'Unknown Color'} {/* Убедитесь, что это свойство правильно называется */}
-    </div>
-);
+
+
 
 export default function AddCar() {
     const { data, setData, post, errors, processing } = useForm({
@@ -78,6 +67,35 @@ export default function AddCar() {
     const [models, setModels] = useState([]);
     const [colors, setColors] = useState([]);
     const [isBrandsLoaded, setIsBrandsLoaded] = useState(false);
+    const [selectedColor, setSelectedColor] = useState(data.color || '');
+    const [fileName, setFileName] = useState('Файл не выбран');
+
+    // Функция для обработки выбора цвета
+    const handleColorSelect = (color) => {
+        setSelectedColor(color); // Обновляем состояние выбранного цвета
+        setData((prevData) => ({
+            ...prevData,
+            color: color, // Обновляем данные
+        }));
+    };
+    const fetchCities = async () => {
+        const response = await fetch('/api/cities');
+        return await response.json();
+        // console.log("Cities fetched from API:", data);
+    };
+
+    useEffect(() => {
+        const fetchColorsData = async () => {
+            try {
+                const colorsData = await fetchColors();
+                // console.log("Colors data:", colorsData);
+                setColors(colorsData);
+            } catch (error) {
+                console.error("Ошибка при загрузке цветов:", error);
+            }
+        };
+        fetchColorsData();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -123,26 +141,21 @@ export default function AddCar() {
         }
     }, [data.brand]);
 
-    useEffect(() => {
-        const fetchColorsData = async () => {
-            try {
-                const colorsData = await fetchColors();
-               // console.log("Colors data:", colorsData);
-                setColors(colorsData);
-            } catch (error) {
-                console.error("Ошибка при загрузке цветов:", error);
-            }
-        };
-
-        fetchColorsData();
-    }, []);
-
 
     const handlePhotoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setData('photoUrl', file);
         }
+    };
+
+    const handleFileSelect = (e) => {
+        if (e.target.files.length > 0) {
+            setFileName(e.target.files[0].name); // Обновляем имя файла при выборе
+        } else {
+            setFileName('Файл не выбран'); // Если файл не выбран
+        }
+        handlePhotoChange(e); // Вызываем переданный метод для обработки загрузки
     };
 
     const handleNext = () => {
@@ -188,11 +201,24 @@ export default function AddCar() {
         setModelSuggestions(getSuggestions(value, models.map(model => model.model)));
     };
 
-      const handleColorSuggestionsFetchRequested = ({ value }) => {
-          const colorSuggestions = getSuggestions(value, colors, 'color');
-         // console.log("Color suggestions:", colorSuggestions); // Проверьте правильность данных
-          setColorSuggestions(colorSuggestions);
-      };
+    // Функция для показа всех цветов при фокусе
+    //   const handleColorSuggestionsFetchRequested = ({ value }) => {
+    //       const colorSuggestions = getSuggestions(value, colors, 'color');
+    //       console.log("Color suggestions:", colorSuggestions); // Проверьте правильность данных
+    //       setColorSuggestions(colorSuggestions);
+    //   };
+
+    const handleColorSuggestionsFetchRequested = ({ value }) => {
+        // Если value пустое, показываем все цвета
+        if (value.trim() === '') {
+            setColorSuggestions(colors);
+            console.log("Color setColorSuggestions(colors)):", colors); // Проверьте правильность данных
+        } else {
+            const filteredSuggestions = getSuggestions(value, colors, 'color');
+            console.log("Color suggestions:", filteredSuggestions); // Проверьте правильность данных
+            setColorSuggestions(filteredSuggestions);
+        }
+    };
 
     const handleBrandChange = (event, { newValue }) => {
         setData('brand', newValue);
@@ -212,10 +238,15 @@ export default function AddCar() {
         setData('model', suggestion);
     };
 
-    const handleColorChange = (event, { newValue }) => {
-        setData('color', newValue);
-    };
+   // const handleColorChange = (event, { newValue }) => { setData('color', newValue); };
 
+    // Функция для изменения значения цвета
+    const handleColorChange = (event, { newValue }) => {
+        setData((prevData) => ({
+            ...prevData,
+            color: newValue, // Обновляем выбранный цвет
+        }));
+    };
     const handleColorSuggestionSelected = (event, { suggestion }) => {
         setData('color', suggestion.name);
     };
@@ -270,20 +301,28 @@ export default function AddCar() {
                 {step === 3 && (
                     <div className="mb-3">
                         <InputLabel htmlFor="color" value="Цвет" className="add-car-label"/>
-                        <Autosuggest
-                            suggestions={colorSuggestions}
-                            onSuggestionsFetchRequested={handleColorSuggestionsFetchRequested}
-                            onSuggestionsClearRequested={() => setColorSuggestions([])}
-                            getSuggestionValue={getSuggestionValue}
-                            renderSuggestion={renderSuggestionColor}
-                            inputProps={{
-                                placeholder: "Введите цвет автомобиля",
-                                value: data.color || '', // Убедитесь, что значение не undefined
-                                onChange: handleColorChange,
-                                className: 'add-car-input',
-                            }}
-                            onSuggestionSelected={handleColorSuggestionSelected}
-                        />
+                        <div className="color-options">
+                            {colors.map((color) => (
+                                <div
+                                    key={color.value}
+                                    className={`color-option ${selectedColor === color.name ? 'selected' : ''}`} // Выделение выбранного цвета
+                                    onClick={() => handleColorSelect(color.name)} // При клике выбираем цвет
+                                >
+                                    <div className="color-circle" style={{ backgroundColor: color.value }}></div>
+                                    <span className="color-name">{color.name}</span>
+                                </div>
+                            ))}
+                        </div>
+
+                        {selectedColor && (
+                            <div className="selected-color-info">
+                                <div  className="selected-color">Выбранный цвет:
+                                    <div className="selectedColor">
+                                        {selectedColor}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <InputError message={errors.color} className="add-car-error"/>
                     </div>
                 )}
@@ -291,14 +330,17 @@ export default function AddCar() {
                 {step === 4 && (
                     <div>
                         <InputLabel htmlFor="photo" value="Фото" className="add-car-label"/>
-                        <input
-                            type="file"
-                            id="photo"
-                            name="photoUrl"
-                            accept="image/*"
-                            onChange={handlePhotoChange}
-                            className="add-car-file-input"
-                        />
+                        <div className="custom-file-input">
+                            <span className="file-name">{fileName}</span>
+                            <input
+                                type="file"
+                                id="photo"
+                                name="photoUrl"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                className="file-input-hidden"
+                            />
+                        </div>
                         <InputError message={errors.photoUrl} className="add-car-error"/>
                     </div>
                 )}

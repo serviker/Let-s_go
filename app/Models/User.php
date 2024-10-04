@@ -77,5 +77,14 @@ class User extends Authenticatable
             ->withPivot('seats', 'departure_city', 'arrival_city')
             ->withTrashed(); // Включает soft deletes;
     }
+    // Связь с таблицей user_options через OptionValue
+    public function optionValues()
+    {
+        return $this->belongsToMany(OptionValue::class, 'user_options', 'user_id', 'option_value_id');
+    }
 
+    public function options()
+    {
+        return $this->belongsToMany(OptionValue::class, 'user_option'); // Замените 'user_option_values' на имя вашей промежуточной таблицы
+    }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Order\ShowController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StreetController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OptionController;
 use App\Http\Controllers\CarDataController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -49,15 +50,19 @@ Route::middleware(['auth'])->group(function () {
 
     // Маршрут для уведомлений
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
-    // Маршрут для водителя
-   // Route::get('/notifications/driver', [NotificationController::class, 'driverShow'])->name('notifications.driverShow');
-
-    // Маршрут для пассажира
-   // Route::get('/notifications/passenger', [NotificationController::class, 'passengerShow'])->name('notifications.passengerShow');
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+
+    // маршруты для управления опциями
+    Route::get('/options', [OptionController::class, 'index'])->name('options.index');
+
+    Route::post('/api/saveOptions/{userId}', [OptionController::class, 'saveOptions']);
+
+    Route::post('/options', [OptionController::class, 'store']);
+    Route::put('/options/{id}', [OptionController::class, 'update']);
+    Route::delete('/options/{id}', [OptionController::class, 'destroy']);
 
     // Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     // Маршрут для профиля водителя

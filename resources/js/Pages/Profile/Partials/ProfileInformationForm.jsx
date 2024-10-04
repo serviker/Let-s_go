@@ -37,70 +37,17 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
 
     const [photoPreview, setPhotoPreview] = useState(user.photoUrl ? `/${user.photoUrl}` : null);
 
-    const handlePhotoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setData('photoUrl', file);
-            setPhotoPreview(URL.createObjectURL(file));
-        }
-    };
+    const [changedOptions, setChangedOptions] = useState([]);
 
-    /* useEffect(() => {
-         const baseUrl = window.location.origin;
-         const fullPhotoUrl = user.photoUrl ? `${baseUrl}/${user.photoUrl}` : null;
-         setPhotoPreview(fullPhotoUrl);
-     }, [user.photoUrl]);*/
-
-    useEffect(() => {
+   /* useEffect(() => {
         if (user.photoUrl) {
             const baseUrl = window.location.origin;
             setPhotoPreview(`${baseUrl}/${user.photoUrl}`);
         } else {
             setPhotoPreview(null);
         }
-    }, [user.photoUrl]);
+    }, [user.photoUrl]);*/
 
-
-    const submit = (e) => {
-        e.preventDefault();
-
-        // Создаем объект данных
-        const formData = new FormData();
-        // Добавляем данные в FormData
-        formData.append('name', data.name);
-        formData.append('lastName', data.lastName);
-        formData.append('email', data.email);
-        formData.append('phone', data.phone);
-        if (data.photoUrl) {
-            formData.append('photoUrl', data.photoUrl); // Обработка загрузки фото
-        }
-
-        console.log('formData being sent:', formData); // Отладка
-
-        patch(route('profile.update'), {
-            data: formData,  // Используем обновленные данные
-            preserveScroll: true,
-            onSuccess: () => {
-                // Обновляем данные страницы после успешного обновления профиля
-                router.reload({ preserveScroll: true });
-                console.log('Profile updated successfully.');
-            },
-            onError: (error) => {
-                console.error('Error updating profile:', error);
-            }
-        });
-    };
-
-    const deleteCar = async (id) => {
-        try {
-            await router.delete(`/profile/delete-car/${id}`, {
-                preserveState: true,
-            });
-            console.log('Car deleted successfully - UpdateProfileInformationForm.');
-        } catch (error) {
-            console.error('Error deleting car UpdateProfileInformationForm:', error);
-        }
-    };
     const formatRegistrationDate = (date) => {
         return formatDistanceToNow(new Date(date), { addSuffix: true });
     };
@@ -138,7 +85,7 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
             </div>
 
 
-            <form onSubmit={submit} style={{ width: '100%'}}>
+            <form style={{width: '100%'}}>
 
                 <div className="items-container" style={{
                     display: 'flex',
@@ -216,7 +163,22 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                         fontWeight: 'bold'
                     }}>{formatRegistrationDate(data.registrationDate)}</div>
                 </div>
-
+                <div className="separator" style={{
+                    margin: '20px 0',
+                    borderTop: '1px solid #ccc'
+                }}></div>
+                {changedOptions.length > 0 && (
+                    <div className="changed-options" style={{marginBottom: '20px'}}>
+                        <h3 className="text-xl font-medium">Измененные опции:</h3>
+                        {changedOptions.map((option, index) => (
+                            <div key={index} className="flex justify-between"
+                                 style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px'}}>
+                                <span>{option.label}</span>
+                                <span>{option.value}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>

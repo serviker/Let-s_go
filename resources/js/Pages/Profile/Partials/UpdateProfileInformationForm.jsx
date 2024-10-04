@@ -131,7 +131,9 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                         borderRadius: '16px'}} />
                 )}
                 <span style={{marginLeft: '50px'}} className="text-xl font-medium text-gray-900">
-                    <b>{user.name} {user.lastName}</b>
+                    <Link href={route('options.index')} className="btn btn-info" style={{}}>
+                        Опции
+                    </Link>
                 </span>
             </div>
 
@@ -139,7 +141,7 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
             <form onSubmit={submit} className="mt-6 space-y-6">
 
                 <div>
-                    <InputLabel htmlFor="name" value="Имя"/>
+                <InputLabel htmlFor="name" value="Имя"/>
                     <TextInput
                         id="name"
                         value={data.name}

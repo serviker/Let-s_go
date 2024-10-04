@@ -1,0 +1,49 @@
+.option-component {
+    text-align: center;
+    margin: 20px;
+    height: 100vh;
+}
+
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.option-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.option-label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.selected-option {
+    margin-right: 10px;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.dropdown-item {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}

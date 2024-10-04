@@ -57,9 +57,15 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
         if ($request->hasFile('photoUrl')) {
-            $path = $request->file('photoUrl')->store('profile-photos', 'public');
+            $path = $request->file('photoUrl')->store('images', 'public');
             $request->user()->photo = $path;
         }
+        // Инициализация переменной для пути к файлу
+      /*  $path = null;
+        if ($request->hasFile('photoUrl')) {
+            $originalName = $request->file('photoUrl')->getClientOriginalName();
+            $path = $request->file('photoUrl')->storeAs('images', $originalName, 'public');
+        }*/
 
 
         $request->user()->save();

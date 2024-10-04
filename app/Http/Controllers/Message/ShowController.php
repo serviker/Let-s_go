@@ -37,6 +37,7 @@ class ShowController extends Controller
         ]);
     }
 
+    // получение сообщений между пользователями
     private function getMessagesBetweenUsers($order, $passenger, $driver) {
         return $order->messages()
             ->where(function ($query) use ($passenger, $driver) {

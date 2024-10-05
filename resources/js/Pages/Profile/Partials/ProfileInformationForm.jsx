@@ -5,10 +5,11 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Link, useForm, usePage, router } from '@inertiajs/react';
 import React, { useState, useEffect } from 'react';
+// import '../../../../css/ProfileInformationForm.css';
 
 export default function ProfileInformationForm({ mustVerifyEmail, status, className = '' }) {
     const { auth } = usePage().props;
-    //console.log('Auth Data:', auth); // Добавьте эту строку для отладки
+
     const user = auth.user || {};
     const cars = Array.isArray(auth.cars) ? auth.cars : [];
 
@@ -36,18 +37,28 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
     }, [user]);
 
     const [photoPreview, setPhotoPreview] = useState(user.photoUrl ? `/${user.photoUrl}` : null);
+    const [options, setOptions] = useState([]);
 
-    const [changedOptions, setChangedOptions] = useState([]);
+    useEffect(() => {
+        const fetchOptions = async () => {
+            try {
+                const response = await fetch(`/profile/${auth.user.id}/options`); // Путь к вашему маршруту
 
-   /* useEffect(() => {
-        if (user.photoUrl) {
-            const baseUrl = window.location.origin;
-            setPhotoPreview(`${baseUrl}/${user.photoUrl}`);
-        } else {
-            setPhotoPreview(null);
-        }
-    }, [user.photoUrl]);*/
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
+                const data = await response.json();
+                console.log('Fetched options:', data); // Логируем полученные данные
+                setOptions(data.options);
+            } catch (error) {
+                console.error('Error fetching options:', error);
+            }
+        };
+
+        fetchOptions();
+    }, [auth.user.id]);
+    console.log('options:', options); // Добавьте эту строку для отладки
     const formatRegistrationDate = (date) => {
         return formatDistanceToNow(new Date(date), { addSuffix: true });
     };
@@ -85,7 +96,7 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
             </div>
 
 
-            <form style={{width: '100%'}}>
+            <form style={{width: '600px'}}>
 
                 <div className="items-container" style={{
                     display: 'flex',
@@ -99,7 +110,6 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                 </div>
 
                 <div className="separator" style={{
-                    margin: '10px 0',
                     borderTop: '1px solid #ccc'
                 }}></div>
 
@@ -115,7 +125,6 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     <div className="item-name" style={{fontSize: '20px', fontWeight: 'bold'}}>{data.lastName}</div>
                 </div>
                 <div className="separator" style={{
-                    margin: '10px 0',
                     borderTop: '1px solid #ccc'
                 }}></div>
 
@@ -130,7 +139,6 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     <div className="item-name" style={{fontSize: '20px', fontWeight: 'bold'}}>{data.email}</div>
                 </div>
                 <div className="separator" style={{
-                    margin: '10px 0',
                     borderTop: '1px solid #ccc'
                 }}></div>
 
@@ -145,7 +153,6 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     <div className="item-name" style={{fontSize: '20px', fontWeight: 'bold'}}>{data.phone}</div>
                 </div>
                 <div className="separator" style={{
-                    margin: '10px 0',
                     borderTop: '1px solid #ccc'
                 }}></div>
 
@@ -155,28 +162,54 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     alignContent: 'center',
                     justifyContent: 'space-between',
                     marginTop: '20px',
-                    marginBottom: '20px'
+
                 }}>
                     <div className="items-labal" style={{fontSize: '20px', fontWeight: 'bold'}}>Зарегистрирован</div>
                     <div className="item-name" style={{
-                        fontSize: '20px',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
                     }}>{formatRegistrationDate(data.registrationDate)}</div>
                 </div>
                 <div className="separator" style={{
-                    margin: '20px 0',
-                    borderTop: '1px solid #ccc'
+                    borderTop: '1px solid #ccc',
+                    marginBottom: '10px'
                 }}></div>
-                {changedOptions.length > 0 && (
-                    <div className="changed-options" style={{marginBottom: '20px'}}>
-                        <h3 className="text-xl font-medium">Измененные опции:</h3>
-                        {changedOptions.map((option, index) => (
-                            <div key={index} className="flex justify-between"
-                                 style={{fontSize: '20px', fontWeight: 'bold', marginTop: '10px'}}>
-                                <span>{option.label}</span>
-                                <span>{option.value}</span>
-                            </div>
+                <div style={{textAlign: 'center',
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#eea236'
+                }}>
+                    <div id="lastName"
+                         className="label-profile">{user.name} предпочитает в поезке
+                    </div>
+                </div>
+                {options.length > 0 ? (
+                    <ul className="options-list" style={{
+                        listStyleType: 'none', /* Убираем стандартные маркеры списка */
+                        padding: 0, /* Убираем отступы */
+                        margin: 0, /* Убираем внешние отступы */
+                    }}>
+                        {options.map((option) => (
+                            <li key={option.id} className="option-item" style={{
+                                display: 'flex', /* Используем Flexbox для выравнивания */
+                                justifyContent: 'space-between', /* Распределяем пространство между элементами */
+                                padding: '8px 0', /* Добавляем вертикальные отступы между элементами */
+                                borderBottom: '1px solid #eaeaea', /* Добавляем разделитель между опциями (по желанию) */
+                            }}>
+                                <span className="option-name" style={{fontWeight: 'bold'}}>{option.option.name}</span>:
+                                <span className="option-description" style={{
+                                    marginLeft: 'auto', /* Сдвигаем описание вправо */
+                                    fontWeight: 'bold'
+                                }}>{option.description}</span>
+                            </li>
                         ))}
+                    </ul>
+                ) : (
+                    <div>
+                        <p style={{textAlign: 'center',
+                            fontSize: '20px',
+                            fontWeight: 'bold'
+                        }}>Пользователь пока не выбрал свои предпочтения в поездке.</p>
+                        <div className="separator-thin"></div>
                     </div>
                 )}
 

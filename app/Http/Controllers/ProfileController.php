@@ -26,25 +26,44 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function showDriver($id)
+    public function showOptions($id)
     {
         $user = User::findOrFail($id);
-        $cars = Car::where('user_id', $id)->get(); // Если у пользователя есть автомобили
+        $options = $user->optionValues()->with('option')->get();
+
+        return response()->json(['options' => $options]);
+    }
+
+
+    public function showDriver($id)
+    {
+        // Получаем пользователя
+        $user = User::findOrFail($id);
+        // Получаем автомобили пользователя
+        // $cars = Car::where('user_id', $id)->get();
+        $cars = $user->cars; // Оптимально использовать связь
+        // Получаем опции пользователя через связь с OptionValue
+        $options = $user->optionValues()->with('option')->get();
+
         return Inertia::render('Profile/ShowDriverProfile', [
             'user' => $user,
             'cars' => $cars,
+            'options' => $options,  // Передаем опции на фронт
         ]);
     }
 
     public function showPassenger($id)
     {
+        // Получаем пользователя
         $user = User::findOrFail($id);
+        // Получаем опции пользователя через связь с OptionValue
+        $options = $user->optionValues()->with('option')->get();
+
         return Inertia::render('Profile/ShowPassengerProfile', [
             'user' => $user,
+            'options' => $options,  // Передаем опции на фронт
         ]);
     }
-
-
 
     /**
      * Update the user's profile information.

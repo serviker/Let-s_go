@@ -85,6 +85,6 @@ class User extends Authenticatable
 
     public function options()
     {
-        return $this->belongsToMany(OptionValue::class, 'user_option'); // Замените 'user_option_values' на имя вашей промежуточной таблицы
+        return $this->belongsToMany(OptionValue::class, 'user_options'); // Замените 'user_option_values' на имя вашей промежуточной таблицы
     }
 }

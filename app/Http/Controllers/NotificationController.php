@@ -21,7 +21,7 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->orderBy('created_at', 'desc')->get();
         // Возвращаем Inertia ответ с уведомлениями
-           return Inertia::render('Notifications/DriverNotificationComponent', [
+           return Inertia::render('Notifications/NotificationComponent', [
               'notifications' => $notifications,
           ]);
        // Логирование извлеченных уведомлений

@@ -1,9 +1,9 @@
 import { formatDistanceToNow } from 'date-fns';
 import {Link, usePage} from '@inertiajs/react';
-import React from 'react';
+import React, {useState} from 'react';
 import '../../../css/ProfilePassenger.css';
 
-export default function ShowPassengerProfile({ user, order, cars }) {
+export default function ShowPassengerProfile({ user, options, cars }) {
     const { auth } = usePage().props;
     //console.log('Auth Data:', auth); // Добавьте эту строку для отладки
     // const user = auth.user || {};
@@ -37,7 +37,7 @@ export default function ShowPassengerProfile({ user, order, cars }) {
                         <h2><b>{user.name}</b></h2>
                     </span>
                 </div>
-                <div className="separator"></div>
+                <div className="separator-thin"></div>
                 <div className="mt-6 space-y-6">
                     <div>
                         <div>
@@ -53,30 +53,30 @@ export default function ShowPassengerProfile({ user, order, cars }) {
                         </div>
                     </div>
 
-                    <div className="separator"></div>
+                    <div className="separator-thin"></div>
 
                     <div>
                         <div id="lastName"
-                             className="label-profile">{user.name} о себе
+                             className="label-profile">{user.name} предпочитает в поезке
                         </div>
                     </div>
-                    <div>
-                        <label className="label-profile-email">Не прочь поболтать, когда мне
-                            комфортно</label>
-                    </div>
-                    <div>
-                        <label className="label-profile-email">Люблю спакойную музыку</label>
-                    </div>
-                    <div>
-                        <label className="label-profile-email">Не люблю когда машине не курят</label>
-                    </div>
-                    {/*<div>*/}
-                    {/*    <label className="label-profile-email">Предпочитаю поездки без питомцев</label>*/}
-                    {/*</div>*/}
+                    {/* Выводим список опций пользователя */}
+                    {options.length > 0 ? (
+                        <ul className="options-list">
+                            {options.map((option) => (
+                                <li key={option.id} className="option-item">
+                                    <span className="option-name">{option.option.name}</span>:
+                                    <span className="option-description">{option.description}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500">Пользователь пока не выбрал свои предпочтения в поездке.</p>
+                    )}
 
                 </div>
 
-                <div className="separator-thin"></div>
+                {/*<div className="separator-thin"></div>*/}
 
                 {/*<h2 className="text-lg font-medium text-center text-gray-900">Автомобили</h2>*/}
 

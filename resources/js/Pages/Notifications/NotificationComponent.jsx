@@ -101,7 +101,7 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
     );
 };
 
-const DriverNotificationComponent = () => {
+const NotificationComponent = () => {
     // Получаем данные через Inertia
     const {props} = usePage();
     const notifications = props.notifications || []; // Убедиться, что notifications существует
@@ -156,4 +156,4 @@ const DriverNotificationComponent = () => {
     );
 };
 
-export default DriverNotificationComponent;
+export default NotificationComponent;

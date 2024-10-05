@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import '../../../css/OptionComponent.css';
 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 const OptionComponent = ({ options, userId }) => {
@@ -89,18 +90,32 @@ const OptionComponent = ({ options, userId }) => {
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px'}}>
-            <h2>Опции для комфортной поездки</h2>
-            <div style={{ width: '300px', marginTop: '50px' }}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px', alignContent: 'center', height: '100vh'}}>
+            <div className="header" >
+                <a href={route('dashboard')} className="btn btn-link text-decoration-none" >
+                    &larr;
+                </a>
+                <h2>Опции для комфортной поездки</h2>
+            </div>
+
+            <div style={{width: '500px', marginTop: '50px'}}>
                 {Object.keys(options).map((optionName) => (
-                    <div key={optionName} style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label style={{ fontSize: '16px' }}>{optionName}</label>
-                        <div style={{ position: 'relative', width: '180px' }} ref={ref => dropdownRefs.current[optionName] = ref}>
+                    <div key={optionName} style={{
+                        marginBottom: '20px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        alignContent: 'center'
+                    }}>
+                        <label style={{fontSize: '16px', textAlign: 'left'}}>{optionName}</label>
+                        <div style={{position: 'relative', width: '180px'}}
+                             ref={ref => dropdownRefs.current[optionName] = ref}>
                             <div
                                 style={{
                                     width: '400px',
                                     cursor: 'pointer',
-                                    padding: '10px'
+                                    padding: '1px',
+                                    textAlign: 'left'
                                 }}
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -113,18 +128,19 @@ const OptionComponent = ({ options, userId }) => {
                                 <ul
                                     style={{
                                         position: 'absolute',
-                                        top: '40px',
-                                        left: 0,
-                                        width: '250px',
+                                        top: '1px',
+                                        left: '-10px',
+                                        width: '500px',
                                         background: '#fff',
                                         boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
                                         zIndex: 1,
+                                        fontSize: '18px',
                                         textAlign: 'center',
                                         padding: '10px 0',
                                         listStyle: 'none',
                                         margin: 0,
-                                        border: '2px solid #ccc',
-                                        borderRadius: '4px',
+                                        border: '2px solid #eea236',
+                                        borderRadius: '10px',
                                     }}
                                 >
                                     {Array.isArray(options[optionName]) && options[optionName].length > 0 ? (
@@ -144,7 +160,7 @@ const OptionComponent = ({ options, userId }) => {
                                                 </li>
                                             ))
                                     ) : (
-                                        <li style={{ padding: '10px', color: '#999' }}>Нет доступных опций</li>
+                                        <li style={{padding: '10px', color: '#999'}}>Нет доступных опций</li>
                                     )}
 
                                 </ul>
@@ -153,7 +169,7 @@ const OptionComponent = ({ options, userId }) => {
                     </div>
                 ))}
             </div>
-            <button onClick={saveOptions} style={{ marginTop: '20px', padding: '10px 20px' }}>
+            <button onClick={saveOptions} style={{marginTop: '20px', padding: '10px 20px', border: '2px solid #eea236', borderRadius: '10px', fontWeight: 'bold', color: '#eea236'}}>
                 Сохранить опции
             </button>
         </div>

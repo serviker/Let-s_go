@@ -7,6 +7,7 @@ use App\Http\Requests\Order\StoreRequest;
 use App\Models\Address;
 use App\Models\Driver;
 use App\Models\OrderIntermediateAddress;
+use App\Models\StatusOrder;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Order;
@@ -73,6 +74,12 @@ class StoreController extends Controller
             if (!empty($intermediateAddresses)) {
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
+
+            // Установка начального статуса для заказа
+            $initialStatus = StatusOrder::firstOrCreate(['name_status' => 'Мгновенное бронирование']);
+            // Ассоциация статуса заказа
+            $order->statusOrder()->associate($initialStatus);
+            $order->save();
            // Log::info('Order/StoreControllerData Received:', $data);
            // Log::info('Order/StoreControllerData $order:', $order->toArray());
            // Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);

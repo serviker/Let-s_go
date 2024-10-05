@@ -2,6 +2,7 @@
     text-align: center;
     margin: 20px;
     height: 100vh;
+    width: 100%;
 }
 
 .title {
@@ -46,4 +47,27 @@
 
 .dropdown-item:hover {
     background-color: #f0f0f0;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    background-color: #eaeaea;
+    font-weight: bold;
+}
+.header .btn {
+    position: absolute; /* Position the back arrow absolutely */
+    left: -12%; /* Align to the left edge of the container */
+    /*top: 50%;  Vertically center the arrow */
+    /* transform: translateY(-50%);Adjust for vertical centering */
+    font-size: 24px; /* Adjust the size of the arrow */
+    color: #eea236; /* The color of the arrow */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+    z-index: 1; /* Ensure it appears above other content */
+}
+
+.header .btn:hover {
+    text-decoration: none; /* Убирает подчеркивание при наведении */
 }

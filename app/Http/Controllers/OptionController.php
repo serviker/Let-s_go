@@ -93,7 +93,20 @@ class OptionController extends Controller
         return response()->json(['message' => 'Опции успешно сохранены']);
     }
 
+    // Используем существующие методы модели User для получения пользовательских опций
+    public function getUserOptions(User $user)
+    {
+        // Загружаем опции пользователя и их значения
+        $options = $user->options()->with('option')->get();
 
+        // Формируем массив опций, сгруппированных по имени
+        $groupedUserOptions = [];
+        foreach ($options as $option) {
+            $groupedUserOptions[$option->name] = $option->pivot->value;
+        }
+
+        return $groupedUserOptions;
+    }
 
 
 

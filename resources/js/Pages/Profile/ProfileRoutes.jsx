@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
@@ -7,13 +7,15 @@ import DeleteUserForm from './Partials/DeleteUserForm';
 import { Head } from '@inertiajs/react';
 import ProfileInformationForm from "@/Pages/Profile/Partials/ProfileInformationForm.jsx";
 
-function Profile({ auth, mustVerifyEmail, status }) {
+function Profile({auth, mustVerifyEmail, status }) {
     return (
         <div className="mb-4 p-3 bg-light shadow rounded">
-            <ProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
+            <ProfileInformationForm  mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
         </div>
     );
-}function ChangeProfile({ auth, mustVerifyEmail, status }) {
+}
+
+function ChangeProfile({ auth, mustVerifyEmail, status }) {
     return (
         <div className="mb-4 p-3 bg-light shadow rounded">
             <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-xl" />
@@ -38,6 +40,7 @@ function DeleteAccount() {
 }
 
 export default function ProfileRoutes({ auth, mustVerifyEmail, status }) {
+
     return (
         <Router>
             <AuthenticatedLayout

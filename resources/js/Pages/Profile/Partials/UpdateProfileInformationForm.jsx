@@ -189,19 +189,36 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                 </div>
                 <div className="flex items-center">
                     <InputLabel htmlFor="registrationDate" value="Зарегистрирован" className="mr-4"/>
-                    <div className="flex-1">
+                    <div className="flex-1" style={{textAlign: 'center', fontSize: '18px', fontWeight: 'bold'}}>
                         {formatRegistrationDate(data.registrationDate)}
                     </div>
                 </div>
                 <div>
                     <InputLabel htmlFor="photoUrl" value="Фото"/>
+                    <div style={{
+                        display: 'inline-block',
+                        width: '100%',
+                        padding: '20px',
+                        border: '1px solid gray',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        textAlign: 'center',}}>
                     <input
                         id="photoUrl"
                         type="file"
                         name="photoUrl"
                         onChange={handlePhotoChange}
-                        className="form-control w-100"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            position: 'absolute',
+                            opacity: '0',
+                            cursor: 'pointer',
+                            left: '0',
+                            top: '0'}}
+
                     />
+                    </div>
                     <InputError message={errors.photoUrl} className="mt-2 text-red-500"/>
                 </div>
 

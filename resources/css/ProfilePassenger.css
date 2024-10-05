@@ -245,6 +245,25 @@
     font-size: 18px;
     font-weight: normal;
 }
- .option{
+.options-list {
+    list-style-type: none; /* Убираем стандартные маркеры списка */
+    padding: 0; /* Убираем отступы */
+    margin: 0; /* Убираем внешние отступы */
+}
 
- }
+.option-item {
+    display: flex; /* Используем Flexbox для выравнивания */
+    justify-content: space-between; /* Распределяем пространство между элементами */
+    padding: 8px 0; /* Добавляем вертикальные отступы между элементами */
+    border-bottom: 1px solid #eaeaea; /* Добавляем разделитель между опциями (по желанию) */
+}
+
+.option-name {
+    font-weight: bold; /* Делаем название опции жирным */
+}
+
+.option-description {
+    margin-left: auto; /* Сдвигаем описание вправо */
+    font-weight: bold;
+   // color: #eea236;
+}

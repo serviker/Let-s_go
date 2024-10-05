@@ -75,6 +75,10 @@ class Order extends Model
     {
         return $this->hasMany(Message::class);
     }
+    public function passengerRequests()
+    {
+        return $this->hasMany(PassengerRequest::class);
+    }
 
 }
 

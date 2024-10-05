@@ -7,6 +7,7 @@ import {Inertia} from "@inertiajs/inertia";
 import {usePage} from "@inertiajs/react";
 import {Button} from "@headlessui/react";
 import '../../../css/DriverOrders.css';
+import Navbar from "@/Components/Navbar.jsx";
 
 export default function DriverOrders({ orders }) {
     const [showModal, setShowModal] = useState(!Array.isArray(orders) || orders.length === 0);
@@ -45,7 +46,9 @@ export default function DriverOrders({ orders }) {
     });
 
     return (
+
         <div className="driver-orders-container">
+
             <div className="header">
                 <a href={route('dashboard')} className="btn btn-link text-decoration-none">
                     &larr;

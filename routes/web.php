@@ -57,12 +57,18 @@ Route::middleware(['auth'])->group(function () {
 
     // маршруты для управления опциями
     Route::get('/options', [OptionController::class, 'index'])->name('options.index');
+    Route::get('/options/{user}', [OptionController::class, 'getUserOptions'])->name('options.getUserOptions');
+
 
     Route::post('/api/saveOptions/{userId}', [OptionController::class, 'saveOptions']);
 
     Route::post('/options', [OptionController::class, 'store']);
     Route::put('/options/{id}', [OptionController::class, 'update']);
     Route::delete('/options/{id}', [OptionController::class, 'destroy']);
+
+    // Добавляем маршрут для отображения опций пользователя
+    Route::get('/profile/{id}/options', [ProfileController::class, 'showOptions'])->name('profile.options');
+
 
     // Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
     // Маршрут для профиля водителя
@@ -114,6 +120,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/orders/{order}/cancel/passenger', [ShowController::class, 'cancelOrderPassenger'])->name('order.cancel');
         Route::delete('/orders/{order}/cancel/driver', [ShowController::class, 'cancelOrderDriver'])->name('order.cancelForDriver');
 
+        Route::get('/driver/{driverId}/booking-requests', [ShowController::class, 'showBookingRequests']);
+        Route::post('/order/{orderId}/passenger/{passengerId}/respond-booking', [ShowController::class, 'respondToBookingRequest']);
+        // Маршрут для запроса на бронирование пассажиром
+        Route::post('/order/{orderId}/request-booking', [ShowController::class, 'requestBooking']);
 
 
         // Добавляем маршрут для всех поездок водителя

@@ -3,6 +3,9 @@
     justify-content: space-between;
     align-items: center;
     align-content: center;
+    width: 500px;
+
+    margin-top: 50px;
 }
 .separator {
     margin: 10px 0;
@@ -21,7 +24,7 @@
 .item-name {
     object-fit: cover;
     flex:1;
-    color: #eea236;
+    color: gray;
     font-weight: bold;
 }
 
@@ -47,4 +50,118 @@
 }
 .btn-info {
     white-space: nowrap
+}
+/* ProfileInformationForm.css */
+
+.section {
+    margin-top: 1.5rem;
+}
+
+.header {
+    text-align: center;
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 500; /* font-medium */
+    color: #1f2937; /* text-gray-900 */
+}
+
+.photo {
+    background-color: #d1d5db; /* bg-gray-300 */
+    border-radius: 0.375rem; /* rounded-lg */
+    margin-right: 1rem; /* mr-4 */
+    width: 100px;
+    height: 100px;
+    border-radius: 1rem; /* borderRadius: 16px */
+}
+
+.photo-wrapper {
+    margin-left: 40%;
+}
+
+.photo-fallback {
+    margin-left: 100px;
+    width: 100px;
+    height: 100px;
+    border-radius: 1rem; /* borderRadius: 16px */
+}
+
+.form {
+    width: 500px;
+}
+
+.items-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 50px;
+}
+
+.items-label {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.separator {
+    margin: 10px 0;
+    border-top: 1px solid #ccc;
+}
+
+.registration-date-container {
+    margin-bottom: 20px;
+}
+
+.options-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.option-item {
+    margin-bottom: 5px;
+}
+
+.option-name {
+    font-weight: bold;
+}
+
+.option-description {
+    margin-left: 5px;
+    color: #6b7280; /* text-gray-500 */
+}
+
+.mt-6 {
+    margin-top: 1.5rem;
+}
+
+.car-image {
+    width: 100px;
+    height: 80px;
+    border-radius: 16%; /* borderRadius: 16% */
+}
+
+.car-info {
+    margin-left: 230px; /* Adjust based on the presence of the car photo */
+    font-size: 20px;
+    font-weight: bold;
+    text-align: end;
+}
+.options-list {
+    list-style-type: none; /* Убираем стандартные маркеры списка */
+    padding: 0; /* Убираем отступы */
+    margin: 0; /* Убираем внешние отступы */
+}
+
+.option-item {
+    display: flex; /* Используем Flexbox для выравнивания */
+    justify-content: space-between; /* Распределяем пространство между элементами */
+    padding: 8px 0; /* Добавляем вертикальные отступы между элементами */
+    border-bottom: 1px solid #eaeaea; /* Добавляем разделитель между опциями (по желанию) */
+}
+
+.option-name {
+    font-weight: bold; /* Делаем название опции жирным */
+}
+
+.option-description {
+    margin-left: auto; /* Сдвигаем описание вправо */
+    font-weight: bold;
+// color: #eea236;
 }

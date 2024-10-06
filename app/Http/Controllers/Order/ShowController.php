@@ -93,9 +93,10 @@ class ShowController extends Controller
             'availableSeats' => $order->available_seats ?? 'No available seats',
             'passengers' => $passengers,
             'isBooked' => $isPassenger,
-            'searchCriteria' => $sessionCriteria
+            'searchCriteria' => $sessionCriteria,
+            'order_status_id' => $order->status_order_id, // Передаем статус бронирования
         ];
-       // Log::info('Order/ShowControllerOrder Created $data:', $data);
+        Log::info('Order/ShowControllerOrder Created $data:', $data);
 
         // Check if the authenticated user is the driver
         if ($user && $user->id === $order->driver_id) {

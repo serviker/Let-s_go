@@ -29,10 +29,12 @@ export default function DriverOrderCreate({ className = '' }) {
         price: '',
         available_seats: 1,
         description: '',
+        status_order_id: 2,  // Новое поле для выбора статуса бронирования
     });
     const [citySuggestions, setCitySuggestions] = useState([]);
     const [cities, setCities] = useState([]); // Состояние для всех городов
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
+
 
 
     // Метод для фильтрации городов по введенному значению
@@ -151,7 +153,7 @@ export default function DriverOrderCreate({ className = '' }) {
         // Создаем объект данных для отправки
         const formData = { ...data, intermediate_addresses };
        // console.log('Отправляемые данные:', formData); // Проверьте, что промежуточные адреса включены
-       // console.log('Отправляемые данные:', JSON.stringify(formData, null, 2));
+        console.log('Отправляемые данные:', JSON.stringify(formData, null, 2));
 
         post('/orders', formData, {
             onError: (error) => console.error('Ошибка при создании заказа:', error),
@@ -517,6 +519,51 @@ export default function DriverOrderCreate({ className = '' }) {
             )}
 
             {step === 12 && (
+                <div className="card">
+                    <div className="card-header text-center">
+                        <h2>Выберите статус бронирования</h2>
+                    </div>
+                    <div className="card-body" style={{ textAlign: 'center'}}>
+                        <div className="form-group" >
+                            <label style={{display: 'flex', alignItems: 'center', alignContent: 'center', fontSize: '22px'}}>
+                                <input
+                                    type="radio"
+                                    name="status_order_id"
+                                    value="2"
+                                    checked={Number(data.status_order_id) === 2}
+                                    onChange={(e) => setData('status_order_id', Number(e.target.value))}
+                                    style={{ marginRight: '30px', marginBottom: '5px', color: '#eea236' }}
+                                />
+                                После подтверждения водителем
+                            </label>
+                        </div>
+                        <div className="form-group">
+                            <label style={{display: 'flex', alignItems: 'center', alignContent: 'center', fontSize: '22px'}}>
+                                <input
+                                    type="radio"
+                                    name="status_order_id"
+                                    value="1"
+                                    checked={Number(data.status_order_id) === 1}
+                                    onChange={(e) => setData('status_order_id', Number(e.target.value))}
+                                    style={{ marginRight: '30px', marginBottom: '5px' }}
+                                />
+                                Мгновенное бронирование
+                            </label>
+                        </div>
+                        <div className="flex">
+                            <SecondaryButton type="button" onClick={handlePrev} className="btn btn-secondary">
+                                Назад
+                            </SecondaryButton>
+                            <SecondaryButton type="button" onClick={handleNext} className="btn btn-success">
+                                Продолжить
+                            </SecondaryButton>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            {step === 13 && (
                 <div className="card">
                     <div className="card-header text-center">
                         <h2>Хотите сказать о поездке что-то еще?</h2>

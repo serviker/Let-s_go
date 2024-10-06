@@ -4,6 +4,7 @@ namespace App\Http\Requests\Order;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StoreRequest extends FormRequest
 {
@@ -40,7 +41,15 @@ class StoreRequest extends FormRequest
             'available_seats' => 'required|integer|min:1',
             'description' => 'nullable|string',
             'intermediate_addresses' => 'nullable|array',
-            'intermediate_addresses.*' => 'string' // Ожидаем строки для промежуточных адресов
+            'intermediate_addresses.*' => 'string', // Ожидаем строки для промежуточных адресов
+            'status_order_id' => 'required|exists:status_orders,id'
         ];
     }
+  /*  protected function failedValidation(Validator|\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        Log::error('Validation Failed:', $validator->errors()->toArray());
+        parent::failedValidation($validator);
+    }*/
+
+
 }

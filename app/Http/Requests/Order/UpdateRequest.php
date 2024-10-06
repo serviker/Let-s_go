@@ -34,7 +34,8 @@ class UpdateRequest extends FormRequest
             'available_seats' => 'required|integer|min:1',
             'description' => 'nullable|string',
             'intermediate_addresses' => 'nullable|array',
-            'intermediate_addresses.*' => 'exists:addresses,id'
+            'intermediate_addresses.*' => 'string', // Ожидаем строки для промежуточных адресов
+            'status_order_id' => 'required|exists:status_orders,id' // Убедитесь, что id существует в status_orders
         ];
     }
 }

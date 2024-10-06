@@ -8,6 +8,7 @@ import { Modal, Button } from 'react-bootstrap';
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
 
+
     const cancellation_reason = [
         'Изменились планы',
         'Неудобное время встречи (сложности с логистикой)',
@@ -155,6 +156,31 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             console.error('Error booking the order:', error);
         }
     };
+
+    const handleBookingRequest = async () => {
+        try {
+            // Отправляем запрос на бронирование
+            await Inertia.post(route('order.requestBooking', { order: order.id }), {
+                departure_city: currentPassenger ? currentPassenger.departureCity : '', // Передаем город отправления
+                arrival_city: currentPassenger ? currentPassenger.arrivalCity : '',     // Передаем город прибытия
+            }, {
+                onSuccess: () => {
+                    // Выводим уведомление об успешном запросе
+                    alert('Запрос на бронирование отправлен водителю.');
+                    // Возможно, обновляем состояние или выполняем другие действия
+                },
+                onError: (errors) => {
+                    // Обработка ошибок
+                    alert('Ошибка: ' + errors.message);
+                },
+            });
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на бронирование:', error);
+        }
+    };
+
+    console.log("orderStatus",order.orderStatus); // Проверьте, какое значение выводится
+    console.log("isBooked",isBooked); // Должно быть false для отображения кнопок
     // Открыть модальное окно
     const handleCancelBooking = () => { setShowCancelModal(true); };
     const handleCloseCancelModal = () => setShowCancelModal(false);
@@ -333,11 +359,8 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             <div className="separator-thin"></div>
 
             <div className="button-container">
-                {/*<Link href={route('dashboard')} className="home-link">*/}
-                {/*    <button type="button" className="btn btn-secondary">Назад</button>*/}
-                {/*</Link>*/}
                 <button className="btn btn-info" onClick={() => window.history.back()}>Назад</button>
-                {/* Если место забронировано, показываем кнопку отмены */}
+                {/* Если место забронировано, показываем кнопку отмены
                 {isBooked ? (
                     <>
                         <CancelBookingModal
@@ -360,7 +383,44 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                     >
                         Забронировать место
                     </button>
+                )}*/}
+                {isBooked ? (
+                    <>
+                        <CancelBookingModal
+                            show={showCancelModal}
+                            onClose={() => setShowCancelModal(false)}
+                            onConfirm={confirmCancellation}
+                        />
+                        <div>
+                            <button onClick={handleCancelBooking} className="btn btn-danger">
+                                Отменить бронирование
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        {Number(order.status_order_id) === 2 ? (
+                            <button
+                                className="btn btn-info"
+                                disabled={isButtonDisabled}
+                                onClick={handleBooking}
+                            >
+                                Забронировать место
+                            </button>
+                        ) : Number(order.status_order_id) === 1 ? (
+                            <button
+                                className="btn btn-warning"
+                                onClick={handleBookingRequest}
+                            >
+                                Отправить запрос
+                            </button>
+
+                        ) : order.status_order_id === null ? (
+                            <div>Статус заказа еще не определен.</div> // Выводите сообщение, если статус равен null
+                        ) : null}
+                    </>
                 )}
+
             </div>
 
             {/*<NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>*/}
@@ -380,6 +440,7 @@ PassengerOrderDetails.propTypes = {
         driverId: PropTypes.number.isRequired,
         description: PropTypes.string,
         availableSeats: PropTypes.number.isRequired,
+        status_order_id: PropTypes.string.isRequired, // Добавлено поле orderStatus
         passengers: PropTypes.arrayOf(
             PropTypes.shape({
                 id: PropTypes.number.isRequired,

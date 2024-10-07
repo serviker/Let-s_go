@@ -21,7 +21,7 @@ class StoreController extends Controller
         $data = $request->validated();
         //dd($request->validated());
 
-        Log::info('StoreController Data Received:', $data);
+      //  Log::info('StoreController Data Received:', $data);
 
         // Проверка или создание начального адреса
         $fromAddress = Address::firstOrCreate([
@@ -31,13 +31,13 @@ class StoreController extends Controller
         ]);
 
         // Логируем информацию о начальном адресе
-        Log::info('Проверка или создание начального адреса:', [
+       /* Log::info('Проверка или создание начального адреса:', [
             'city' => $data['from_city'],
             'street' => $data['from_street'],
             'house' => $data['from_house'],
             'created' => $fromAddress->wasRecentlyCreated,
             'existing_id' => $fromAddress->id, // ID существующего адреса
-        ]);
+        ]);*/
 
         // Проверка или создание конечного адреса
         $toAddress = Address::firstOrCreate([
@@ -47,13 +47,13 @@ class StoreController extends Controller
         ]);
 
         // Логируем информацию о конечном адресе
-        Log::info('Проверка или создание конечного адреса:', [
+       /* Log::info('Проверка или создание конечного адреса:', [
             'city' => $data['to_city'],
             'street' => $data['to_street'],
             'house' => $data['to_house'],
             'created' => $toAddress->wasRecentlyCreated,
             'existing_id' => $toAddress->id, // ID существующего адреса
-        ]);
+        ]);*/
 
         // Проверка или создание промежуточных адресов
         $intermediateAddresses = [];
@@ -66,11 +66,11 @@ class StoreController extends Controller
                 ]);
 
                 // Логируем информацию о промежуточном адресе
-                Log::info('Проверка или создание промежуточного адреса:', [
+               /* Log::info('Проверка или создание промежуточного адреса:', [
                     'city' => $city,
                     'created' => $intermediateAddress->wasRecentlyCreated,
                     'existing_id' => $intermediateAddress->id,
-                ]);
+                ]);*/
 
                 // Сохраняем ID промежуточного адреса
                 $intermediateAddresses[] = $intermediateAddress->id;
@@ -102,16 +102,16 @@ class StoreController extends Controller
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
 
-            Log::info('Order/StoreControllerData Received:', $data);
-            Log::info('Order/StoreControllerData $order:', $order->toArray());
-            Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
+          //  Log::info('Order/StoreControllerData Received:', $data);
+          //  Log::info('Order/StoreControllerData $order:', $order->toArray());
+          //  Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
 
 
             return redirect()->route('order.show', $order->id)
                 ->with('success', 'Заказ успешно создан!')
                 ->with(['preserveScroll' => true]);
         } catch (\Exception $e) {
-            Log::error('Failed to create order', ['error' => $e->getMessage(), 'data' => $data]);
+          //  Log::error('Failed to create order', ['error' => $e->getMessage(), 'data' => $data]);
             return redirect()->back()->with('error', 'Ошибка создания заказа');
         }
     }

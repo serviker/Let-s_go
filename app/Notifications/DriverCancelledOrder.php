@@ -8,7 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-#[AllowDynamicProperties] class DriverCancelledOrder extends Notification
+#[AllowDynamicProperties]
+class DriverCancelledOrder extends Notification
 {
     use Queueable;
 

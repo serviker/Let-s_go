@@ -89,6 +89,34 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     );
 };
 
+const BookingRequestModal = ({ show, onClose, onSubmit }) => {
+    const [message, setMessage] = useState('');
+
+    if (!show) return null;
+
+    const handleSubmit = () => {
+        onSubmit(message);
+        setMessage(''); // Очищаем поле после отправки
+    };
+
+    return (
+        <div className="modal-content" style={{ width: '30%', border: '4px solid #eea236', borderRadius: '10px', position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
+            <h2 style={{ textAlign: 'center', color: 'black' }}>Отправить запрос на бронирование</h2>
+            <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                style={{ width: '90%', margin: '10px auto', display: 'block', padding: '20px', fontSize: '16px', fontWeight:'bold' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                <button onClick={onClose} className="btn btn-secondary">Закрыть</button>
+                <button onClick={handleSubmit} className="btn btn-primary">Отправить запрос</button>
+            </div>
+        </div>
+    );
+};
+
+
 const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
@@ -100,11 +128,37 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const [canSendMessage, setCanSendMessage] = useState(false); // Флаг для проверки отправки сообщений
     const [showErrorModal, setShowErrorModal] = useState(false); // Для отображения модального окна
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showBookingRequestModal, setShowBookingRequestModal] = useState(false);
+    const [requestSent, setRequestSent] = useState(order.passengerRequests.length > 0); // Установите в true, если есть запрос
     const handleCloseModal = () => setShowErrorModal(false);
+    // Убедитесь, что вы получаете сообщение из страницы
+    const { flash } = usePage().props;
+    const message = usePage().props.flash.message;
+    const [visible, setVisible] = useState(true);
 
+// Удалите сообщение через 3 секунды
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => setVisible(false), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [message]);
+    //console.log(flash);
     if (!data) {
         return <div>Error: Order data is missing</div>;
     }
+   // console.log("Message from session:", message);
+
+
+    // Проверка на наличие сообщения
+   // console.log('Flash messages:', flash);
+
+    const handleOpenBookingRequestModal = () => {
+        setShowBookingRequestModal(true);
+    };
+    const handleCloseBookingRequestModal = () => {
+        setShowBookingRequestModal(false);
+    };
 
     // Находим текущего пользователя среди пассажиров
     const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id); // Переместили выше
@@ -157,20 +211,19 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         }
     };
 
-    const handleBookingRequest = async () => {
+    const handleBookingRequest = async (message) => {
+        console.log('Отправляемое сообщение в запросе:', message); // Логируем сообщение перед отправкой
         try {
-            // Отправляем запрос на бронирование
-            await Inertia.post(route('order.requestBooking', { order: order.id }), {
-                departure_city: currentPassenger ? currentPassenger.departureCity : '', // Передаем город отправления
-                arrival_city: currentPassenger ? currentPassenger.arrivalCity : '',     // Передаем город прибытия
+            await Inertia.post(route('order.requestBooking', { orderId: order.id }), {
+                departure_city: currentPassenger ? currentPassenger.departureCity : '',
+                arrival_city: currentPassenger ? currentPassenger.arrivalCity : '',
+                message, // Передаем сообщение
             }, {
                 onSuccess: () => {
-                    // Выводим уведомление об успешном запросе
                     alert('Запрос на бронирование отправлен водителю.');
-                    // Возможно, обновляем состояние или выполняем другие действия
+                    setRequestSent(true); // Установите состояние запроса в true
                 },
                 onError: (errors) => {
-                    // Обработка ошибок
                     alert('Ошибка: ' + errors.message);
                 },
             });
@@ -179,8 +232,25 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         }
     };
 
-    console.log("orderStatus",order.orderStatus); // Проверьте, какое значение выводится
-    console.log("isBooked",isBooked); // Должно быть false для отображения кнопок
+    const handleRequestSubmit = (message) => {
+        console.log('Отправляемое сообщение:', message); // Проверяем, что сообщение не пустое
+        handleBookingRequest(message); // Передаем сообщение в функцию
+        closeModal(); // Закрываем модальное окно после отправки
+    };
+
+    const handleCancelRequest = async () => {
+        try {
+            await Inertia.post(route('order.cancelBookingRequest', { orderId: order.id })); // Предполагается, что у вас есть маршрут для отмены запроса
+            setRequestSent(false); // Установите состояние обратно в false после отмены
+        } catch (error) {
+            console.error('Ошибка при отмене запроса:', error);
+        }
+    };
+
+   // console.log("requestSent",requestSent); // Проверьте, какое значение выводится
+   // console.log("order",order); // Проверьте, какое значение выводится
+   // console.log("status_order",order.status_order_id); // Проверьте, какое значение выводится
+   // console.log("isBooked",isBooked); // Должно быть false для отображения кнопок
     // Открыть модальное окно
     const handleCancelBooking = () => { setShowCancelModal(true); };
     const handleCloseCancelModal = () => setShowCancelModal(false);
@@ -222,8 +292,12 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
     return (
         <div className="order-details-container bg-white p-6 rounded-lg shadow-lg">
+            {visible && message && (
+                <div className="alert alert-success" role="alert">
+                    {message}
+                </div>
+            )}
             <h1 className="order-date">{formattedTime} {formattedDate}</h1>
-
             <div className="departure-info">
                 <div className="route-line">
                     <div className="circle"></div>
@@ -360,6 +434,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
             <div className="button-container">
                 <button className="btn btn-info" onClick={() => window.history.back()}>Назад</button>
+
                 {/* Если место забронировано, показываем кнопку отмены
                 {isBooked ? (
                     <>
@@ -399,7 +474,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                     </>
                 ) : (
                     <>
-                        {Number(order.status_order_id) === 2 ? (
+                        {Number(order.status_order_id) === 1 ? (
                             <button
                                 className="btn btn-info"
                                 disabled={isButtonDisabled}
@@ -407,22 +482,33 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                             >
                                 Забронировать место
                             </button>
-                        ) : Number(order.status_order_id) === 1 ? (
-                            <button
-                                className="btn btn-warning"
-                                onClick={handleBookingRequest}
-                            >
-                                Отправить запрос
-                            </button>
-
+                        ) : Number(order.status_order_id) === 2 ? (
+                            requestSent ? ( // Проверяем, отправлен ли запрос
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={handleCancelRequest}
+                                >
+                                    Отменить запрос
+                                </button>
+                            ) : (
+                                /* <button
+                                     className="btn btn-warning"
+                                     onClick={handleBookingRequest}
+                                 >
+                                     Отправить запрос
+                                 </button>*/
+                                <button className="btn btn-info" onClick={handleOpenBookingRequestModal}>
+                                    Перейти к бронированию
+                                </button>
+                            )
                         ) : order.status_order_id === null ? (
-                            <div>Статус заказа еще не определен.</div> // Выводите сообщение, если статус равен null
+                            <div>Статус заказа еще не определен.</div> // Сообщение, если статус равен null
                         ) : null}
                     </>
                 )}
 
             </div>
-
+            <BookingRequestModal show={showBookingRequestModal} onClose={handleCloseBookingRequestModal} onSubmit={handleRequestSubmit}/>
             {/*<NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>*/}
         </div>
     );
@@ -440,7 +526,7 @@ PassengerOrderDetails.propTypes = {
         driverId: PropTypes.number.isRequired,
         description: PropTypes.string,
         availableSeats: PropTypes.number.isRequired,
-        status_order_id: PropTypes.string.isRequired, // Добавлено поле orderStatus
+        status_order_id: PropTypes.number.isRequired, // Добавлено поле orderStatus
         passengers: PropTypes.arrayOf(
             PropTypes.shape({
                 id: PropTypes.number.isRequired,

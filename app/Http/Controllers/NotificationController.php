@@ -29,7 +29,7 @@ class NotificationController extends Controller
           return response()->json($notifications);*/
     }
 
-    public function passengerShow()
+    public function bookingNotification()
     {
         $user = Auth::user();
 
@@ -41,7 +41,7 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()->orderBy('created_at', 'desc')->get();
         // Возвращаем Inertia ответ с уведомлениями
-        return Inertia::render('Notifications/PassengerNotificationComponent', [
+        return Inertia::render('Notifications/BookingNotificationComponent', [
             'notifications' => $notifications,
         ]);
         // Логирование извлеченных уведомлений
@@ -82,6 +82,4 @@ class NotificationController extends Controller
         $unreadCount = auth()->user()->unreadNotifications()->count();
         return response()->json(['unreadCount' => $unreadCount]);
     }
-
-
 }

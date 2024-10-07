@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Маршрут для уведомлений
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
+    Route::get('/notifications/booking', [NotificationController::class, 'bookingNotification'])->name('notifications.bookingNotification'); // Это маршрут для страницы уведомлений
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -120,11 +121,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/orders/{order}/cancel/passenger', [ShowController::class, 'cancelOrderPassenger'])->name('order.cancel');
         Route::delete('/orders/{order}/cancel/driver', [ShowController::class, 'cancelOrderDriver'])->name('order.cancelForDriver');
 
-        Route::get('/driver/{driverId}/booking-requests', [ShowController::class, 'showBookingRequests']);
-        Route::post('/order/{orderId}/passenger/{passengerId}/respond-booking', [ShowController::class, 'respondToBookingRequest']);
-        // Маршрут для запроса на бронирование пассажиром
-        Route::post('/order/{orderId}/request-booking', [ShowController::class, 'requestBooking']);
+        Route::get('/driver/{driverId}/booking-requests', [ShowController::class, 'showBookingRequests'])->name('driver.bookingRequests');
 
+        Route::post('/order/{orderId}/passenger/{passengerId}/respond-booking', [ShowController::class, 'respondToBookingRequest'])->name('driver.respondBookingRequest');
+        // Маршрут для запроса на бронирование пассажиром
+        Route::post('/order/{orderId}/request-booking', [ShowController::class, 'requestBooking'])->name('order.requestBooking');
+        Route::post('/order/{orderId}/cancel-booking-request', [ShowController::class, 'cancelBookingRequest'])->name('order.cancelBookingRequest');
 
         // Добавляем маршрут для всех поездок водителя
         Route::get('/driver/orders', 'IndexController@driverOrders')->name('driver.orders');

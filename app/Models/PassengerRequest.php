@@ -9,7 +9,7 @@ class PassengerRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['order_id', 'passenger_id', 'approved_at'];
+    protected $fillable = ['order_id', 'passenger_id', 'approved_at', 'message'];
 
     public function order()
     {

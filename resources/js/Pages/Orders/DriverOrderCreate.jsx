@@ -29,7 +29,7 @@ export default function DriverOrderCreate({ className = '' }) {
         price: '',
         available_seats: 1,
         description: '',
-        status_order_id: 2,  // Новое поле для выбора статуса бронирования
+        status_order_id: 1,  // Новое поле для выбора статуса бронирования
     });
     const [citySuggestions, setCitySuggestions] = useState([]);
     const [cities, setCities] = useState([]); // Состояние для всех городов
@@ -521,34 +521,50 @@ export default function DriverOrderCreate({ className = '' }) {
             {step === 12 && (
                 <div className="card">
                     <div className="card-header text-center">
-                        <h2>Выберите статус бронирования</h2>
+                        <h2>Включите для ваших пассажиров Мгновенное бронирование</h2>
                     </div>
-                    <div className="card-body" style={{ textAlign: 'center'}}>
-                        <div className="form-group" >
-                            <label style={{display: 'flex', alignItems: 'center', alignContent: 'center', fontSize: '22px'}}>
-                                <input
-                                    type="radio"
-                                    name="status_order_id"
-                                    value="2"
-                                    checked={Number(data.status_order_id) === 2}
-                                    onChange={(e) => setData('status_order_id', Number(e.target.value))}
-                                    style={{ marginRight: '30px', marginBottom: '5px', color: '#eea236' }}
-                                />
-                                После подтверждения водителем
-                            </label>
+                        <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold', color: '#eea236', marginBottom: '20px', marginTop: '20px'}}>
+                            Не нужно просматривать каждый запрос, прежде чем он истечет
                         </div>
+                        <div style={{ textAlign: 'center', fontSize: '18px', fontWeight: 'bold', color: '#eea236', marginBottom: '20px'}}>
+                           Пассажирам нравится получать ответ сразу же
+                        </div>
+                    <div className="card-body" style={{ textAlign: 'center'}}>
                         <div className="form-group">
-                            <label style={{display: 'flex', alignItems: 'center', alignContent: 'center', fontSize: '22px'}}>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                alignContent: 'center',
+                                fontSize: '22px'
+                            }}>
                                 <input
                                     type="radio"
                                     name="status_order_id"
                                     value="1"
                                     checked={Number(data.status_order_id) === 1}
                                     onChange={(e) => setData('status_order_id', Number(e.target.value))}
-                                    style={{ marginRight: '30px', marginBottom: '5px' }}
+                                    style={{marginRight: '30px', marginBottom: '5px'}}
                                 />
-                                Мгновенное бронирование
+                                Оставить Мгновенное бронирование
                             </label>
+                            <div className="form-group">
+                                <label style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    alignContent: 'center',
+                                    fontSize: '22px'
+                                }}>
+                                    <input
+                                        type="radio"
+                                        name="status_order_id"
+                                        value="2"
+                                        checked={Number(data.status_order_id) === 2}
+                                        onChange={(e) => setData('status_order_id', Number(e.target.value))}
+                                        style={{marginRight: '30px', marginBottom: '5px', color: '#eea236'}}
+                                    />
+                                    Просматривать каждый запрос
+                                </label>
+                            </div>
                         </div>
                         <div className="flex">
                             <SecondaryButton type="button" onClick={handlePrev} className="btn btn-secondary">

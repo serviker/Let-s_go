@@ -2,9 +2,11 @@
 
 namespace App\Notifications;
 
+use AllowDynamicProperties;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
+#[AllowDynamicProperties]
 class PassengerCancelledOrder extends Notification
 {
     protected $order;
@@ -27,7 +29,7 @@ class PassengerCancelledOrder extends Notification
     public function toArray($notifiable)
     {
         return [
-            '$name' => $this->name,
+            'name' => $this->name,
             'date_time_departure' => str_replace(' ', 'T', $this->date_time_departure),
             'fromCity' => $this->fromCity,
             'toCity' => $this->toCity,

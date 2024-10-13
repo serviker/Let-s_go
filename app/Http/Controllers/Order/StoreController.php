@@ -9,6 +9,7 @@ use App\Models\Driver;
 use App\Models\OrderIntermediateAddress;
 use App\Models\StatusOrder;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
@@ -85,10 +86,13 @@ class StoreController extends Controller
        // Log::info('Order/StoreController Driver info:', ['driver_id' => $driver->id, 'user_id' => $userId]);
 
         try {
+            // Создание даты и времени отправления
+            $dateTimeDeparture = Carbon::createFromFormat('Y-m-d H:i', $data['date_time_departure'] . ' ' . $data['departure_time']);
+
             $order = Order::create([
                 'user_id' => $userId,
                 'driver_id' => $driver->id, // Устанавливаем driver_id на ID записи в таблице drivers
-                'date_time_departure' => $data['date_time_departure'] . ' ' . $data['departure_time'],
+                'date_time_departure' => $dateTimeDeparture,
                 'from_address_id' => $fromAddress->id,
                 'to_address_id' => $toAddress->id,
                 'price' => $data['price'],
@@ -101,11 +105,14 @@ class StoreController extends Controller
             if (!empty($intermediateAddresses)) {
                 $order->intermediateAddresses()->attach($intermediateAddresses);
             }
+            Log::info('Creating order with data:', [
+                'date_time_departure' => $dateTimeDeparture,
+                'other_fields' => $data // логируй и другие поля, если нужно
+            ]);
 
           //  Log::info('Order/StoreControllerData Received:', $data);
           //  Log::info('Order/StoreControllerData $order:', $order->toArray());
           //  Log::info('Order/StoreControllerOrder Created:', ['order_id' => $order->id, 'driver_id' => $order->driver_id]);
-
 
             return redirect()->route('order.show', $order->id)
                 ->with('success', 'Заказ успешно создан!')

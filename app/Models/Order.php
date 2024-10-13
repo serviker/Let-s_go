@@ -8,11 +8,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    // use SoftDeletes; // Временно убираем
 
     protected $table = 'orders';
 
     protected $dates = ['date_time_departure'];
+    protected $casts = [
+        'date_time_departure' => 'datetime',
+    ];
 
     protected $fillable = [
         'user_id',

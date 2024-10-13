@@ -5,6 +5,33 @@ import '../../../css/PassengerOrderDetails.css';
 import { Inertia } from '@inertiajs/inertia';
 import { Modal, Button } from 'react-bootstrap';
 
+
+const BookingRequestModal = ({ show, onClose, onSubmit }) => {
+    const [message, setMessage] = useState('');
+
+    if (!show) return null;
+
+    const handleSubmit = () => {
+        onSubmit(message);
+        setMessage(''); // Очищаем поле после отправки
+    };
+
+    return (
+        <div className="modal-content" style={{ width: '30%', border: '4px solid #eea236', borderRadius: '10px', position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
+            <h2 style={{ textAlign: 'center', color: 'black' }}>Отправить запрос на бронирование</h2>
+            <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                style={{ width: '90%', margin: '10px auto', display: 'block', padding: '20px', fontSize: '16px', fontWeight:'bold' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                <button onClick={onClose} className="btn btn-secondary">Закрыть</button>
+                <button onClick={handleSubmit} className="btn btn-primary">Отправить запрос</button>
+            </div>
+        </div>
+    );
+};
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
 
@@ -89,34 +116,6 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     );
 };
 
-const BookingRequestModal = ({ show, onClose, onSubmit }) => {
-    const [message, setMessage] = useState('');
-
-    if (!show) return null;
-
-    const handleSubmit = () => {
-        onSubmit(message);
-        setMessage(''); // Очищаем поле после отправки
-    };
-
-    return (
-        <div className="modal-content" style={{ width: '30%', border: '4px solid #eea236', borderRadius: '10px', position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
-            <h2 style={{ textAlign: 'center', color: 'black' }}>Отправить запрос на бронирование</h2>
-            <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                style={{ width: '90%', margin: '10px auto', display: 'block', padding: '20px', fontSize: '16px', fontWeight:'bold' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
-                <button onClick={onClose} className="btn btn-secondary">Закрыть</button>
-                <button onClick={handleSubmit} className="btn btn-primary">Отправить запрос</button>
-            </div>
-        </div>
-    );
-};
-
-
 const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
@@ -191,7 +190,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         }
     }, [availableSeats, isBooked]);
 
-    const handleBooking = async () => {
+ /*   const handleBooking = async () => {
         try {
             await Inertia.post(route('order.join', { order: order.id }), {
                 departure_city: currentPassenger ? currentPassenger.departureCity : '', // Передаем город отправления
@@ -209,14 +208,42 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         } catch (error) {
             console.error('Error booking the order:', error);
         }
+    };*/
+
+    const handleBooking = async () => {
+        try {
+            // Передаем данные о городах, даже если пользователь не пассажир
+            const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
+            const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
+
+            await Inertia.post(route('order.join', { order: order.id }), {
+                departure_city: departureCity,
+                arrival_city: arrivalCity,
+            }, {
+                onSuccess: () => {
+                    setIsBooked(true);
+                    setAvailableSeats(availableSeats - 1);
+                    Inertia.visit(route('dashboard'));
+                },
+                onError: (errors) => {
+                    alert('Error: ' + errors.message);
+                },
+            });
+        } catch (error) {
+            console.error('Error booking the order:', error);
+        }
     };
+
 
     const handleBookingRequest = async (message) => {
         console.log('Отправляемое сообщение в запросе:', message); // Логируем сообщение перед отправкой
         try {
+            // Передаем данные о городах, даже если пользователь не пассажир
+            const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
+            const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
             await Inertia.post(route('order.requestBooking', { orderId: order.id }), {
-                departure_city: currentPassenger ? currentPassenger.departureCity : '',
-                arrival_city: currentPassenger ? currentPassenger.arrivalCity : '',
+                departure_city: departureCity,
+                arrival_city: arrivalCity,
                 message, // Передаем сообщение
             }, {
                 onSuccess: () => {
@@ -516,22 +543,22 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
 PassengerOrderDetails.propTypes = {
     order: PropTypes.shape({
-        fromCity: PropTypes.string,
-        toCity: PropTypes.string,
-        intermediate_addresses: PropTypes.arrayOf(PropTypes.string),
+        fromCity: PropTypes.string.isRequired,
+        toCity: PropTypes.string.isRequired,
+        intermediate_addresses: PropTypes.arrayOf(PropTypes.string), // Убедись, что это массив строк
         price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-        dateTimeDeparture: PropTypes.string,
-        driverName: PropTypes.string,
-        driverPhotoUrl: PropTypes.string,
+        dateTimeDeparture: PropTypes.string.isRequired, // Если это поле всегда нужно
+        driverName: PropTypes.string.isRequired, // Если всегда есть имя водителя
+        driverPhotoUrl: PropTypes.string, // Может быть необязательным
         driverId: PropTypes.number.isRequired,
         description: PropTypes.string,
         availableSeats: PropTypes.number.isRequired,
-        status_order_id: PropTypes.number.isRequired, // Добавлено поле orderStatus
+        status_order_id: PropTypes.number.isRequired, // Статус заказа
         passengers: PropTypes.arrayOf(
             PropTypes.shape({
                 id: PropTypes.number.isRequired,
                 name: PropTypes.string.isRequired,
-                departureCity: PropTypes.string,
+                departureCity: PropTypes.string, // Если это может быть необязательным
                 arrivalCity: PropTypes.string,
                 departureAddress: PropTypes.string,
                 arrivalAddress: PropTypes.string,
@@ -540,5 +567,6 @@ PassengerOrderDetails.propTypes = {
         ),
     }).isRequired,
 };
+
 
 export default PassengerOrderDetails;

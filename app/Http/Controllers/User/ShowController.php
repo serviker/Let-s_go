@@ -10,7 +10,7 @@ use App\Models\Review;
 
 class ShowController extends BaseController
 {
-    public function __invoke(Client $client) {
+    public function __invoke(User $client) {
 
         return view('client.show', compact('client'));
     }

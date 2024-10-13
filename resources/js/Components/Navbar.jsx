@@ -614,6 +614,16 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                                         </Link>
                                                     </li>
                                                     <li>
+                                                        <Link className="dropdown-item"
+                                                              href={route('booking.notification')}>
+                                                            Бронирование
+                                                            {/*{unreadCount > 0 && (*/}
+                                                            {/*    <span*/}
+                                                            {/*        className="notification-badge">{unreadCount}</span>*/}
+                                                            {/*)}*/}
+                                                        </Link>
+                                                    </li>
+                                                    <li>
                                                         <Link href={route('incoming.show')}>Входящие сообщения</Link>
                                                     </li>
 

@@ -11,6 +11,7 @@ use App\Models\PassengerRequest;
 use App\Models\User;
 use App\Notifications\BookingRequestApproved;
 use App\Notifications\BookingRequestDenied;
+use App\Notifications\BookingRequestNotification;
 use App\Notifications\DriverCancelledOrder;
 use App\Notifications\PassengerCancelledOrder;
 use Exception;
@@ -29,7 +30,7 @@ class ShowController extends Controller
     {
         // Get the authenticated user
         $user = Auth::user();
-
+        Log::info('Before Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
         // Извлечь критерии поиска из session
         $sessionCriteria = session('searchCriteria', []);
 
@@ -47,15 +48,15 @@ class ShowController extends Controller
         $car = ($driver && $driver->user && $driver->user->cars->isNotEmpty()) ? $driver->user->cars->first() : null;
 
 
-       /* if ($driver) {
-            Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $driver->user->id]);
-        } else {
-            Log::warning('Order/ShowController: Driver not found for order', ['driver_id' => $order->driver_id]);
-        }
-        Log::info('Order/ShowController Retrieved Driver:', [
-            'driver_id' => $driver ? $driver->id : 'Not Found',
-            'user_id' => $driver && $driver->user ? $driver->user->id : 'No User'
-        ]);*/
+       // if ($driver) {
+       //     Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $driver->user->id]);
+       // } else {
+       //     Log::warning('Order/ShowController: Driver not found for order', ['driver_id' => $order->driver_id]);
+       // }
+       // Log::info('Order/ShowController Retrieved Driver:', [
+       //     'driver_id' => $driver ? $driver->id : 'Not Found',
+       //     'user_id' => $driver && $driver->user ? $driver->user->id : 'No User'
+       // ]);
 
 
        // Log::info('Order/ShowController $driver:', ['driver_id' => $order->driver_id]);
@@ -109,8 +110,9 @@ class ShowController extends Controller
             'status_order_id' => $order->status_order_id, // Передаем статус бронирования
             'passengerRequests' => $passengerRequests,
         ];
+        Log::info('After Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+        Log::info('Order/ShowController Created $data:', $data);
 
-       // Log::info('Order/ShowControllerOrder Created $data:', $data);
 
         // Check if the authenticated user is the driver
         if ($user && $user->id === $order->driver_id) {
@@ -118,15 +120,15 @@ class ShowController extends Controller
             $isOrderCreated = session('isOrderCreated', false);
 
             // Если поездка создается впервые, устанавливаем флаг в сессию
-          /*  if ($isOrderCreated === false) {
-                session(['isOrderCreated' => true]);
-                return Inertia::render('Orders/DriverOrderDetails', [
-                    'order' => $data,
-                    'canJoin' => false,
-                    'searchCriteria' => $sessionCriteria,
-                    'isOrderCreated' => true // Указываем, что поездка успешно создана
-                ]);
-            } else {*/
+          //  if ($isOrderCreated === false) {
+          //      session(['isOrderCreated' => true]);
+          //      return Inertia::render('Orders/DriverOrderDetails', [
+          //          'order' => $data,
+         //           'canJoin' => false,
+          //          'searchCriteria' => $sessionCriteria,
+          //          'isOrderCreated' => true // Указываем, что поездка успешно создана
+          //      ]);
+          //  } else {
                 // После перезагрузки не передаем параметр для предотвращения повторной перезагрузки
                 session(['isOrderCreated' => false]);
                 return Inertia::render('Orders/DriverOrderDetails', [
@@ -147,6 +149,101 @@ class ShowController extends Controller
             'flash' => session()->get('flash', []), // Передаем flash-сообщения в компонент
         ]);
     }
+
+   /* public function __invoke(Order $order)
+    {
+        // Получаем аутентифицированного пользователя
+        $user = Auth::user();
+        // Получение даты отправления из сессии
+        //$date_time_departure = session('date_time_departure', $order->date_time_departure);
+
+        Log::info('Лог перед изменениями __invoke/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+
+        // Извлекаем критерии поиска из session
+        $sessionCriteria = session('searchCriteria', []);
+
+        // Извлекаем адреса отправления и прибытия
+        $fromAddress = $order->fromAddress;
+        $toAddress = $order->toAddress;
+
+        // Получаем информацию о водителе через driver_id
+        $driver = Driver::with('user.cars')->find($order->driver_id);
+
+        // Проверяем, что водитель существует и у него есть машины
+        $car = ($driver && $driver->user && $driver->user->cars->isNotEmpty()) ? $driver->user->cars->first() : null;
+
+        // Обрабатываем список пассажиров
+        $passengers = $order->passengers->map(function ($passenger) {
+            return [
+                'id' => $passenger->id,
+                'name' => $passenger->name,
+                'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
+                'departureCity' => $passenger->pivot->departure_city ?? 'Unknown',
+                'arrivalCity' => $passenger->pivot->arrival_city ?? 'Unknown',
+                'seats' => $passenger->pivot->seats
+            ];
+        });
+
+        // Проверяем, является ли пользователь пассажиром в этом заказе
+        $isPassenger = $order->passengers()->where('passenger_id', $user->id)->exists();
+
+        // Загружаем запросы от пассажиров
+        $passengerRequests = $order->passengerRequests;
+        if ($passengerRequests->isEmpty()) {
+            Log::info('Нет запросов пассажиров для заказа с ID: ' . $order->id);
+        } else {
+            Log::info('Запросы пассажиров загружены для заказа:', $passengerRequests->toArray());
+        }
+
+        // Формируем данные для передачи в представление
+        $data = [
+            'id' => $order->id,
+            'departureAddress' => $fromAddress->street . ' ' . $fromAddress->house ?? 'Unknown',
+            'arrivalAddress' => $toAddress->street . ' ' . $toAddress->house ?? 'Unknown',
+            'fromCity' => $fromAddress->city ?? 'Unknown',
+            'toCity' => $toAddress->city ?? 'Unknown',
+            'intermediate_addresses' => $order->intermediateAddresses()->pluck('city')->toArray(),
+            'price' => (float)$order->price,
+            'driverName' => $driver && $driver->user ? $driver->user->name : 'Unknown',
+            'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
+            'carColor' => $car ? $car->color : 'No car',
+            'carPhoto' => $car && $car->photoUrl ? asset('/' . $car->photoUrl) : null,
+            'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
+            'driverPhotoUrl' => $driver && $driver->user && $driver->user->photoUrl ? asset('/' . $driver->user->photoUrl) : null,
+            'driverId' => $driver ? $driver->id : 0,
+            'description' => $order->description ?? 'No description provided',
+            'availableSeats' => $order->available_seats ?? 'No available seats',
+            'passengers' => $passengers,
+            'isBooked' => $isPassenger,
+            'searchCriteria' => $sessionCriteria,
+            'status_order_id' => $order->status_order_id,
+            'passengerRequests' => $passengerRequests,
+        ];
+        Log::info('Лог после изменениями __invoke/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+
+        // Проверяем, является ли пользователь водителем
+        if ($user && $user->id === $order->driver_id) {
+            $isOrderCreated = session('isOrderCreated', false);
+            session(['isOrderCreated' => false]);
+            return Inertia::render('Orders/DriverOrderDetails', [
+                'order' => $data,
+                'canJoin' => false,
+                'searchCriteria' => $sessionCriteria,
+                'isOrderCreated' => false,
+                'flash' => session()->get('flash', []),
+            ]);
+        }
+
+        // Если пользователь пассажир
+        return Inertia::render('Orders/PassengerOrderDetails', [
+            'order' => $data,
+            'canJoin' => !$isPassenger,
+            'searchCriteria' => $sessionCriteria,
+            'flash' => session()->get('flash', []),
+        ]);
+    }*/
+
+
     /* Метод requestBooking
     Этот метод обрабатывает запросы на бронирование, в зависимости от статуса заказа.
     Если статус заказа "После подтверждения водителем", он создает запрос на бронирование.
@@ -172,6 +269,9 @@ class ShowController extends Controller
                 'passenger_id' => Auth::id(),
                 'message' => $request->input('message'), // Сохраняем текст сообщения
             ]);
+
+            // Уведомляем водителя о запросе на бронирование
+            $order->driver->notify(new BookingRequestNotification($order, Auth::user()->name));
 
             session()->flash('message', 'Запрос на бронирование отправлен водителю.');
             return redirect()->route('order.show', ['order' => $orderId]);
@@ -199,7 +299,7 @@ class ShowController extends Controller
         // Для проверки данных
         Log::info('Orders showBookingRequests:', $orders->toArray());
 
-        return Inertia::render('Bookings/BookingRequests', [
+        return Inertia::render('Bookings/BookingComponent', [
             'orders' => $orders,
         ]);
     }
@@ -209,7 +309,7 @@ class ShowController extends Controller
     Этот метод отвечает на запросы на бронирование.
     Если запрос одобрен, он вызывает метод joinOrder, чтобы добавить пассажира к поездке.
      В противном случае он удаляет запрос.*/
-    public function respondToBookingRequest(Request $request, $orderId, $passengerId)
+   /* public function respondToBookingRequest(Request $request, $orderId, $passengerId)
     {
         $order = Order::findOrFail($orderId);
         $passengerRequest = $order->passengerRequests()
@@ -219,12 +319,22 @@ class ShowController extends Controller
         Log::info('respondToBookingRequest Data: ', $request->all());
 
         if ($request->approve === true) {
+        //  if ($request->approve) {
             $passengerRequest->approved_at = now();// Заполняем колонку approved_at текущей датой
             $passengerRequest->save(); // Сохраняем изменения
 
             // Отправляем уведомление о подтверждении
             $passenger = User::findOrFail($passengerId);
             $passenger->notify(new BookingRequestApproved($order, $passenger->name));
+
+            // Прежде чем вызывать метод joinOrder, убедитесь, что у вас есть все нужные данные
+            // Вы можете передавать дополнительные данные в сессию для последующего использования
+            $request->session()->put('searchCriteria', [
+                'departureCity' => $passengerRequest->departure_city,
+                'arrivalCity' => $passengerRequest->arrival_city,
+                'seats' => $passengerRequest->seats,
+            ]);
+
             // Подтверждение бронирования
             // Направляем на метод joinOrder, чтобы пассажир добавился к поездке
             return $this->joinOrder($request, $orderId);
@@ -238,118 +348,278 @@ class ShowController extends Controller
             session()->flash('message', 'Запрос на бронирование отклонен.');
             return redirect()->route('order.show', ['order' => $orderId]);
         }
-    }
-
-    public function joinOrder(Request $request, $orderId)
+    }*/
+    public function respondToBookingRequest(Request $request, $orderId, $passengerId)
     {
-        $user = Auth::user();
+        $order = Order::findOrFail($orderId);
+        $passengerRequest = $order->passengerRequests()
+            ->where('passenger_id', $passengerId)
+            ->firstOrFail();
+
+        // Получаем данные из запроса или из заказа
+        $departureCity = $request->input('departureCity') ?? $order->fromAddress->city;
+        $arrivalCity = $request->input('arrivalCity') ?? $order->toAddress->city;
+        $seats = $request->input('seats', 1); // Количество мест из запроса
+
+        Log::info('respondToBookingRequest Data: ', $request->all());
+
+        if ($request->approve) {
+            $passengerRequest->approved_at = now(); // Подтверждаем бронирование
+            $passengerRequest->save();
+
+            // Логирование
+            Log::info("Passenger request approved for order {$orderId} and passenger {$passengerId}");
+
+            // Очищаем и задаем новые значения в сессии
+            session()->forget('searchCriteria');
+            session(['searchCriteria' => [
+                'departureCity' => $departureCity,
+                'arrivalCity' => $arrivalCity,
+                'seats' => 1,
+            ]]);
+
+            // Отправляем уведомление пассажиру
+            $passenger = User::findOrFail($passengerId);
+            $passenger->notify(new BookingRequestApproved($order, $passenger->name));
+
+            // Добавляем пассажира к заказу через метод joinOrder
+            try {
+                $request->merge([
+                    'passenger_id' => $passengerId, // Добавляем ID пассажира
+                    'departure_city' => $departureCity,
+                    'arrival_city' => $arrivalCity,
+                    'seats' => $seats,
+                    'date_time_departure' => $order->date_time_departure // Передаем дату и время поездки
+                ]);
+
+                $this->joinOrder($request, $orderId);
+
+                return redirect()->route('order.show', ['order' => $orderId])
+                    ->with('message', 'Бронирование подтверждено, пассажир добавлен к поездке.');
+            } catch (\Exception $e) {
+                Log::error('respondToBookingRequest Ошибка при добавлении пассажира в поездку: ' . $e->getMessage());
+                return back()->withErrors('Произошла ошибка при добавлении пассажира к поездке. Попробуйте еще раз.');
+            }
+        } else {
+            // Отклонение бронирования
+            $passengerRequest->delete();
+
+            // Логируем отклонение
+            Log::info("respondToBookingRequest Запрос пассажира отклонен для заказа {$orderId} и пассажира {$passengerId}");
+            $passenger = User::findOrFail($passengerId);
+
+            // Отправляем уведомление об отклонении
+            $passenger->notify(new BookingRequestDenied($order, $passenger->name));
+
+            session()->flash('message', 'Запрос на бронирование отклонен.');
+            return redirect()->route('order.show', ['order' => $orderId]);
+    }
+}
+    // рабочий метод
+   /* public function joinOrder(Request $request, $orderId)
+    {
+        Log::info("Entering joinOrder method for order {$orderId}");
+
         $sessionCriteria = session('searchCriteria', []);
-        // Проверка, авторизован ли пользователь
-        if (!$user) {
-           // return response()->json(['message' => 'User not authenticated'], 401);
-            // Установите сообщение в сессии
+        $userId = auth()->id();
+        Log::info("Authenticated user ID: {$userId}");
+
+        if (!$userId) {
+            Log::warning("User is not authenticated.");
             session()->flash('message', 'Пользователь не аутентифицирован.');
             return redirect()->route('order.show', ['order' => $orderId]);
         }
 
         $order = Order::find($orderId);
-        // Проверка существования заказа
+        Log::info("joinOrder Order details: ", ['order' => $order]);
+
         if (!$order) {
-           // return response()->json(['message' => 'Order not found'], 404);
-            // Установите сообщение в сессии
+            Log::warning("Order not found for ID: {$orderId}");
             session()->flash('message', 'Поездка не найдена.');
             return redirect()->route('order.show', ['order' => $orderId]);
         }
-        // Проверка наличия мест
+
         if ($order->available_seats <= 0) {
-            //return response()->json(['message' => 'No available seats'], 400);
+            Log::info("No available seats for order {$orderId}");
             session()->flash('message', 'Нет свободных мест.');
             return redirect()->route('order.show', ['order' => $orderId]);
         }
 
-        // Получаем данные из критериев
-        $departureCity = $sessionCriteria['departureCity'] ?? null;
-        $arrivalCity = $sessionCriteria['arrivalCity'] ?? null;
-        $seats = $sessionCriteria['seats'] ?? 1; // Количество мест по умолчанию — 1
+        $seats = $sessionCriteria['seats'] ?? 1;
+        Log::info("joinOrder Requested seats: {$seats}");
 
-        // Проверяем, свободны ли заявленные места
         if ($order->available_seats < $seats) {
+            Log::info("Not enough available seats for order {$orderId}");
             return back()->withErrors('Недостаточно свободных мест для бронирования.');
         }
 
-        // Проверяем, что пользователь не является пассажиром в этом заказе
-        $exists = DB::table('order_passenger')
-            ->where('order_id', $orderId)
-            ->where('passenger_id', $user->id)
-            ->exists();
+        if ($order->driver_id === $userId) {
+            // Водитель добавляет пассажира
+            $passengerId = $request->passenger_id;
+            Log::info("Driver trying to add passenger with ID: {$passengerId}");
 
-        if ($exists) {
-           // return response()->json(['message' => 'Passenger already assigned to this order'], 400);
-            session()->flash('message', 'Пассажир уже назначен на этот заказ.');
-            return redirect()->route('order.show', ['order' => $orderId]);
+            if (!$passengerId) {
+                Log::error("Passenger ID not provided in request.");
+                return response()->json(['error' => 'ID пассажира не передан.'], 400);
+            }
+
+            $exists = DB::table('order_passenger')
+                ->where('order_id', $orderId)
+                ->where('passenger_id', $passengerId)
+                ->exists();
+            Log::info("Passenger exists check result: {$exists}");
+
+            if ($exists) {
+                Log::info("Passenger already assigned to order {$orderId}");
+                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                return redirect()->route('order.show', ['order' => $orderId]);
+            }
+
+            $order->passengers()->attach($passengerId, [
+                'departure_city' => $request->departure_city,
+                'arrival_city' => $request->arrival_city,
+                'seats' => $seats,
+                'date_time_departure' => $order->date_time_departure // Передаем дату и время поездки
+            ]);
+
+            Log::info("Passenger {$passengerId} attached to order {$orderId}");
+            Log::info('Order joinOrder departure date and time: ' . $order->date_time_departure);
+
+        } else {
+            // Пользователь добавляется как пассажир
+            $exists = DB::table('order_passenger')
+                ->where('order_id', $orderId)
+                ->where('passenger_id', $userId)
+                ->exists();
+            Log::info("User exists check result: {$exists}");
+
+            if ($exists) {
+                Log::info("User already assigned to order {$orderId}");
+                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                return redirect()->route('order.show', ['order' => $orderId]);
+            }
+
+            $order->passengers()->attach($userId, [
+                'departure_city' => $request->departure_city,
+                'arrival_city' => $request->arrival_city,
+                'seats' => $seats,
+                'date_time_departure' => $order->date_time_departure // Передаем дату и время поездки
+
+
+            ]);
+            Log::info("joinOrder User {$userId} attached to order {$orderId}");
         }
 
-        // Проверяем статус заказа
-       // if ($order->statusOrder->name_status === 'После подтверждения водителем') {
-
-        // Добавляем пользователя в список пассажиров
-        $order->passengers()->attach($user->id, [
-            'seats' => $seats,
-            'departure_city' => $departureCity,
-            'arrival_city' => $arrivalCity
-        ]);
-          //  return response()->json(['message' => 'Вы присоединились к поездке.']);
-     //   }
         // Обновляем количество доступных мест
         $order->available_seats -= $seats;
         $order->save();
+        Log::info("joinOrder Order {$orderId} updated with new available seats: {$order->available_seats}");
+        Log::info('joinOrder Order departure date and time: ' . $order->date_time_departure);
+
         // Перенаправляем на страницу заказа
+        return redirect()->route('order.show', ['order' => $orderId]);
+    }*/
+
+    public function joinOrder(Request $request, $orderId)
+    {
+        Log::info("Entering joinOrder method for order {$orderId}");
+
+        $sessionCriteria = session('searchCriteria', []);
+        $userId = auth()->id();
+        Log::info("Authenticated user ID: {$userId}");
+
+        if (!$userId) {
+            Log::warning("User is not authenticated.");
+            session()->flash('message', 'Пользователь не аутентифицирован.');
+            return redirect()->route('order.show', ['order' => $orderId]);
+        }
+
+        $order = Order::find($orderId);
+        Log::info("joinOrder Order details: ", ['order' => $order]);
+
+        if (!$order) {
+            Log::warning("Order not found for ID: {$orderId}");
+            session()->flash('message', 'Поездка не найдена.');
+            return redirect()->route('order.show', ['order' => $orderId]);
+        }
+
+        if ($order->available_seats <= 0) {
+            Log::info("No available seats for order {$orderId}");
+            session()->flash('message', 'Нет свободных мест.');
+            return redirect()->route('order.show', ['order' => $orderId]);
+        }
+
+        $seats = $sessionCriteria['seats'] ?? 1;
+        Log::info("joinOrder Requested seats: {$seats}");
+
+        if ($order->available_seats < $seats) {
+            Log::info("Not enough available seats for order {$orderId}");
+            return back()->withErrors('Недостаточно свободных мест для бронирования.');
+        }
+
+        if ($order->driver_id === $userId) {
+            // Водитель добавляет пассажира
+            $passengerId = $request->passenger_id;
+            Log::info("Driver trying to add passenger with ID: {$passengerId}");
+
+            if (!$passengerId) {
+                Log::error("Passenger ID not provided in request.");
+                return response()->json(['error' => 'ID пассажира не передан.'], 400);
+            }
+
+            $exists = DB::table('order_passenger')
+                ->where('order_id', $orderId)
+                ->where('passenger_id', $passengerId)
+                ->exists();
+            Log::info("Passenger exists check result: {$exists}");
+
+            if ($exists) {
+                Log::info("Passenger already assigned to order {$orderId}");
+                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                return redirect()->route('order.show', ['order' => $orderId]);
+            }
+
+            $order->passengers()->attach($passengerId, [
+                'departure_city' => $request->departure_city,
+                'arrival_city' => $request->arrival_city,
+                'seats' => $seats,
+                'date_time_departure' => $order->date_time_departure
+            ]);
+
+            Log::info("Passenger {$passengerId} attached to order {$orderId}");
+
+        } else {
+            // Пользователь добавляется как пассажир
+            $exists = DB::table('order_passenger')
+                ->where('order_id', $orderId)
+                ->where('passenger_id', $userId)
+                ->exists();
+            Log::info("User exists check result: {$exists}");
+
+            if ($exists) {
+                Log::info("User already assigned to order {$orderId}");
+                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                return redirect()->route('order.show', ['order' => $orderId]);
+            }
+
+            $order->passengers()->attach($userId, [
+                'departure_city' => $request->departure_city,
+                'arrival_city' => $request->arrival_city,
+                'seats' => $seats,
+                'date_time_departure' => $order->date_time_departure
+            ]);
+            Log::info("joinOrder User {$userId} attached to order {$orderId}");
+
+            // Обновляем количество доступных мест
+            $order->available_seats -= $seats;
+            $order->save();
+            Log::info("joinOrder Order {$orderId} updated with new available seats: {$order->available_seats}");
+            Log::info('joinOrder Order departure date and time: ' . $order->date_time_departure);
+        }
+
         return redirect()->route('order.show', ['order' => $orderId]);
     }
 
-    /* public function joinOrder(Request $request, $orderId)
-{
-    $user = Auth::user();
-    if (!$user) {
-        return response()->json(['message' => 'User not authenticated'], 401);
-    }
-
-    // Validate incoming request data
-    $validatedData = $request->validate([
-        'departureCity' => 'required|string',
-        'arrivalCity' => 'required|string',
-        'seats' => 'required|integer|min:1'
-    ]);
-
-    // Find the order by its ID
-    $order = Order::find($orderId);
-    if (!$order) {
-        return response()->json(['message' => 'Order not found'], 404);
-    }
-
-    if ($order->available_seats < $validatedData['seats']) {
-        return response()->json(['message' => 'Not enough available seats'], 400);
-    }
-
-    // Check if the user is already a passenger
-    $exists = $order->passengers()->where('passenger_id', $user->id)->exists();
-    if ($exists) {
-        return response()->json(['message' => 'Passenger already assigned to this order'], 400);
-    }
-
-    // Attach the passenger to the order
-    $order->passengers()->attach($user->id, [
-        'seats' => $validatedData['seats'],
-        'departure_city' => $validatedData['departureCity'],
-        'arrival_city' => $validatedData['arrivalCity'],
-    ]);
-
-    // Update available seats
-    $order->available_seats -= $validatedData['seats'];
-    $order->save();
-
-    return redirect()->route('order.show', ['order' => $orderId]);
-}*/
 
     public function cancelBookingRequest(Request $request, $orderId)
     {
@@ -369,8 +639,10 @@ class ShowController extends Controller
 
         // return response()->json(['message' => 'Запрос не найден.'], 404);
         session()->flash('message', 'Запрос не найден.');
+        return redirect()->route('order.show', ['order' => $orderId]);
     }
 
+    // метод для логирования
     protected function logPassengerAction($user, $order, $action)
     {
         Log::info('Passenger ' . $action, [
@@ -416,11 +688,6 @@ class ShowController extends Controller
 
         // Отправляем уведомление водителю
         $driver = $order->driver;
-
-        // Логируем информацию о том, что пассажир отменил бронь
-        // Логирование действия
-        $this->logPassengerAction($user, $order, 'canceled booking');
-
         // Уведомление через систему уведомлений Laravel
         $driver->notify(new PassengerCancelledOrder(
             $order,
@@ -430,11 +697,21 @@ class ShowController extends Controller
             $order->fromAddress->city, // Город отправления
             $order->toAddress->city // Город прибытия
         ));
+        // Логируем информацию о том, что пассажир отменил бронь
+        // Логирование действия
+        $this->logPassengerAction($user, $order, 'canceled booking');
 
-        //$passenger->seats, // Количество мест, которое было забронировано
+        // Удаляем запрос на бронирование из таблицы passenger_requests
+        $requestToCancel = PassengerRequest::where('order_id', $orderId)
+            ->where('passenger_id', $user->id)
+            ->first();
+
+        if ($requestToCancel) {
+            $requestToCancel->delete();
+        }
 
         // Уведомление по email
-      /* try {
+       try {
             Notification::route('mail', $driver->email)
                 ->notify(new PassengerCancelledOrder(
                     $order,
@@ -445,13 +722,15 @@ class ShowController extends Controller
                     $request->cancellation_reason,
                 ));
             Log::info('Уведомление отправлено водителю на Email: ' . $driver->id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Не удалось отправить уведомление водителю на Email: ' . $driver->id . '. Ошибка: ' . $e->getMessage());
-        } */
+        }
 
+        // Логируем успешное завершение отмены
+        Log::info("Passenger {$user->name} has cancelled booking for order ID {$orderId}");
+        Log::info('cancelOrderPassenger Order departure date and time: ' . $order->date_time_departure);
         // Возвращаем Inertia-ответ
-        return redirect()->route('order.show', ['order' => $orderId])
-            ->with('success', 'Вы успешно отменили бронирование.');
+        return redirect()->route('order.show', ['order' => $orderId]);
 //            ->with('notification', [
 //                'passenger_name' => $user->name,
 //                'cancellation_reason' => $request->cancellation_reason,
@@ -459,6 +738,75 @@ class ShowController extends Controller
 //           ]);
 
     }
+  /*  public function cancelOrderPassenger(Request $request, $orderId)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        $order = Order::findOrFail($orderId);
+
+        // Получение даты отправления
+        $date_time_departure = $order->date_time_departure;
+
+        // Сохранение даты в сессию
+        session(['date_time_departure' => $date_time_departure]);
+
+        // Проверяем, является ли пользователь пассажиром в этом заказе
+        $passenger = DB::table('order_passenger')
+            ->where('order_id', $orderId)
+            ->where('passenger_id', $user->id)
+            ->first();
+
+        if (!$passenger) {
+            return response()->json(['message' => 'Passenger not found in this order'], 400);
+        }
+
+        // Увеличиваем количество свободных мест
+        $order->available_seats += $passenger->seats;
+
+        // Удаляем пассажира из таблицы order_passenger
+        $order->passengers()->detach($user->id);
+
+        // Лог перед изменениями в Order
+        Log::info('Лог перед изменениями в Order cancelOrderPassenger:', ['order_id' => $orderId, 'date_time_departure' => $date_time_departure]);
+
+        // Обновляем заказ с сохранением исходной даты отправления
+        $order->update([
+            'available_seats' => $order->available_seats,
+            'date_time_departure' => $requestData['date_time_departure'] ?? $order->date_time_departure,
+        ]);
+
+        // Уведомляем водителя об отмене
+        $driver = $order->driver;
+        $driver->notify(new PassengerCancelledOrder(
+            $order,
+            $request->cancellation_reason,
+            $user->name,
+            $date_time_departure, // Используем дату поездки, не изменяя её
+            $order->fromAddress->city,
+            $order->toAddress->city
+        ));
+
+        // Удаляем запрос на бронирование
+        $requestToCancel = PassengerRequest::where('order_id', $orderId)
+            ->where('passenger_id', $user->id)
+            ->first();
+
+        if ($requestToCancel) {
+            $requestToCancel->delete();
+        }
+
+        // Логируем успешное завершение отмены
+        Log::info("Passenger {$user->name} has cancelled booking for order ID {$orderId}");
+        // Лог после изменениями в Order
+        Log::info('Лог после изменения в Order cancelOrderPassenger:', ['order_id' => $orderId, 'date_time_departure' => $date_time_departure]);
+        // Возвращаем Inertia-ответ с успешным сообщением
+        return redirect()->route('order.show', ['order' => $orderId])
+            ->with('success', 'Вы успешно отменили бронирование.');
+    }*/
 
     public function cancelOrderDriver(Request $request, $orderId)
     {
@@ -545,6 +893,8 @@ class ShowController extends Controller
         $order->passengers()->detach(); // Убираем всех пассажиров из заказа
         $order->delete(); // Удаляем сам заказ
        // Log::info('Order deleted: ' . $orderId);
+
+        Log::info('cancelOrderPassenger Order departure date and time: ' . $order->date_time_departure);
 
         // Перенаправляем пользователя с подтверждением отмены
         return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');

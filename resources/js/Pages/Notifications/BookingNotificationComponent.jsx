@@ -1,86 +1,119 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePage } from '@inertiajs/react';
 import '../../../css/PassengerNotificationComponent.css';
 import { Button } from "@headlessui/react";
-import { Inertia } from "@inertiajs/inertia"; // Ваши кастомные стили
-import axios from 'axios'; // Не забудьте импортировать axios
+import { Inertia } from "@inertiajs/inertia";
+import axios from 'axios';
 
-const BookingNotificationList = ({ orders, onMarkAsRead, onDeleteNotification }) => {
-    const [message, setMessage] = useState(null); // Для отображения ошибок и успехов
+const BookingNotificationComponent = () => {
+    const { props } = usePage();
+    const notifications = props.notifications || [];
+    const orders = props.orders || [];  // Предполагаем, что заказы переданы в props
+    const [message, setMessage] = useState(null);
 
-    console.log('Orders:', orders); // Проверка получения данных
-
-    const handleResponse = async (orderId, passengerId, approve) => {
+    // Функция для пометки уведомления как прочитанного и редиректа на страницу запросов бронирования
+    const handleReadAndRedirect = async (notificationId) => {
         try {
-            // Отправка запроса на сервер для одобрения или отклонения
-            await Inertia.post(route('driver.respondBookingRequest', { orderId, passengerId }), {
-                approve: approve,
+            // Помечаем уведомление как прочитанное
+            await axios.post(`/notifications/${notificationId}/read`);
+
+            // Перенаправляем на страницу запросов бронирования
+            Inertia.visit(route('driver.bookingRequests', { driverId: props.auth.user.id }), {
+                only: ['notifications/booking'], // Обновляем только уведомления после редиректа
+                preserveScroll: true     // Сохраняем позицию скролла
             });
-            setMessage({ type: 'success', text: approve ? 'Запрос одобрен!' : 'Запрос отклонен!' });
-            // Дополнительно помечаем уведомление как прочитанное
-            onMarkAsRead(orderId);
         } catch (error) {
-            setMessage({ type: 'error', text: 'Ошибка при обработке запроса.' });
-            console.error('Error handling request:', error);
+            console.error('Ошибка при пометке уведомления как прочитанного и редиректе:', error);
+        }
+    };
+
+    const deleteNotification = async (notificationId) => {
+        try {
+            await axios.delete(`/notifications/${notificationId}`);
+            Inertia.reload({ only: ['notifications'], preserveScroll: true });
+        } catch (error) {
+            console.error('Ошибка при удалении уведомления:', error);
+        }
+    };
+
+    // Функция для проверки, является ли пользователь водителем в данном заказе
+    const isDriverForOrder = (orderId) => {
+        const order = orders.find(order => order.id === orderId); // Ищем заказ по ID
+        return order && order.driver_id === props.auth.user.id;   // Сравниваем driver_id с текущим пользователем
+    };
+
+    const markAsRead = async (notificationId) => {
+        try {
+            await axios.post(`/notifications/${notificationId}/read`);
+
+            // После успешного запроса, перезапросить уведомления
+            /* await axios.get('/notifications').then((response) => {
+                 const updatedNotifications = response.data.props.notifications;
+                 Inertia.reload(); // Перезагрузить страницу с новыми уведомлениями
+             });*/
+
+            // Автоматически перезагрузить данные с помощью Inertia
+            Inertia.reload({
+                only: ['notifications'], // Перезагрузить только уведомления, если не хотите перезагружать всё
+                preserveScroll: true,    // Сохраняет позицию скролла при перезагрузке
+            });
+
+        } catch (error) {
+            console.error('Ошибка при пометке уведомления как прочитанного:', error);
         }
     };
 
     return (
         <div className="notification-container">
-            {message && <p className={message.type}>{message.text}</p>}
             <div className="notification-header">
                 <Button onClick={() => window.history.back()} className="btn btn-link">
                     &larr;
                 </Button>
-                <h2>Запросы на бронирование</h2>
+                <h2>Уведомления о бронировании</h2>
             </div>
 
             <div className="notifications-container">
-                {Array.isArray(orders) && orders.length === 0 ? (
-                    <p>Нет запросов на бронирование.</p>
+                {Array.isArray(notifications) && notifications.length === 0 ? (
+                    <p>Нет уведомлений о бронировании.</p>
                 ) : (
                     <ul className="notifications-list">
-                        {orders.map(order => (
-                            <li key={order.id} className="notification-item">
-                                <div className="notification-text">
-                                    <h2>Поездка из {order.fromCity} в {order.toCity}</h2>
-                                    <p>Доступные места: {order.available_seats}</p>
-                                    <p>Дата поездки: {new Date(order.date_time_departure).toLocaleDateString()}</p>
+                        {notifications.map(notification => {
+                            console.log("notification", notification);  // Логируем уведомление
 
-                                    <p>Запросы от пассажиров:</p>
-                                    <ul>
-                                        {order.passenger_requests.map(request => (
-                                            <li key={request.id}>
-                                                <p>Пассажир ID: {request.passenger_id}</p>
-                                                <p>Сообщение: {request.message}</p> {/* Отображение сообщения */}
-                                                <div>
-                                                    <button
-                                                        onClick={() => handleResponse(order.id, request.passenger_id, true)}
-                                                        className="btn btn-info"
-                                                        style={{ marginRight: '20px' }}>
-                                                        Одобрить
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleResponse(order.id, request.passenger_id, false)}
-                                                        className="btn btn-warning">
-                                                        Отклонить
-                                                    </button>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                            // Проверяем, является ли текущий пользователь водителем в этом заказе
+                            const isDriver = isDriverForOrder(notification.data.order_id);
 
-                                <div className="notification-small">
-                                    <small style={{ fontSize: '18px', marginLeft: '10px' }}>Дата/время запроса: {new Date(order.created_at).toLocaleString()}</small>
-                                    {!order.read_at ? (
-                                        <button className="btn btn-outline-info" onClick={() => onMarkAsRead(order.id)}>Прочитать</button>
-                                    ) : (
-                                        <button className="btn btn-danger" onClick={() => onDeleteNotification(order.id)}>Удалить</button>
-                                    )}
-                                </div>
-                            </li>
-                        ))}
+                            return (
+                                <li key={notification.id} className="notification-item">
+                                    <div className="notification-text">
+                                        <p>{notification.data?.message || 'Сообщение отсутствует'}</p>
+
+                                        {/* Показываем кнопку "Посмотреть запросы" только для водителя */}
+                                        {isDriver && (
+                                            <button
+                                                onClick={() => handleReadAndRedirect(notification.id)}
+                                                className="btn btn-info"
+                                            >
+                                                Посмотреть запросы
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="notification-small">
+                                        <small style={{ fontSize: '18px', marginLeft: '10px' }}>
+                                            Дата уведомления: {new Date(notification.created_at).toLocaleString()}
+                                        </small>
+
+                                        {!notification.read_at ? (
+                                            <button className="btn btn-outline-info"
+                                                    onClick={() => markAsRead(notification.id)}>Прочитать</button>
+                                        ) : (
+                                            <button className="btn btn-danger"
+                                                    onClick={() => deleteNotification(notification.id)}>Удалить</button>
+                                        )}
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
             </div>
@@ -88,54 +121,19 @@ const BookingNotificationList = ({ orders, onMarkAsRead, onDeleteNotification })
     );
 };
 
-export default BookingNotificationList;
+export default BookingNotificationComponent;
 
-// const BookingNotificationComponent = () => {
-//     // Получаем данные через Inertia
-//     const { props } = usePage();
-//     const notifications = props.notifications || []; // Убедиться, что notifications существует
-//
-//      console.log(props); // Проверить, что props содержит notifications
-//     // Добавляем отладочный лог для проверки полученных данных
-//      console.log('Полученные уведомления:', notifications);
-//
-//     // Обработка прочтения уведомления
-//     const markAsRead = async (notificationId) => {
-//         try {
-//             await axios.post(`/notifications/${notificationId}/read`);
-//
-//             // Автоматически перезагрузить данные с помощью Inertia
-//             Inertia.reload({
-//                 only: ['notifications'], // Перезагрузить только уведомления, если не хотите перезагружать всё
-//                 preserveScroll: true,    // Сохраняет позицию скролла при перезагрузке
-//             });
-//
-//         } catch (error) {
-//             console.error('Ошибка при пометке уведомления как прочитанного:', error);
-//         }
-//     };
-//
-//     // Обработка удаления уведомления
-//     const deleteNotification = async (notificationId) => {
-//         try {
-//             await axios.delete(`/notifications/${notificationId}`);
-//
-//             // Перезагрузить страницу с обновленным списком уведомлений
-//             Inertia.reload({
-//                 only: ['notifications'], // Перезагрузить только уведомления
-//                 preserveScroll: true,    // Сохраняет позицию скролла при перезагрузке
-//             });
-//
-//         } catch (error) {
-//             console.error('Ошибка при удалении уведомления:', error);
-//         }
-//     };
-//
-//     return (
-//         <div>
-//             <BookingNotificationList notifications={notifications} onMarkAsRead={markAsRead} onDeleteNotification={deleteNotification} />
-//         </div>
-//     );
-// };
-//
-// export default BookingNotificationComponent;
+
+
+
+/*// Проверяем, является ли пользователь водителем для каждого заказа
+const isDriverForOrder = (orderId) => {
+    const order = props.orders.find(order => order.id === orderId);
+    return order && order.driverId === props.auth.user.id;
+};
+
+ // Проверяем, является ли пользователь водителем в конкретном заказе
+const isDriver = (notification) => {
+    const orderDriverId = notification.data.order?.driver_id; // Предполагаем, что driver_id есть в данных заказа
+    return orderDriverId === props.auth.user.id;
+};*/

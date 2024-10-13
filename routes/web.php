@@ -50,7 +50,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Маршрут для уведомлений
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index'); // Это маршрут для страницы уведомлений
-    Route::get('/notifications/booking', [NotificationController::class, 'bookingNotification'])->name('notifications.bookingNotification'); // Это маршрут для страницы уведомлений
+    // Маршрут для получения уведомлений о бронировании:
+    Route::get('/notifications/booking', [NotificationController::class, 'bookingNotification'])->name('booking.notification'); // Это маршрут для страницы уведомлений
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
@@ -113,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders', 'StoreController')->name('order.store');
         Route::get('/orders/{order}', 'ShowController')->name('order.show');
         Route::get('/orders/{order}/edit', 'EditController')->name('order.edit');
-        Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
+       // Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
         Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
         Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');
@@ -124,6 +125,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/driver/{driverId}/booking-requests', [ShowController::class, 'showBookingRequests'])->name('driver.bookingRequests');
 
         Route::post('/order/{orderId}/passenger/{passengerId}/respond-booking', [ShowController::class, 'respondToBookingRequest'])->name('driver.respondBookingRequest');
+
         // Маршрут для запроса на бронирование пассажиром
         Route::post('/order/{orderId}/request-booking', [ShowController::class, 'requestBooking'])->name('order.requestBooking');
         Route::post('/order/{orderId}/cancel-booking-request', [ShowController::class, 'cancelBookingRequest'])->name('order.cancelBookingRequest');

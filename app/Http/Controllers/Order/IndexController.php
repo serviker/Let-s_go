@@ -93,7 +93,7 @@ class IndexController extends Controller
 
         // Получаем данные из запроса
         $searchCriteria = $request->only(['departureCity', 'arrivalCity', 'date', 'seats']);
-       // Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
+        Log::info('IndexController Search Criteria:', $searchCriteria); // Логируем критерии поиска
 
         // Сохраняем критерии поиска в сессию для последующего использования
         session()->put('searchCriteria', $searchCriteria);
@@ -143,7 +143,7 @@ class IndexController extends Controller
         }); */
 
 
-        // Log::info('IndexController/Orders:', $orders->toArray());
+         Log::info('IndexController/Orders:', $orders->toArray());
         // Перебор всех заказов и генерация URL для каждого
         $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
             return [

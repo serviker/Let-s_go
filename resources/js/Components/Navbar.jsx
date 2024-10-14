@@ -148,6 +148,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const [inputValue, setInputValue] = useState([] || ''); // Состояние для предложений
     const [isCitiesLoaded, setIsCitiesLoaded] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [cancellationCount, setCancellationCount] = useState(0);
+    const [bookingUnreadCount, setBookingUnreadCount] = useState(0);
     // Управление вторичным выпадающим списком для уведомлений
     const [notificationsDropdownOpen, setNotificationsDropdownOpen] = useState(false);
 
@@ -182,10 +184,30 @@ const Navbar = ({setOrders, orders, onSearch }) => {
             console.error("Error fetching unread notifications:", error);
         }
     };
+    const fetchBookingUnreadCount = async () => {
+        try {
+            const response = await fetch('/notifications/booking/unread-count');
+            const data = await response.json();
+            setBookingUnreadCount(data.unreadCount);
+        } catch (error) {
+            console.error("Error fetching unread booking notifications:", error);
+        }
+    };
+    const fetchCancellationCount = async () => {
+        try {
+            const response = await fetch('/notifications/cancellation-count');
+            const data = await response.json();
+            setCancellationCount(data.cancellationCount);
+        } catch (error) {
+            console.error("Error fetching cancellation notifications:", error);
+        }
+    };
 
-    // Вызываем функцию при монтировании компонента
+// Вызываем функции при монтировании компонента
     useEffect(() => {
         fetchUnreadCount();
+        fetchBookingUnreadCount();
+        fetchCancellationCount();
     }, []);
 
 
@@ -298,7 +320,6 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                 const newDate = e.target.value;
                 setDate(newDate ); // Возвращайте today's date, если новое значение пустое
             };
-
             const formattedDate = date ? format(parseISO(date), 'EE, d MMMM', { locale: ru }) : 'Сегодня';
 
     const onFromCityChange = (event, { newValue }) => {
@@ -342,13 +363,13 @@ const Navbar = ({setOrders, orders, onSearch }) => {
     const incrementPassenger = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        setPassengerCount(prevCount => (prevCount < 4 ? prevCount + 1 : prevCount));
+        setPassengerCount(prevCount => Math.min(4, Number(prevCount) + 1));
     };
 
     const decrementPassenger = (event) => {
         event.preventDefault();
         event.stopPropagation();
-        setPassengerCount(prevCount => (prevCount > 1 ? prevCount - 1 : prevCount));
+        setPassengerCount(prevCount => Math.max(1, Number(prevCount) - 1));
     };
 
     const handleSearch = async (event) => {
@@ -423,9 +444,6 @@ const Navbar = ({setOrders, orders, onSearch }) => {
         }
     };
 
-
-    //  window.location.href = `/passenger/orders?${searchParams.toString()}`;
-
     const handlePublishClick = (event) => {
         event.preventDefault();
         if (cars.length === 0) {
@@ -434,24 +452,19 @@ const Navbar = ({setOrders, orders, onSearch }) => {
             window.location.href = '/orders/create';
         }
     };
-
     const closeNoCarModal = () => {
         setShowNoCarModal(false);
     };
-
     const closeNoOrdersModal = () => {
         setShowNoOrdersModal(false);
     };
-
     const closeNoCompletedOrdersModal = () => {
         setShowNoCompletedOrdersModal(false);
 
     };
-
     const redirectToAddCar = () => {
         window.location.href = route('car.create');
     };
-
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -607,9 +620,8 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                                         <Link className="dropdown-item"
                                                               href={route('notifications.index')}>
                                                             Уведомления
-                                                            {unreadCount > 0 && (
-                                                                <span
-                                                                    className="notification-badge">{unreadCount}</span>
+                                                            {cancellationCount > 0 && (
+                                                                <span className="notification-badge">{cancellationCount}</span>
                                                             )}
                                                         </Link>
                                                     </li>
@@ -617,10 +629,9 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                                         <Link className="dropdown-item"
                                                               href={route('booking.notification')}>
                                                             Бронирование
-                                                            {/*{unreadCount > 0 && (*/}
-                                                            {/*    <span*/}
-                                                            {/*        className="notification-badge">{unreadCount}</span>*/}
-                                                            {/*)}*/}
+                                                            {bookingUnreadCount > 0 && (
+                                                                <span className="notification-badge">{bookingUnreadCount}</span>
+                                                            )}
                                                         </Link>
                                                     </li>
                                                     <li>
@@ -756,22 +767,6 @@ const Navbar = ({setOrders, orders, onSearch }) => {
                                     <img src="/images/calendar-1.png" alt="Calendar Icon" width="20" height="20"/>
                                 </div>
                             </div>
-
-                            {/*<div className="input-wrapper-calendar">*/}
-                            {/*    <DatePicker*/}
-                            {/*        value={date} // Ваше состояние даты*/}
-                            {/*        onChange={handleDateChange} // Обработчик изменения даты*/}
-                            {/*        dateFormat="yyyy-MM-dd" // Формат отображения даты*/}
-                            {/*        placeholderText="Выберите дату" // Плейсхолдер*/}
-                            {/*        className="input-field-calendar" // Кастомный класс для стилей*/}
-                            {/*        calendarClassName="custom-datepicker-calendar" // Кастомные стили для календаря*/}
-                            {/*    />*/}
-                            {/*    <div className="icon-wrapper">*/}
-                            {/*        <img src="/images/calendar-1.png" alt="Calendar Icon" width="20" height="20"/>*/}
-                            {/*    </div>*/}
-                            {/*</div>*/}
-
-
                             <div className="input-wrapper" onClick={togglePassengerDropdown}>
                                 <div className="button-overlay">
                                     <span>{passengerCount} {getPassengerLabel(passengerCount)}</span>

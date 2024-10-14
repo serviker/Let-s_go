@@ -156,10 +156,45 @@ class NotificationController extends Controller
 
         return response()->json(['message' => 'Notification deleted']);
     }
-
+    // Получаем общее количество всех уведомлений
     public function unreadCount()
     {
         $unreadCount = auth()->user()->unreadNotifications()->count();
         return response()->json(['unreadCount' => $unreadCount]);
     }
+    // Получаем количество уведомлений об отказах
+    public function cancellationNotificationCount()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Получаем количество уведомлений об отказах
+        $cancellationCount = $user->notifications()
+            ->whereIn('type', [
+                'App\Notifications\DriverCancelledOrder',
+                'App\Notifications\PassengerCancelledOrder'
+            ])
+            ->where('read_at', null) // Учитываем только непрочитанные
+            ->count();
+
+        return response()->json(['cancellationCount' => $cancellationCount]);
+    }
+    // Получаем количество уведомлений об бронированиях
+    public function bookingUnreadCount()
+    {
+        $user = Auth::user();
+        $unreadCount = $user->unreadNotifications()
+            ->whereIn('type', [
+                'App\Notifications\BookingRequestNotification',
+                'App\Notifications\BookingRequestApproved',
+                'App\Notifications\BookingRequestDenied'
+            ])
+            ->count();
+
+        return response()->json(['unreadCount' => $unreadCount]);
+    }
+
 }

@@ -215,10 +215,12 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             // Передаем данные о городах, даже если пользователь не пассажир
             const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
             const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
+            const seats = availableSeats;
 
             await Inertia.post(route('order.join', { order: order.id }), {
                 departure_city: departureCity,
                 arrival_city: arrivalCity,
+                seats: seats,
             }, {
                 onSuccess: () => {
                     setIsBooked(true);
@@ -241,10 +243,13 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             // Передаем данные о городах, даже если пользователь не пассажир
             const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
             const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
+            const seats = availableSeats;
+
             await Inertia.post(route('order.requestBooking', { orderId: order.id }), {
                 departure_city: departureCity,
                 arrival_city: arrivalCity,
                 message, // Передаем сообщение
+                seats: seats,
             }, {
                 onSuccess: () => {
                     alert('Запрос на бронирование отправлен водителю.');

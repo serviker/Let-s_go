@@ -6,7 +6,6 @@ import { Inertia } from "@inertiajs/inertia";
 import axios from 'axios';
 
 const BookingList = ({ orders, onMarkAsRead, onDeleteNotification, handleResponse }) => {
-   // console.log("Полученные данные из handleResponse:", handleResponse); // Отладка полученных данных
     return (
         <div className="notification-container">
             <div className="notification-header">
@@ -21,29 +20,35 @@ const BookingList = ({ orders, onMarkAsRead, onDeleteNotification, handleRespons
                 ) : (
                     <ul className="notifications-list">
                         {orders.map(order => (
-                            <li key={order.id} className="notification-item">
+                            <li key={order.order_id} className="notification-item">
                                 <div className="notification-text">
-                                    <h2>Поездка из {order.fromCity} в {order.toCity}</h2>
-                                    <p>Доступные места: {order.available_seats}</p>
-                                    <p>Дата поездки: {new Date(order.date_time_departure).toLocaleDateString()}</p>
-
-                                    {order.passenger_requests ? (
+                                    {/* Отображение информации о поездке */}
+                                    <h2 style={{ display: 'flex', alignContent: 'center', justifyContent: 'center'}}>Поездка {order.fromCity}
+                                        <div className="arrow">→</div>
+                                        {order.toCity}</h2>
+                                    <div style={{  display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
+                                    <div style={{ fontWeight: 'bold', color: 'gray', fontSize: '26px'}}>Доступных мест: {order.available_seats ?? 'Не указано'}</div>
+                                    <div style={{ fontWeight: 'bold', color: 'gray', fontSize: '26px', marginLeft: '40px'}}>Дата поездки: {new Date(order.date_time_departure).toLocaleDateString()}</div>
+                                    </div>
+                                    {/* Проверка наличия запросов от пассажиров */}
+                                    {order.passengerRequests && order.passengerRequests.length > 0 ? (
                                         <>
-                                            <p>Запросы от пассажиров:</p>
+                                            <h3 style={{ fontWeight: 'bold', color: '#eea236', textAlign: 'center'}}>Запросы от пассажиров:</h3>
                                             <ul>
-                                                {order.passenger_requests.map(request => (
-                                                    <li key={request.id}>
-                                                        <p>Пассажир ID: {request.passenger_id}</p>
-                                                        <p>Сообщение: {request.message}</p>
-                                                        <div>
+                                                {order.passengerRequests.map(request => (
+                                                    <li key={request.request_id}>
+                                                        <div style={{ fontWeight: 'bold', color: 'gray', textAlign: 'center', marginTop: '-10px', fontSize: '26px', marginBottom: '10px'}}>Пассажир: {request.passenger_name}</div>
+                                                        <div style={{ fontWeight: 'bold', color: 'gray', textAlign: 'center', marginTop: '-10px', fontSize: '26px'}}>Сообщение: {request.message || 'Без сообщения'}</div>
+                                                        <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
+                                                            {/* Кнопки для одобрения или отклонения */}
                                                             <button
-                                                                onClick={() => handleResponse(order.id, request.passenger_id, true)}
+                                                                onClick={() => handleResponse(order.order_id, request.passenger_id, true)}
                                                                 className="btn btn-info"
-                                                                style={{marginRight: '20px'}}>
+                                                                style={{ marginRight: '20px' }}>
                                                                 Одобрить
                                                             </button>
                                                             <button
-                                                                onClick={() => handleResponse(order.id, request.passenger_id, false)}
+                                                                onClick={() => handleResponse(order.order_id, request.passenger_id, false)}
                                                                 className="btn btn-warning">
                                                                 Отклонить
                                                             </button>
@@ -53,8 +58,7 @@ const BookingList = ({ orders, onMarkAsRead, onDeleteNotification, handleRespons
                                             </ul>
                                         </>
                                     ) : (
-                                        <p>Ответ на
-                                            бронирование: {order.response_status === 'approve' ? 'Одобрено' : 'Отклонено'}</p>
+                                        <div style={{ display: 'flex', alignContent: 'center', fontSize: '24px', fontWeight: 'bold', color: 'gray', justifyContent: 'center'}}>Ответ на бронирование: {order.response_status === 'approve' ? 'Одобрено' : 'Отклонено'}</div>
                                     )}
                                 </div>
                             </li>
@@ -79,6 +83,9 @@ const BookingComponent = () => {
             });
             setMessage({ type: 'success', text: approve ? 'Запрос одобрен!' : 'Запрос отклонен!' });
             markAsRead(orderId);
+
+            // Здесь добавьте перезагрузку данных о заказах
+            // Inertia.reload({ only: ['orders'], preserveScroll: true });
         } catch (error) {
             setMessage({ type: 'error', text: 'Ошибка при обработке запроса.' });
             console.error('Error handling request:', error);

@@ -55,7 +55,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    // получение кол-ва уведомлений
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+    Route::get('/notifications/cancellation-count', [NotificationController::class, 'cancellationNotificationCount'])->name('notifications.cancellationCount');
+    Route::get('/notifications/booking/unread-count', [NotificationController::class, 'bookingUnreadCount'])->name('notifications.booking.unreadCount');
+
 
     // маршруты для управления опциями
     Route::get('/options', [OptionController::class, 'index'])->name('options.index');
@@ -112,9 +116,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders', 'IndexController')->name('order.index');
         Route::get('/orders/create', 'CreateController')->name('order.create');
         Route::post('/orders', 'StoreController')->name('order.store');
-        Route::get('/orders/{order}', 'ShowController')->name('order.show');
+        Route::get('/orders/{order}', [ShowController::class, '__invoke'])->name('order.show');
         Route::get('/orders/{order}/edit', 'EditController')->name('order.edit');
-       // Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
+        Route::patch('/orders/{order}', 'UpdateController')->name('order.update');
         Route::delete('/orders/{order}', 'DestroyController')->name('order.destroy');
 
         Route::post('/orders/{order}/join', [ShowController::class, 'joinOrder'])->name('order.join');

@@ -26,11 +26,11 @@ use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-   /* public function __invoke(Order $order)
+    public function __invoke(Order $order)
     {
         // Get the authenticated user
         $user = Auth::user();
-        Log::info('Before Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+       // Log::info('Before Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
         // Извлечь критерии поиска из session
         $sessionCriteria = session('searchCriteria', []);
 
@@ -62,7 +62,7 @@ class ShowController extends Controller
        // Log::info('Order/ShowController $driver:', ['driver_id' => $order->driver_id]);
 
       //  Log::info('Order/ShowController Driver info:', ['driver_id' => $driver->id, 'user_id' => $user->id]);
-        // Process passengers list
+        // Обрабатываем список пассажиров
         $passengers = $order->passengers->map(function ($passenger) {
             return [
                 'id' => $passenger->id,
@@ -74,19 +74,19 @@ class ShowController extends Controller
             ];
         });
       //  Log::info('Order/ShowController $passengers:', $passengers->toArray());
-        // Check if the user is a passenger in the order
+        // Проверяем, является ли пользователь пассажиром в этом
         $isPassenger = $order->passengers()->where('passenger_id', $user->id)->exists();
 
-        // Проверьте, что passengerRequests не пустой
+        // Загружаем запросы от пассажиров
         $passengerRequests = $order->passengerRequests;
 
-        if ($passengerRequests->isEmpty()) {
+      /*  if ($passengerRequests->isEmpty()) {
             Log::info('Нет запросов пассажиров для заказа с ID: ' . $order->id);
         } else {
             Log::info('Запросы пассажиров загружены для заказа:', $passengerRequests->toArray());
-        }
+        }*/
 
-        // Build data array for view
+        // Формируем данные для передачи в представление
         $data = [
             'id' => $order->id,
             'departureAddress' => $fromAddress->street . ' ' . $fromAddress->house ?? 'Unknown',
@@ -110,8 +110,8 @@ class ShowController extends Controller
             'status_order_id' => $order->status_order_id, // Передаем статус бронирования
             'passengerRequests' => $passengerRequests,
         ];
-        Log::info('After Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
-        Log::info('Order/ShowController Created $data:', $data);
+      //  Log::info('After Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+      //  Log::info('Order/ShowController Created $data:', $data);
 
 
         // Check if the authenticated user is the driver
@@ -148,7 +148,7 @@ class ShowController extends Controller
             'searchCriteria' => $sessionCriteria,
             'flash' => session()->get('flash', []), // Передаем flash-сообщения в компонент
         ]);
-    }*/
+    }
 // рабочий метод, но переписыват дату на текущую
    /* public function __invoke(Order $order)
     {
@@ -242,11 +242,11 @@ class ShowController extends Controller
             'flash' => session()->get('flash', []),
         ]);
     }*/
-    public function __invoke(Order $order)
+  /*  public function __invoke(Order $order)
     {
         // Получаем аутентифицированного пользователя
         $user = Auth::user();
-        Log::info('Before Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+       // Log::info('Before Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
 
         // Извлекаем критерии поиска из session
         $sessionCriteria = session('searchCriteria', []);
@@ -308,7 +308,8 @@ class ShowController extends Controller
             'status_order_id' => $order->status_order_id,
             'passengerRequests' => $passengerRequests,
         ];
-        Log::info('After Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+      //  Log::info('After Order/ShowController saving order:', ['date_time_departure' => $order->date_time_departure]);
+        Log::info('__invoke/ShowController Created $data:', $data);
 
         // Проверяем, является ли пользователь водителем
         if ($user && $user->id === $order->driver_id) {
@@ -330,7 +331,7 @@ class ShowController extends Controller
             'searchCriteria' => $sessionCriteria,
             'flash' => session()->get('flash', []),
         ]);
-    }
+    }*/
 
 
     /* Метод requestBooking
@@ -340,7 +341,7 @@ class ShowController extends Controller
      */
     public function requestBooking(Request $request, $orderId)
     {
-        Log::info('Полученные данные запроса:', ['requestBooking request_data' => $request->all()]); // Логируем все данные запроса
+        Log::info('Полученные данные запроса:', ['requestBooking request_data' => $request->all()]);
 
         $order = Order::findOrFail($orderId);
 
@@ -351,12 +352,15 @@ class ShowController extends Controller
             return redirect()->route('order.show', ['order' => $orderId]);
         }
 
-        // Проверяем статус заказа
+        // Проверяем статус заказа (только для заказов с подтверждением водителя)
         if ($order->statusOrder->name_status === 'После подтверждения водителем') {
-            // Логика запроса на бронирование с подтверждением водителя
             $order->passengerRequests()->create([
+                'order_id' => $order->id, // добавьте order_id
                 'passenger_id' => Auth::id(),
-                'message' => $request->input('message'), // Сохраняем текст сообщения
+                'message' => $request->input('message'),
+                'departure_city' => $request->input('departure_city'),
+                'arrival_city' => $request->input('arrival_city'),
+                'seats' => $request->input('seats'),
             ]);
 
             // Уведомляем водителя о запросе на бронирование
@@ -371,6 +375,7 @@ class ShowController extends Controller
     }
 
 
+
     /*Метод showBookingRequests
     Этот метод отображает запросы на бронирование для заданного водителя.
      Он загружает все заказы, которые имеют запросы от пассажиров, которые еще не были одобрены.*/
@@ -378,27 +383,28 @@ class ShowController extends Controller
     {
         $orders = Order::where('driver_id', $driverId)
             ->with([
-                'fromAddress',  // Загрузка адреса отправления
-                'toAddress',    // Загрузка адреса прибытия
+                'fromAddress',
+                'toAddress',
                 'passengerRequests' => function ($query) {
-                    $query->whereNull('approved_at') // Только запросы, которые еще не были подтверждены
-                    ->select('id', 'passenger_id', 'order_id', 'message'); // Включение passenger_id и сообщения
+                    $query->with('passenger')
+                        ->select('order_id', 'passenger_id', 'departure_city', 'arrival_city', 'seats', 'message');
                 },
-                'passengerRequests.passenger' // Загрузка данных пассажира
             ])
-            ->has('passengerRequests') // Только заказы с запросами от пассажиров
+            ->has('passengerRequests')
             ->get()
             ->map(function ($order) {
                 return [
                     'order_id' => $order->id,
                     'fromCity' => $order->fromAddress->city ?? 'Unknown City',
                     'toCity' => $order->toAddress->city ?? 'Unknown City',
-                    'available_seats' => $order->available_seats, // Убедитесь, что передаются доступные места
-                    'date_time_departure' => $order->date_time_departure, // Добавление даты отправления
+                    'available_seats' => $order->available_seats,
+                    'date_time_departure' => $order->date_time_departure,
                     'passengerRequests' => $order->passengerRequests->map(function ($request) {
                         return [
-                            'passenger_id' => $request->passenger_id, // Здесь возвращаем passenger_id
-                            'request_id' => $request->id,  // Сохраняем request_id, если это необходимо
+                            'passenger_id' => $request->passenger_id,
+                            'departure_city' => $request->departure_city,
+                            'arrival_city' => $request->arrival_city,
+                            'seats' => $request->seats,
                             'passenger_name' => $request->passenger->name ?? 'Unknown Passenger',
                             'message' => $request->message ?? '',
                         ];
@@ -406,13 +412,15 @@ class ShowController extends Controller
                 ];
             });
 
-        // Логирование для отладки
         Log::info('Orders showBookingRequests:', $orders->toArray());
 
         return Inertia::render('Bookings/BookingComponent', [
             'orders' => $orders,
         ]);
     }
+
+
+
     /*Метод respondToBookingRequest
     Этот метод отвечает на запросы на бронирование.
     Если запрос одобрен, он вызывает метод joinOrder, чтобы добавить пассажира к поездке.
@@ -496,7 +504,7 @@ class ShowController extends Controller
             session(['searchCriteria' => [
                 'departureCity' => $departureCity,
                 'arrivalCity' => $arrivalCity,
-                'seats' => 1,
+                'seats' => $seats,
             ]]);
 
             // Отправляем уведомление пассажиру
@@ -644,7 +652,7 @@ class ShowController extends Controller
         // Перенаправляем на страницу заказа
         return redirect()->route('order.show', ['order' => $orderId]);
     }*/
-   /* public function joinOrder(Request $request, $orderId)
+    public function joinOrder(Request $request, $orderId)
     {
         $sessionCriteria = session('searchCriteria', []);
         $userId = auth()->id();
@@ -676,6 +684,9 @@ class ShowController extends Controller
             return back()->withErrors('Недостаточно свободных мест для бронирования.');
         }
 
+        // Сохраняем оригинальное значение даты и времени отправления
+        $originalDepartureDate = $order->date_time_departure;
+
         // Логика добавления пассажира
         if ($order->driver_id === $userId) {
             // Водитель добавляет пассажира
@@ -703,7 +714,7 @@ class ShowController extends Controller
                 'departure_city' => $request->departure_city,
                 'arrival_city' => $request->arrival_city,
                 'seats' => $seats,
-                'date_time_departure' => $order->date_time_departure // сохраняем дату и время
+                'date_time_departure' => $originalDepartureDate // сохраняем оригинальное значение даты и времени
             ]);
         } else {
             // Пользователь добавляется как пассажир
@@ -723,100 +734,97 @@ class ShowController extends Controller
                 'departure_city' => $request->departure_city,
                 'arrival_city' => $request->arrival_city,
                 'seats' => $seats,
-                'date_time_departure' => $order->date_time_departure // сохраняем дату и время
+                'date_time_departure' => $originalDepartureDate // сохраняем оригинальное значение даты и времени
             ]);
         }
 
         // Обновляем количество доступных мест без изменения даты и времени
         $order->available_seats -= $seats;
 
-        // Сохраняем только количество мест
-        $order->timestamps = false; // Отключаем автообновление временных меток
-        $order->save(['available_seats' => $order->available_seats]);
-        $order->timestamps = true; // Включаем обратно
+        // Сохраняем количество мест, вручную восстанавливая дату и время отправления
+        DB::transaction(function() use ($order, $seats, $originalDepartureDate) {
+            // Отключаем автообновление временных меток
+            $order->timestamps = false;
+            // Сохраняем только количество мест
+            $order->save(['available_seats' => $order->available_seats]);
+            $order->save();
 
-        return redirect()->route('order.show', ['order' => $orderId]);
-    }*/
-    public function joinOrder(Request $request, $orderId)
-    {
-        $sessionCriteria = session('searchCriteria', []);
-        $userId = auth()->id();
+            // Восстанавливаем дату и время отправления вручную
+            DB::table('orders')->where('id', $order->id)->update(['date_time_departure' => $originalDepartureDate]);
 
-        if (!$userId) {
-            session()->flash('message', 'Пользователь не аутентифицирован.');
-            return redirect()->route('order.show', ['order' => $orderId]);
-        }
-
-        $order = Order::find($orderId);
-
-        if (!$order) {
-            session()->flash('message', 'Поездка не найдена.');
-            return redirect()->route('order.show', ['order' => $orderId]);
-        }
-
-        if ($order->available_seats <= 0) {
-            session()->flash('message', 'Нет свободных мест.');
-            return redirect()->route('order.show', ['order' => $orderId]);
-        }
-
-        $seats = $sessionCriteria['seats'] ?? 1;
-
-        if ($order->available_seats < $seats) {
-            return back()->withErrors('Недостаточно свободных мест для бронирования.');
-        }
-
-        // Проверка, является ли пользователь водителем
-        if ($order->driver_id === $userId) {
-            // Логика для водителя
-            $passengerId = $request->passenger_id;
-
-            if (!$passengerId) {
-                return response()->json(['error' => 'ID пассажира не передан.'], 400);
-            }
-
-            // Проверка существования пассажира
-            if ($this->passengerExists($orderId, $passengerId)) {
-                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
-                return redirect()->route('order.show', ['order' => $orderId]);
-            }
-
-            $this->attachPassenger($order, $passengerId, $request->departure_city, $request->arrival_city, $seats);
-        } else {
-            // Логика для обычного пользователя (пассажира)
-            if ($this->passengerExists($orderId, $userId)) {
-                session()->flash('message', 'Пассажир уже назначен на этот заказ.');
-                return redirect()->route('order.show', ['order' => $orderId]);
-            }
-
-            $this->attachPassenger($order, $userId, $request->departure_city, $request->arrival_city, $seats);
-        }
-
-        // Обновляем количество доступных мест без изменения временных меток
-        $order->available_seats -= $seats;
-        $order->timestamps = false; // Отключаем автообновление временных меток
-        $order->save();
-        $order->timestamps = true; // Включаем автообновление обратно
+            // Включаем автообновление временных меток обратно
+            $order->timestamps = true;
+        });
 
         return redirect()->route('order.show', ['order' => $orderId]);
     }
 
-    private function passengerExists($orderId, $passengerId)
-    {
-        return DB::table('order_passenger')
-            ->where('order_id', $orderId)
-            ->where('passenger_id', $passengerId)
-            ->exists();
-    }
 
-    private function attachPassenger($order, $passengerId, $departureCity, $arrivalCity, $seats)
-    {
-        $order->passengers()->attach($passengerId, [
-            'departure_city' => $departureCity,
-            'arrival_city' => $arrivalCity,
-            'seats' => $seats,
-            'date_time_departure' => $order->date_time_departure, // Используем оригинальную дату
-        ]);
-    }
+    /* public function joinOrder(Request $request, $orderId)
+     {
+         $sessionCriteria = session('searchCriteria', []);
+         $userId = auth()->id();
+
+         if (!$userId) {
+             session()->flash('message', 'Пользователь не аутентифицирован.');
+             return redirect()->route('order.show', ['order' => $orderId]);
+         }
+
+         $order = Order::find($orderId);
+
+         if (!$order) {
+             session()->flash('message', 'Поездка не найдена.');
+             return redirect()->route('order.show', ['order' => $orderId]);
+         }
+
+         if ($order->available_seats <= 0) {
+             session()->flash('message', 'Нет свободных мест.');
+             return redirect()->route('order.show', ['order' => $orderId]);
+         }
+
+         $seats = $sessionCriteria['seats'] ?? 1;
+
+         if ($order->available_seats < $seats) {
+             return back()->withErrors('Недостаточно свободных мест для бронирования.');
+         }
+
+         // Проверка, является ли пользователь водителем
+         if ($order->driver_id === $userId) {
+             // Логика для водителя
+             $passengerId = $request->passenger_id;
+
+             if (!$passengerId) {
+                 return response()->json(['error' => 'ID пассажира не передан.'], 400);
+             }
+
+             // Проверка существования пассажира
+             if ($this->passengerExists($orderId, $passengerId)) {
+                 session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                 return redirect()->route('order.show', ['order' => $orderId]);
+             }
+             // Обновляем количество доступных мест без изменения временных меток
+             $order->available_seats -= $seats;
+             $this->attachPassenger($order, $passengerId, $request->departure_city, $request->arrival_city, $seats);
+         } else {
+             // Логика для обычного пользователя (пассажира)
+             if ($this->passengerExists($orderId, $userId)) {
+                 session()->flash('message', 'Пассажир уже назначен на этот заказ.');
+                 return redirect()->route('order.show', ['order' => $orderId]);
+             }
+             // Обновляем количество доступных мест без изменения временных меток
+             $order->available_seats -= $seats;
+             $this->attachPassenger($order, $userId, $request->departure_city, $request->arrival_city, $seats);
+         }
+
+         // Обновляем количество доступных мест без изменения временных меток
+ //        $order->available_seats -= $seats;
+ //        $order->timestamps = false; // Отключаем автообновление временных меток
+ //        $order->save();
+ //        $order->timestamps = true; // Включаем автообновление обратно
+
+         return redirect()->route('order.show', ['order' => $orderId]);
+     }*/
+
 
    /* public function joinOrder(Request $request, $orderId)
     {
@@ -1046,7 +1054,7 @@ class ShowController extends Controller
 //           ]);
 
     }*/
-  /*  public function cancelOrderPassenger(Request $request, $orderId)
+    public function cancelOrderPassenger(Request $request, $orderId)
     {
         $user = Auth::user();
 
@@ -1072,13 +1080,23 @@ class ShowController extends Controller
         // Увеличиваем количество свободных мест
         $order->available_seats += $passenger->seats;
 
+        // Сохраняем оригинальное значение даты и времени отправления
+        $originalDepartureDate = $order->date_time_departure;
+
         // Удаляем пассажира из таблицы order_passenger
         $order->passengers()->detach($user->id);
 
-        // Сохраняем изменения
-        $order->timestamps = false; // Отключаем автообновление временных меток
-        $order->save(['available_seats' => $order->available_seats]);
-        $order->timestamps = true; // Включаем обратно
+        // Обновляем количество доступных мест, отключая временные метки на время сохранения
+        DB::transaction(function() use ($order, $originalDepartureDate) {
+            // Отключаем автообновление временных меток
+            $order->timestamps = false;
+            // Сохраняем изменения
+            $order->save(['available_seats' => $order->available_seats]);
+            // Восстанавливаем дату и время отправления вручную
+            DB::table('orders')->where('id', $order->id)->update(['date_time_departure' => $originalDepartureDate]);
+            // Включаем автообновление временных меток обратно
+            $order->timestamps = true;
+        });
 
         // Отправляем уведомление водителю
         $driver = $order->driver;
@@ -1123,9 +1141,10 @@ class ShowController extends Controller
         Log::info("Passenger {$user->name} has cancelled booking for order ID {$orderId}");
 
         return redirect()->route('order.show', ['order' => $orderId]);
-    }*/
+    }
 
-    public function cancelOrderPassenger(Request $request, $orderId)
+
+  /*  public function cancelOrderPassenger(Request $request, $orderId)
     {
         $user = Auth::user();
 
@@ -1190,7 +1209,7 @@ class ShowController extends Controller
         if ($requestToCancel) {
             $requestToCancel->delete();
         }
-    }
+    }*/
 
 
     /*  public function cancelOrderPassenger(Request $request, $orderId)

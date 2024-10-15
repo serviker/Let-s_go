@@ -113,6 +113,13 @@
     margin-top: 10px;
 }
 
+.instant-booking {
+    font-weight: bold;
+    margin-left: 200px; /* Измените отступ до нужного значения */
+    margin-top: 10px;
+    color: #eea236;
+}
+
 .driver-photo {
     width: 40px;
     height: 40px;

@@ -33,5 +33,6 @@ PassengerOrders.propTypes = {
         carName: PropTypes.string,
         dateTimeDeparture: PropTypes.string.isRequired,
         driverPhotoUrl: PropTypes.string,
+        status_order_id: PropTypes.number.isRequired, // Добавляем это поле в проверку
     })).isRequired,
 };

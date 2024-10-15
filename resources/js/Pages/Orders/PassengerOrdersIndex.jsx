@@ -13,8 +13,8 @@ export default function PassengerOrdersIndex({ order }) {
         const date = new Date(dateTime);
         const formattedDate = date.toLocaleDateString([], {
             day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
+            month: 'long',
+           // year: '2-digit',
         });
         const formattedTime = date.toLocaleTimeString([], {
             hour: '2-digit',
@@ -88,6 +88,10 @@ export default function PassengerOrdersIndex({ order }) {
                 {order.carName && (
                     <p className="car-name">{order.carName}</p>
                 )}
+                {/* Добавляем проверку на статус заказа */}
+                {order.status_order_id === 1 && (
+                    <p className="instant-booking">Мгновенное бронирование</p>
+                )}
             </div>
         </Link>
     );
@@ -106,5 +110,6 @@ PassengerOrdersIndex.propTypes = {
         carName: PropTypes.string,
         dateTimeDeparture: PropTypes.string.isRequired,
         driverPhotoUrl: PropTypes.string,
+        status_order_id: PropTypes.number.isRequired, // Добавляем это поле в проверку
     }).isRequired,
 };

@@ -5,33 +5,6 @@ import '../../../css/PassengerOrderDetails.css';
 import { Inertia } from '@inertiajs/inertia';
 import { Modal, Button } from 'react-bootstrap';
 
-
-const BookingRequestModal = ({ show, onClose, onSubmit }) => {
-    const [message, setMessage] = useState('');
-
-    if (!show) return null;
-
-    const handleSubmit = () => {
-        onSubmit(message);
-        setMessage(''); // Очищаем поле после отправки
-    };
-
-    return (
-        <div className="modal-content" style={{ width: '30%', border: '4px solid #eea236', borderRadius: '10px', position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
-            <h2 style={{ textAlign: 'center', color: 'black' }}>Отправить запрос на бронирование</h2>
-            <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={4}
-                style={{ width: '90%', margin: '10px auto', display: 'block', padding: '20px', fontSize: '16px', fontWeight:'bold' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
-                <button onClick={onClose} className="btn btn-secondary">Закрыть</button>
-                <button onClick={handleSubmit} className="btn btn-primary">Отправить запрос</button>
-            </div>
-        </div>
-    );
-};
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
 
@@ -115,14 +88,41 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
         </div>
     );
 };
+const BookingRequestModal = ({ show, onClose, onSubmit }) => {
+    const [message, setMessage] = useState('');
 
+    if (!show) return null;
+
+    const handleSubmit = () => {
+        onSubmit(message);
+        setMessage(''); // Очищаем поле после отправки
+    };
+
+    return (
+        <div className="modal-content" style={{ width: '30%', border: '4px solid #eea236', borderRadius: '10px', position: 'fixed', top: '20%', left: '50%', transform: 'translateX(-50%)' }}>
+            <h2 style={{ textAlign: 'center', color: 'black' }}>Отправить запрос на бронирование</h2>
+            <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                style={{ width: '90%', margin: '10px auto', display: 'block', padding: '20px', fontSize: '16px', fontWeight:'bold' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px' }}>
+                <button onClick={onClose} className="btn btn-secondary">Закрыть</button>
+                <button onClick={handleSubmit} className="btn btn-primary">Отправить запрос</button>
+            </div>
+        </div>
+    );
+};
 const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const { auth } = usePage().props; // Доступ к информации о пользователе из страницы
-    const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
+
     const [isBooked, setIsBooked] = useState(order.isBooked); // Используем isBooked из order
     const [isButtonDisabled, setIsButtonDisabled] = useState(false);
     const [fromCity, setFromCity] = useState( searchCriteria.departureCity || '');
-    const [toCity, setToCity] = useState(searchCriteria.arrivalCity||'');
+    const [toCity, setToCity] = useState(searchCriteria.arrivalCity ||'');
+    const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
+    const [seats, setSeats] = useState(searchCriteria.seats || 1); // Определяем количество мест
     const [data, setData] = useState(order);
     const [canSendMessage, setCanSendMessage] = useState(false); // Флаг для проверки отправки сообщений
     const [showErrorModal, setShowErrorModal] = useState(false); // Для отображения модального окна
@@ -150,7 +150,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
 
     // Проверка на наличие сообщения
-   // console.log('Flash messages:', flash);
+   // console.log('seats:', seats);
 
     const handleOpenBookingRequestModal = () => {
         setShowBookingRequestModal(true);
@@ -215,12 +215,12 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             // Передаем данные о городах, даже если пользователь не пассажир
             const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
             const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
-            const seats = availableSeats;
+           // const availableSeats = currentPassenger ? currentPassenger.availableSeats : seats;
 
             await Inertia.post(route('order.join', { order: order.id }), {
                 departure_city: departureCity,
                 arrival_city: arrivalCity,
-                seats: seats,
+              //  seats: availableSeats,
             }, {
                 onSuccess: () => {
                     setIsBooked(true);
@@ -237,19 +237,20 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     };
 
 
-    const handleBookingRequest = async (message) => {
+  /*  const handleBookingRequest = async (message) => {
         console.log('Отправляемое сообщение в запросе:', message); // Логируем сообщение перед отправкой
         try {
             // Передаем данные о городах, даже если пользователь не пассажир
             const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
             const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
-            const seats = availableSeats;
+            // Возможно, нужно также передавать места
+            const seats = currentPassenger ? currentPassenger.seats : 1;
 
             await Inertia.post(route('order.requestBooking', { orderId: order.id }), {
                 departure_city: departureCity,
                 arrival_city: arrivalCity,
                 message, // Передаем сообщение
-                seats: seats,
+                seats, // Убедитесь, что передаете количество мест
             }, {
                 onSuccess: () => {
                     alert('Запрос на бронирование отправлен водителю.');
@@ -262,7 +263,43 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         } catch (error) {
             console.error('Ошибка при отправке запроса на бронирование:', error);
         }
+    };*/
+
+    const handleBookingRequest = async (message) => {
+        console.log('Отправляемое сообщение в запросе:', message); // Логируем сообщение перед отправкой
+
+        // Получаем города отправления и прибытия
+        const departureCity = currentPassenger ? currentPassenger.departureCity : fromCity;
+        const arrivalCity = currentPassenger ? currentPassenger.arrivalCity : toCity;
+        // Получаем количество мест из состояния
+        const bookingSeats = seats; // Используем состояние seats
+
+        // Логируем данные, которые будут отправлены
+        const bookingData = {
+            departure_city: departureCity,
+            arrival_city: arrivalCity,
+            message,
+            seats: bookingSeats, // Добавляем количество мест
+        };
+
+        console.log('Данные для отправки:', bookingData); // Логируем данные перед отправкой
+       // await new Promise(resolve => setTimeout(resolve, 15000));
+        try {
+            await Inertia.post(route('order.requestBooking', { orderId: order.id }), bookingData, {
+                onSuccess: () => {
+                    alert('Запрос на бронирование отправлен водителю.');
+                    setRequestSent(true);
+                },
+                onError: (errors) => {
+                    alert('Ошибка: ' + errors.message);
+                },
+            });
+        } catch (error) {
+            console.error('Ошибка при отправке запроса на бронирование:', error);
+        }
     };
+
+
 
     const handleRequestSubmit = (message) => {
         console.log('Отправляемое сообщение:', message); // Проверяем, что сообщение не пустое
@@ -465,7 +502,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
             <div className="separator-thin"></div>
 
             <div className="button-container">
-                <button className="btn btn-info" onClick={() => window.history.back()}>Назад</button>
+                <button className="btn btn-secondary" onClick={() => window.history.back()}>Назад</button>
 
                 {/* Если место забронировано, показываем кнопку отмены
                 {isBooked ? (
@@ -508,11 +545,11 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
                     <>
                         {Number(order.status_order_id) === 1 ? (
                             <button
-                                className="btn btn-info"
+                                className="btn btn-success"
                                 disabled={isButtonDisabled}
                                 onClick={handleBooking}
                             >
-                                Забронировать место
+                                Забронировать мгновенно !
                             </button>
                         ) : Number(order.status_order_id) === 2 ? (
                             requestSent ? ( // Проверяем, отправлен ли запрос
@@ -559,6 +596,7 @@ PassengerOrderDetails.propTypes = {
         description: PropTypes.string,
         availableSeats: PropTypes.number.isRequired,
         status_order_id: PropTypes.number.isRequired, // Статус заказа
+        seats: PropTypes.number,
         passengers: PropTypes.arrayOf(
             PropTypes.shape({
                 id: PropTypes.number.isRequired,

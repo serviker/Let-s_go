@@ -5,7 +5,7 @@ import '../../../css/DriverOrderIndex.css'; // Импорт стилей
 
 export default function DriverOrderIndex({ order }) {
     const [formattedDateTime, setFormattedDateTime] = useState({ date: '', time: '' });
-
+   // console.log("DriverOrderIndex:", order);
     useEffect(() => {
         if (order) {
             const departureDate = new Date(order.dateTimeDeparture).toLocaleDateString([], {
@@ -73,6 +73,10 @@ export default function DriverOrderIndex({ order }) {
                 {order.carName && (
                     <p className="car-name">{order.carName}</p>
                 )}
+                {/* Добавляем проверку на статус заказа */}
+                {order.status_order_id === 1 && (
+                    <p className="instant-booking">Мгновенное бронирование</p>
+                )}
             </div>
         </a>
     );
@@ -90,6 +94,7 @@ DriverOrderIndex.propTypes = {
         carName: PropTypes.string,
         dateTimeDeparture: PropTypes.string.isRequired,
         driverPhotoUrl: PropTypes.string,
+        status_order_id: PropTypes.number.isRequired, // Добавляем это поле в проверку
         id: PropTypes.number.isRequired
     }).isRequired,
 };

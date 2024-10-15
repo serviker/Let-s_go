@@ -64,8 +64,10 @@ class IndexController extends Controller
                     'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
                     'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
                     'driverPhotoUrl' => $driver && $driver->photoUrl ? asset('/' . $driver->photoUrl) : null,
+                    'status_order_id' => $order->status_order_id,
                 ];
             });
+        Log::info('IndexController/driverOrders:', $orders->toArray());
 
         return Inertia::render('Orders/DriverOrders', [
             'orders' => $orders,
@@ -143,7 +145,7 @@ class IndexController extends Controller
         }); */
 
 
-         Log::info('IndexController/Orders:', $orders->toArray());
+        Log::info('IndexController/passengerOrders:', $orders->toArray());
         // Перебор всех заказов и генерация URL для каждого
         $ordersWithUrls = $orders->map(function ($order) use ($searchCriteria) {
             return [
@@ -155,6 +157,7 @@ class IndexController extends Controller
                 'carName' => $order->driver->cars->first() ? ($order->driver->cars->first()->brand . ' ' . $order->driver->cars->first()->model) : 'No car',
                 'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
                 'driverPhotoUrl' => $order->driver->photoUrl ? asset('/' . $order->driver->photoUrl) : null,
+                'status_order_id' => $order->status_order_id,
                 // Генерация URL для каждого заказа
                 'url' => route('order.show', [
                     'order' => $order->id,
@@ -164,7 +167,7 @@ class IndexController extends Controller
                 ])
             ];
         });
-
+        Log::info('IndexController/passengerOrders.$ordersWithUrls:', $ordersWithUrls->toArray());
         // Если заказы найдены, сохраняем их в сессии
         session()->put('foundOrders', $ordersWithUrls);
 

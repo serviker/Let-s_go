@@ -12,6 +12,8 @@ import Navbar from "@/Components/Navbar.jsx";
 export default function DriverOrders({ orders }) {
     const [showModal, setShowModal] = useState(!Array.isArray(orders) || orders.length === 0);
     const { props } = usePage();
+
+    //console.log("DriverOrder:", orders);
     // Функция для закрытия модального окна
     const closeModal = () => {
         Inertia.visit(route('dashboard')); // Переход на главную страницу
@@ -80,5 +82,6 @@ DriverOrders.propTypes = {
         carName: PropTypes.string,
         dateTimeDeparture: PropTypes.string,
         driverPhotoUrl: PropTypes.string,
+        status_order_id: PropTypes.number.isRequired, // Добавляем это поле в проверку
     })).isRequired,
 };

@@ -78,13 +78,13 @@ const BookingNotificationComponent = () => {
                 ) : (
                     <ul className="notifications-list">
                         {notifications.map(notification => {
-                            console.log("notification", notification);  // Логируем уведомление
+                           // console.log("notification", notification);  // Логируем уведомление
 
                             // Проверяем, является ли текущий пользователь водителем в этом заказе
                             const isDriver = isDriverForOrder(notification.data.order_id);
 
                             return (
-                                <li key={notification.id} className="notification-item">
+                                <li key={notification.id} className="notification-item" style={{ textAlign: 'center',fontSize: '24px', marginLeft: '10px', fontWeight: 'bold', color: 'gray' }}>
                                     <div className="notification-text">
                                         <p>{notification.data?.message || 'Сообщение отсутствует'}</p>
 
@@ -99,8 +99,8 @@ const BookingNotificationComponent = () => {
                                         )}
                                     </div>
                                     <div className="notification-small">
-                                        <small style={{ fontSize: '18px', marginLeft: '10px' }}>
-                                            Дата уведомления: {new Date(notification.created_at).toLocaleString()}
+                                        <small style={{ fontSize: '24px', marginLeft: '10px', fontWeight: 'bold', color: 'gray', display: 'flex', justifyContent: 'space-between'}}>
+                                            Дата уведомления: <div style={{marginLeft: '70px'}}>{new Date(notification.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</div>
                                         </small>
 
                                         {!notification.read_at ? (

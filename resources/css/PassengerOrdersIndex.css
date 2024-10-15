@@ -37,14 +37,19 @@
 .departure-time-container {
     position: absolute;
     top: calc(20% + 30px); /* Сместить вниз от города отправления */
-    left: 20px;
+    /*right: 40%;*/
+    display: flex;
+    /*align-items: center;*/
+    justify-content: flex-end;
+    text-align: center;
 }
 
 .departure-date, .departure-time {
     margin-left: 20px; /* Отступ между датой и временем */
-    font-size: 18px;
+    font-size: 20px;
     color: #eea236;
     font-weight: bold;
+
 }
 
 .line-container {
@@ -110,8 +115,15 @@
 
 .car-name {
     font-weight: bold;
-    margin-left: 200px; /* Измените отступ до нужного значения */
+    margin-left: 150px; /* Измените отступ до нужного значения */
     margin-top: 10px;
+}
+
+.instant-booking {
+    font-weight: bold;
+    margin-left: 150px; /* Измените отступ до нужного значения */
+    margin-top: 10px;
+    color: #eea236;
 }
 
 .driver-photo {

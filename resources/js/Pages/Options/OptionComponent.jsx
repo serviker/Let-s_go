@@ -5,33 +5,17 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute
 const OptionComponent = ({ options, userId }) => {
     const [selectedOptions, setSelectedOptions] = useState({});
     const [activeDropdown, setActiveDropdown] = useState(null);
+    const [showMessage, setShowMessage] = useState(false); // Состояние для сообщения
     const dropdownRefs = useRef({});
-    console.log('User ID:', userId);
 
     // Инициализация выбранных опций
     useEffect(() => {
-        const initialOptions = Object.keys(options).reduce((acc, key) => {
-            acc[key] = options[key][1] || ''; // По умолчанию выбираем первое значение или пустую строку
-            return acc;
-        }, {});
+        const initialOptions = {};
+        for (const optionName in options) {
+            initialOptions[optionName] = options[optionName]?.[0] || null; // Устанавливаем значение по умолчанию
+        }
         setSelectedOptions(initialOptions);
     }, [options]);
-
-    useEffect(() => {
-        console.log("Опции, переданные в компонент:", options);
-    }, [options]);
-
-   /* useEffect(() => {
-        // Убираем все значения null из переданных опций
-        const cleanOptions = Object.keys(options).reduce((acc, key) => {
-            acc[key] = options[key].filter(optionValue => optionValue !== null);
-            return acc;
-        }, {});
-
-        console.log("Очищенные опции:", cleanOptions);
-        setSelectedOptions(cleanOptions);
-    }, [options]);
-*/
 
     // Закрытие выпадающего списка при клике вне
     useEffect(() => {
@@ -48,13 +32,10 @@ const OptionComponent = ({ options, userId }) => {
     }, []);
 
     const handleOptionChange = (optionName, optionValue) => {
-        setSelectedOptions((prevOptions) => {
-            const updatedOptions = {
-                ...prevOptions,
-                [optionName]: optionValue, // Обновляем выбранную опцию
-            };
-            return updatedOptions;
-        });
+        setSelectedOptions((prevOptions) => ({
+            ...prevOptions,
+            [optionName]: optionValue, // Обновляем выбранную опцию
+        }));
         setActiveDropdown(null); // Закрыть выпадающий список после выбора
     };
 
@@ -71,13 +52,14 @@ const OptionComponent = ({ options, userId }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken, // Добавьте CSRF-токен в заголовки
+                    'X-CSRF-TOKEN': csrfToken,
                 },
-                body: JSON.stringify(selectedOptions),
+                body: JSON.stringify(selectedOptions), // Отправляем только выбранные новые опции
             });
 
             if (response.ok) {
-                console.log('Опции успешно сохранены!');
+                setShowMessage(true); // Показать сообщение при успешном сохранении
+                setTimeout(() => setShowMessage(false), 3000); // Скрыть сообщение через 3 секунды
             } else {
                 const errorText = await response.text();
                 console.error('Ошибка при сохранении опций:', response.status, errorText);
@@ -87,15 +69,11 @@ const OptionComponent = ({ options, userId }) => {
         }
     };
 
-
-
     return (
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px', alignContent: 'center', height: '100vh'}}>
-            <div className="header" >
-                <a href={route('dashboard')} className="btn btn-link text-decoration-none" >
-                    &larr;
-                </a>
-                <h2>Опции для комфортной поездки</h2>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '100px', height: '100vh'}}>
+            <div className="header">
+                <a href="/profile" className="btn btn-link text-decoration-none">&larr;</a>
+                <h2 style={{ fontWeight: 'bold', fontSize: '34px'}}>Опции для комфортной поездки</h2>
             </div>
 
             <div style={{width: '500px', marginTop: '50px'}}>
@@ -104,18 +82,19 @@ const OptionComponent = ({ options, userId }) => {
                         marginBottom: '20px',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center',
-                        alignContent: 'center'
+                        alignItems: 'center'
                     }}>
-                        <label style={{fontSize: '16px', textAlign: 'left'}}>{optionName}</label>
+                        <label style={{fontSize: '22px', textAlign: 'left'}}>{optionName}</label>
                         <div style={{position: 'relative', width: '180px'}}
                              ref={ref => dropdownRefs.current[optionName] = ref}>
                             <div
                                 style={{
-                                    width: '400px',
+                                    width: '500px',
                                     cursor: 'pointer',
                                     padding: '1px',
-                                    textAlign: 'left'
+                                    textAlign: 'left',
+                                    fontSize: '22px',
+                                    fontWeight: 'bold'
                                 }}
                                 onClick={(e) => {
                                     e.preventDefault();
@@ -134,7 +113,7 @@ const OptionComponent = ({ options, userId }) => {
                                         background: '#fff',
                                         boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
                                         zIndex: 1,
-                                        fontSize: '18px',
+                                        fontSize: '20px',
                                         textAlign: 'center',
                                         padding: '10px 0',
                                         listStyle: 'none',
@@ -144,34 +123,50 @@ const OptionComponent = ({ options, userId }) => {
                                     }}
                                 >
                                     {Array.isArray(options[optionName]) && options[optionName].length > 0 ? (
-                                        options[optionName]
-                                            .filter(optionValue => optionValue !== null)  // Фильтруем значения null
-                                            .map((optionValue, index) => (
-                                                <li
-                                                    key={`${optionName}-${index}`}
-                                                    style={{
-                                                        padding: '10px',
-                                                        cursor: 'pointer',
-                                                        backgroundColor: selectedOptions[optionName] === optionValue ? '#f0f0f0' : '#fff',
-                                                    }}
-                                                    onClick={() => handleOptionChange(optionName, optionValue)}
-                                                >
-                                                    {optionValue || 'Не указано'} {/* Если значение null, выводим 'Не указано' */}
-                                                </li>
-                                            ))
+                                        options[optionName].map((optionValue, index) => (
+                                            <li
+                                                key={`${optionName}-${index}`}
+                                                style={{
+                                                    padding: '10px',
+                                                    cursor: 'pointer',
+                                                    backgroundColor: selectedOptions[optionName] === optionValue ? '#f0f0f0' : '#fff',
+                                                }}
+                                                onClick={() => handleOptionChange(optionName, optionValue)}
+                                            >
+                                                {optionValue || 'Не указано'} {/* Если значение null, выводим 'Не указано' */}
+                                            </li>
+                                        ))
                                     ) : (
                                         <li style={{padding: '10px', color: '#999'}}>Нет доступных опций</li>
                                     )}
-
                                 </ul>
                             )}
                         </div>
                     </div>
                 ))}
             </div>
-            <button onClick={saveOptions} style={{marginTop: '20px', padding: '10px 20px', border: '2px solid #eea236', borderRadius: '10px', fontWeight: 'bold', color: '#eea236'}}>
+            <button onClick={saveOptions} style={{marginTop: '20px', padding: '10px 20px', border: '2px solid #eea236', borderRadius: '10px', fontWeight: 'bold', color: '#eea236', fontSize: '22px'}}>
                 Сохранить опции
             </button>
+
+            {/* Всплывающее сообщение о сохранении опций */}
+            {showMessage && (
+                <div style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: '#fff',
+                    border: '2px solid #eea236',
+                    borderRadius: '10px',
+                    padding: '20px',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    textAlign: 'center',
+                }}>
+                    <h4 style={{margin: 0}}>Опции сохранены!</h4>
+                </div>
+            )}
         </div>
     );
 };

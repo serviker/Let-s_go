@@ -33,7 +33,8 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                     }}>
 
                                         <div style={{flex: 1, fontSize: '20px', color: 'grey', fontWeight: 'bold', marginLeft: '10px'}}>
-                                            {notification.data.date_time_departure ? new Date(notification.data.date_time_departure).toLocaleDateString() : 'Не указано'}
+                                            {notification.data.date_time_departure ? new Date(notification.data.date_time_departure).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : 'Не указано'}
+
                                         </div>
 
                                         <div style={{display: 'flex'}}>
@@ -80,7 +81,7 @@ const NotificationsList = ({ notifications, onMarkAsRead, onDeleteNotification }
                                             fontWeight: 'bold',
                                             marginLeft: '50px'
                                         }}>
-                                            {new Date(notification.created_at).toLocaleString()}
+                                            {new Date(notification.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
 

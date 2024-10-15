@@ -12,7 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('order_passenger', function (Blueprint $table) {
-            $table->timestamp('date_time_departure')->nullable()->after('seats');;
+            $table->timestamp('date_time_departure')->nullable()->after('seats');
         });
     }
 

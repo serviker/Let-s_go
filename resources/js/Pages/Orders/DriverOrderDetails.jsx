@@ -6,7 +6,7 @@ import {Inertia} from "@inertiajs/inertia";
 
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
-
+    const [showErrorMessage, setShowErrorMessage] = useState(false); // Состояние для сообщения
     const cancellation_reason = [
         'Изменились личные обстоятельства ',
         'Необходимость ремонта автомобиля',
@@ -21,11 +21,12 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
 
     const handleConfirm = () => {
         if (!selectedReason) {
-            alert('Пожалуйста, выберите причину отмены');
+            setShowErrorMessage(true); // Показать сообщение об ошибке
+            setTimeout(() => setShowErrorMessage(false), 1000); // Скрыть сообщение через 2 секунды
             return;
         }
         onConfirm(selectedReason); // Передаем выбранную причину в функцию onConfirm
-        console.log('CancelBookingModal - handleConfirm:', onConfirm(selectedReason));
+       // console.log('CancelBookingModal - handleConfirm:', onConfirm(selectedReason));
     };
 
     if (!show) return null;
@@ -82,11 +83,28 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                         Отмена
                     </button>
                 </div>
+
+                {showErrorMessage  && (
+                    <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: '#fff',
+                        border: '2px solid #eea236',
+                        borderRadius: '10px',
+                        padding: '20px',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                        zIndex: 1000,
+                        textAlign: 'center',
+                    }}>
+                        <h4 style={{margin: 0}}>Пожалуйста, выберите причину отмены!</h4>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
-
 
 const DriverOrderDetails = React.memo(() => {
 
@@ -96,6 +114,7 @@ const DriverOrderDetails = React.memo(() => {
     const [data, setData] = useState(order);
     const [availableSeats, setAvailableSeats] = useState(order.availableSeats);
     const [showCancelModal, setShowCancelModal] = useState(false);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
 
     useEffect(() => {
         // Если поездка успешно создана и перезагрузка еще не выполнялась
@@ -294,6 +313,24 @@ const DriverOrderDetails = React.memo(() => {
                 onClose={handleCloseCancelModal}
                 onConfirm={handleConfirmCancel}
             />
+            {showErrorMessage && ( // Модальное окно для сообщения об ошибке
+                <div style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: '#fff',
+                    border: '2px solid red',
+                    borderRadius: '10px',
+                    padding: '20px',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    textAlign: 'center',
+                }}>
+                    <h4 style={{margin: 0}}>Пожалуйста, выберите причину отмены!</h4>
+                    <button onClick={handleCloseError}>Закрыть</button> {/* Кнопка для закрытия модального окна */}
+                </div>
+            )}
         </div>
     );
 });

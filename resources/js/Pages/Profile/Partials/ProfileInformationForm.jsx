@@ -179,7 +179,7 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     color: '#eea236'
                 }}>
                     <div id="lastName"
-                         className="label-profile">{user.name} предпочитает в поезке
+                         className="label-profile">{user.name} предпочитает в поездке
                     </div>
                 </div>
                 {options.length > 0 ? (
@@ -190,22 +190,26 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                     }}>
                         {options.map((option) => (
                             <li key={option.id} className="option-item" style={{
+                                fontSize: '20px',
                                 display: 'flex', /* Используем Flexbox для выравнивания */
                                 justifyContent: 'space-between', /* Распределяем пространство между элементами */
                                 padding: '8px 0', /* Добавляем вертикальные отступы между элементами */
                                 borderBottom: '1px solid #eaeaea', /* Добавляем разделитель между опциями (по желанию) */
                             }}>
-                                <span className="option-name" style={{fontWeight: 'bold'}}>{option.option.name}</span>:
+                                <span className="option-name" style={{fontWeight: 'bold', color: '#676767'}}>{option.option.name}</span>:
                                 <span className="option-description" style={{
                                     marginLeft: 'auto', /* Сдвигаем описание вправо */
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bolder',
                                 }}>{option.description}</span>
+
                             </li>
+
                         ))}
                     </ul>
                 ) : (
                     <div>
-                        <p style={{textAlign: 'center',
+                        <p style={{
+                            textAlign: 'center',
                             fontSize: '20px',
                             fontWeight: 'bold'
                         }}>Пользователь пока не выбрал свои предпочтения в поездке.</p>

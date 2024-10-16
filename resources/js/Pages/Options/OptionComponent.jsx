@@ -59,7 +59,7 @@ const OptionComponent = ({ options, userId }) => {
 
             if (response.ok) {
                 setShowMessage(true); // Показать сообщение при успешном сохранении
-                setTimeout(() => setShowMessage(false), 3000); // Скрыть сообщение через 3 секунды
+                setTimeout(() => setShowMessage(false), 2000); // Скрыть сообщение через 2 секунды
             } else {
                 const errorText = await response.text();
                 console.error('Ошибка при сохранении опций:', response.status, errorText);

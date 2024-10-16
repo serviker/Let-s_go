@@ -282,9 +282,11 @@ export default function UpdateProfileInformationForm({ mustVerifyEmail, status, 
                         </div>
                     ))
                 ) : (
-                    <a href={route('car.create')} className="btn btn-primary">
-                        Add Car
+                    <a href={route('car.create')} className="btn btn-primary"
+                       style={{display: 'flex', justifyContent: 'center',fontSize: '18px', alignItems: 'center', textAlign: 'center'}}>
+                        Добавить автомобиль
                     </a>
+
                 )}
             </div>
         </section>

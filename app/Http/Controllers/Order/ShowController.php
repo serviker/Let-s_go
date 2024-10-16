@@ -115,7 +115,7 @@ class ShowController extends Controller
 
 
         // Check if the authenticated user is the driver
-        if ($user && $user->id === $order->driver_id) {
+        if ($user && $user->id === $driver->user->id) {
             // Проверяем, есть ли в сессии флаг isOrderCreated
             $isOrderCreated = session('isOrderCreated', false);
 
@@ -364,7 +364,15 @@ class ShowController extends Controller
             ]);
 
             // Уведомляем водителя о запросе на бронирование
-            $order->driver->notify(new BookingRequestNotification($order, Auth::user()->name));
+           // $order->driver->notify(new BookingRequestNotification($order, Auth::user()->name));
+            // Уведомляем водителя о запросе на бронирование
+            $driver = Driver::where('user_id', $order->driver_id)->first(); // Получаем объект водителя
+            if ($driver) {
+                $driver->notify(new BookingRequestNotification($order, Auth::user()->name));
+                Log::info('Уведомление отправлено водителю.', ['driver_id' => $driver->user_id]);
+            } else {
+                Log::warning('Водитель не найден для заказа.', ['order_id' => $order->id]);
+            }
 
             session()->flash('message', 'Запрос на бронирование отправлен водителю.');
             return redirect()->route('order.show', ['order' => $orderId]);
@@ -373,8 +381,6 @@ class ShowController extends Controller
         session()->flash('message', 'Невозможно забронировать этот заказ.');
         return redirect()->route('order.show', ['order' => $orderId]);
     }
-
-
 
     /*Метод showBookingRequests
     Этот метод отображает запросы на бронирование для заданного водителя.
@@ -1282,7 +1288,7 @@ class ShowController extends Controller
               ->with('success', 'Вы успешно отменили бронирование.');
       }*/
 
-    public function cancelOrderDriver(Request $request, $orderId)
+  /*  public function cancelOrderDriver(Request $request, $orderId)
     {
         $user = Auth::user();
 
@@ -1296,60 +1302,37 @@ class ShowController extends Controller
 
         // Проверяем, существует ли заказ
         if (!$order) {
-          //  Log::error('Order not found: ' . $orderId);
             return redirect()->back()->with('error', 'Order not found');
         }
 
         // Проверяем, является ли пользователь водителем данного заказа
         if ($order->driver_id !== $user->id) {
-           // Log::error('Пользователь не является водителем этого заказа: ' . $user->id);
             return redirect()->back()->with('error', 'You are not the driver of this order');
         }
-       /* Log::error('Order found: ' . $orderId);
-        Log::error('User found: ' . $user);
-        Log::error('Driver found: ' . $user->id);
-        // Логируем все данные запроса
-        Log::info('Request data:', $request->all());*/
+
+        // Получаем водителя через модель Driver
+//        $driver = Driver::where('user_id', $user->id)->first();
+//
+//        // Проверяем, является ли пользователь водителем данного заказа
+//        if (!$driver || $order->driver_id !== $driver->id) {
+//            return redirect()->back()->with('error', 'You are not the driver of this order');
+//        }
 
         // Валидация причины отмены
-        try {
-            $request->validate([
-                'cancellation_reason' => 'required|string|max:255',
-            ]);
-        } catch (ValidationException $e) {
-           // Log::error('Validation error: ' . $e->getMessage());
-            return redirect()->back()->withErrors($e->validator)->withInput();
-        }
-
-        // Логируем значение cancellation_reason
-       /* Log::info('Cancellation reason:', [
-            'cancellation_reason' => $request->input('cancellation_reason'),
-        ]);*/
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:255',
+        ]);
 
         // Уведомляем пассажиров о том, что поездка отменена
-       /* $passengers = $order->passengers;
-        foreach ($passengers as $passenger) {
-           // Log::info('Notifying passenger: ' . $passenger->id);
-            $passenger->notify(new DriverCancelledOrder($order, $request->cancellation_reason));
-        }*/
         $passengers = $order->passengers;
-       // Log::info('Found passengers:', ['passengers' => $passengers->pluck('id')]);
+        if ($passengers->isEmpty()) {
+            return redirect()->back()->with('error', 'No passengers to notify');
+        }
 
-        // Уведомляем пассажиров через систему уведомлений и по email
         foreach ($passengers as $passenger) {
-            // Отправляем уведомление через систему уведомлений Laravel
-            $passenger->notify(new DriverCancelledOrder(
-                $order,
-                $request->cancellation_reason,
-                $user->name, // Имя водителя
-                $order->date_time_departure, // Дата поездки
-                $order->fromAddress->city, // Город отправления
-                $order->toAddress->city // Город прибытия
-            ));
-
-            // Отправляем уведомление через email
-          /*  try {
-                Notification::send($passenger, new DriverCancelledOrder(
+            // Уведомляем пассажиров через систему уведомлений Laravel
+            try {
+                $passenger->notify(new DriverCancelledOrder(
                     $order,
                     $request->cancellation_reason,
                     $user->name, // Имя водителя
@@ -1357,20 +1340,125 @@ class ShowController extends Controller
                     $order->fromAddress->city, // Город отправления
                     $order->toAddress->city // Город прибытия
                 ));
-                Log::info('Уведомление отправлено пассажиру на Email: ' . $passenger->id);
             } catch (\Exception $e) {
-                Log::error('Failed to send email notification to passenger: ' . $passenger->id . '. Error: ' . $e->getMessage());
-            }*/
+                Log::error('Failed to notify passenger: ' . $passenger->id . '. Error: ' . $e->getMessage());
+            }
         }
 
-        // Удаляем заказ
-        $order->passengers()->detach(); // Убираем всех пассажиров из заказа
-        $order->delete(); // Удаляем сам заказ
-       // Log::info('Order deleted: ' . $orderId);
+        // Удаляем заказ и отвязываем пассажиров
+        try {
+            $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+            $order->delete(); // Удаляем сам заказ
+        } catch (\Exception $e) {
+            Log::error('Failed to delete order: ' . $orderId . '. Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to cancel order');
+        }
 
-        Log::info('cancelOrderPassenger Order departure date and time: ' . $order->date_time_departure);
+        // Логирование успешной отмены
+        Log::info('Order cancelled successfully: ' . $orderId);
 
         // Перенаправляем пользователя с подтверждением отмены
         return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
-    }
+    }*/
+
+
+     public function cancelOrderDriver(Request $request, $orderId)
+     {
+         $user = Auth::user();
+
+         // Проверяем, авторизован ли пользователь
+         if (!$user) {
+             return redirect()->back()->with('error', 'User not authenticated');
+         }
+
+         // Получаем заказ
+         $order = Order::find($orderId);
+
+         // Проверяем, существует ли заказ
+         if (!$order) {
+           //  Log::error('Order not found: ' . $orderId);
+             return redirect()->back()->with('error', 'Order not found');
+         }
+
+         // Проверяем, является ли пользователь водителем данного заказа
+//         if ($order->driver_id !== $user->id) {
+//            // Log::error('Пользователь не является водителем этого заказа: ' . $user->id);
+//             return redirect()->back()->with('error', 'You are not the driver of this order');
+//         }
+
+         // Получаем водителя через модель Driver
+        $driver = Driver::where('user_id', $user->id)->first();
+
+        // Проверяем, является ли пользователь водителем данного заказа
+        if (!$driver || $order->driver_id !== $driver->id) {
+            return redirect()->back()->with('error', 'You are not the driver of this order');
+        }
+         Log::error('Order found: ' . $orderId);
+         Log::error('User found: ' . $user);
+         Log::error('Driver found: ' . $user->id);
+         // Логируем все данные запроса
+         Log::info('Request data:', $request->all());
+
+         // Валидация причины отмены
+         try {
+             $request->validate([
+                 'cancellation_reason' => 'required|string|max:255',
+             ]);
+         } catch (ValidationException $e) {
+            // Log::error('Validation error: ' . $e->getMessage());
+             return redirect()->back()->withErrors($e->validator)->withInput();
+         }
+
+         // Логируем значение cancellation_reason
+         Log::info('Cancellation reason:', [
+             'cancellation_reason' => $request->input('cancellation_reason'),
+         ]);
+
+         // Уведомляем пассажиров о том, что поездка отменена
+        // $passengers = $order->passengers;
+       //  foreach ($passengers as $passenger) {
+       //     // Log::info('Notifying passenger: ' . $passenger->id);
+       //      $passenger->notify(new DriverCancelledOrder($order, $request->cancellation_reason));
+       //  /
+         $passengers = $order->passengers;
+        // Log::info('Found passengers:', ['passengers' => $passengers->pluck('id')]);
+
+         // Уведомляем пассажиров через систему уведомлений и по email
+         foreach ($passengers as $passenger) {
+             // Отправляем уведомление через систему уведомлений Laravel
+             $passenger->notify(new DriverCancelledOrder(
+                 $order,
+                 $request->cancellation_reason,
+                 $user->name, // Имя водителя
+                 $order->date_time_departure, // Дата поездки
+                 $order->fromAddress->city, // Город отправления
+                 $order->toAddress->city // Город прибытия
+             ));
+
+             // Отправляем уведомление через email
+          //  try {
+          //       Notification::send($passenger, new DriverCancelledOrder(
+          //           $order,
+          //           $request->cancellation_reason,
+          //           $user->name, // Имя водителя
+          //           $order->date_time_departure, // Дата поездки
+          //           $order->fromAddress->city, // Город отправления
+          //           $order->toAddress->city // Город прибытия
+          //       ));
+          //       Log::info('Уведомление отправлено пассажиру на Email: ' . $passenger->id);
+          //   } catch (\Exception $e) {
+          //      Log::error('Failed to send email notification to passenger: ' . $passenger->id . '. Error: ' . $e->getMessage());
+          //   }
+         }
+
+         // Удаляем заказ
+         $order->passengers()->detach(); // Убираем всех пассажиров из заказа
+         $order->delete(); // Удаляем сам заказ
+        // Log::info('Order deleted: ' . $orderId);
+
+         Log::info('cancelOrderPassenger Order departure date and time: ' . $order->date_time_departure);
+
+         // Перенаправляем пользователя с подтверждением отмены
+         return redirect()->route('driver.orders')->with('success', 'Trip has been successfully canceled');
+     }
 }

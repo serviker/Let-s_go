@@ -7,13 +7,13 @@ import { Modal, Button } from 'react-bootstrap';
 
 const CancelBookingModal = ({ show, onClose, onConfirm }) => {
     const [selectedReason, setSelectedReason] = useState(null); // Состояние для выбранной причины
-
+    const [showErrorMessage, setShowErrorMessage] = useState(false); // Состояние для сообщения
 
     const cancellation_reason = [
         'Изменились планы',
-        'Неудобное время встречи (сложности с логистикой)',
+        'Отменилась цель поездки',
         'Изменились личные обстоятельства',
-        'Изменилась дата и время выезда',
+        'Перенеслась дата и время поездки',
         'Неудобное время и место встречи (сложности с логистикой).',
     ];
 
@@ -23,7 +23,8 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
 
     const handleConfirm = () => {
         if (!selectedReason) {
-            alert('Пожалуйста, выберите причину отмены');
+            setShowErrorMessage(true); // Показать сообщение об ошибке
+            setTimeout(() => setShowErrorMessage(false), 2000); // Скрыть сообщение через 2 секунды
             return;
         }
         onConfirm(selectedReason); // Передаем выбранную причину в функцию onConfirm
@@ -53,23 +54,32 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                 padding: '20px',
                 position: 'relative'
             }}>
-                <h3 style={{ textAlign: 'center', color: 'black' }}>
+                <h3 style={{ textAlign: 'center', color: 'gray', fontWeight: 'bold' }}>
                     Вы уверены, что хотите отменить бронирование?
                 </h3>
-                <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
+                <p style={{ textAlign: 'center', color: 'gray', fontWeight: 'bold', fontSize: '20px' }}>
+                    Пожалуйста, выберите причину отмены:
+                </p>
 
                 <div className="cancel-reasons" style={{ marginBottom: '20px' }}>
                     {cancellation_reason.map((reason, index) => (
-                        <div key={index} style={{  display: 'flex', alignItems: 'center' }}>
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
                             <input
                                 type="radio"
                                 id={`reason-${index}`}
                                 name="cancelReason"
                                 value={reason}
                                 onChange={handleReasonChange}
-                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236' }}
+                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236', fontWeight: 'bold' }}
                             />
-                            <label htmlFor={`reason-${index}`} style={{ color: 'gray' }}>
+                            <label
+                                htmlFor={`reason-${index}`}
+                                style={{
+                                    color: selectedReason === reason ? '#eea236' : 'gray', // Изменяем цвет текста
+                                    fontWeight: selectedReason === reason ? 'bold' : 'bold', // Делаем жирным текст для выбранного пункта
+                                    fontSize: '20px', // Установка размера шрифта
+                                }}
+                            >
                                 {reason}
                             </label>
                         </div>
@@ -84,10 +94,68 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                         Отмена
                     </button>
                 </div>
+
+                {showErrorMessage && (
+                    <div style={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: '#fff',
+                        border: '2px solid #eea236',
+                        borderRadius: '10px',
+                        padding: '20px',
+                        fontSize: '22px',
+                        fontWeight: 'bold',
+                        boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                        zIndex: 1000,
+                        textAlign: 'center',
+                    }}>
+                        <h4 style={{ margin: 0 }}>Пожалуйста, выберите причину отмены!</h4>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
+
+const NoDriverMessagingModal = ({ show, onClose }) => {
+    if (!show) return null; // Если show=false, не рендерим модальное окно
+
+    return (
+        <div className="modal-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Полупрозрачный фон
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1050 // Поверх других элементов
+        }}>
+            <div className="modal-content" style={{
+                width: '30%',
+                border: '4px solid #eea236',
+                borderRadius: '10px',
+                backgroundColor: 'white',
+                padding: '20px',
+                position: 'relative'
+            }}>
+                <h2 style={{ textAlign: 'center', color: 'black' }}>
+                    Чтобы связаться с водителем, забронируйте место в поездке.
+                </h2>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <button onClick={onClose} className="btn btn-secondary">
+                        Вернуться назад
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const BookingRequestModal = ({ show, onClose, onSubmit }) => {
     const [message, setMessage] = useState('');
 
@@ -126,10 +194,13 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const [data, setData] = useState(order);
     const [canSendMessage, setCanSendMessage] = useState(false); // Флаг для проверки отправки сообщений
     const [showErrorModal, setShowErrorModal] = useState(false); // Для отображения модального окна
+    const [showErrorSmsModal, setShowErrorSmsModal] = useState(false); // Для отображения модального окна
     const [showCancelModal, setShowCancelModal] = useState(false);
     const [showBookingRequestModal, setShowBookingRequestModal] = useState(false);
     const [requestSent, setRequestSent] = useState(order.passengerRequests.length > 0); // Установите в true, если есть запрос
-    const handleCloseModal = () => setShowErrorModal(false);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const handleCloseMessage = () => setShowErrorModal(false);
+    const handleCloseModal = () => setShowErrorSmsModal(false);
     // Убедитесь, что вы получаете сообщение из страницы
     const { flash } = usePage().props;
     const message = usePage().props.flash.message;
@@ -158,6 +229,9 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const handleCloseBookingRequestModal = () => {
         setShowBookingRequestModal(false);
     };
+
+    const handleCloseError = () => setShowErrorMessage(false);
+
 
     // Находим текущего пользователя среди пассажиров
     const currentPassenger = data.passengers.find((passenger) => passenger.id === auth.user.id); // Переместили выше
@@ -340,7 +414,7 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
         if (canSendMessage) {
             Inertia.visit(`/orders/${data.id}/messages/${data.driverId}`);
         } else {
-            setShowErrorModal(true); // Показываем модальное окно при ошибке
+            setShowErrorSmsModal(true); // Показываем модальное окно при ошибке
         }
     };
     const filterCities = (cities) => {
@@ -578,7 +652,27 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
 
             </div>
             <BookingRequestModal show={showBookingRequestModal} onClose={handleCloseBookingRequestModal} onSubmit={handleRequestSubmit}/>
-            {/*<NoDriverMessagingModal show={showErrorModal} onClose={handleCloseModal}/>*/}
+            <NoDriverMessagingModal show={showErrorSmsModal} onClose={handleCloseModal}/>
+            {showErrorMessage && ( // Модальное окно для сообщения об ошибке
+                <div style={{
+                    position: 'fixed',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: '#fff',
+                    border: '2px solid red',
+                    borderRadius: '10px',
+                    padding: '20px',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    zIndex: 1000,
+                    fontSize: '22px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                }}>
+                    <h4 style={{margin: 0}}>Пожалуйста, выберите причину отмены!</h4>
+                    <button onClick={handleCloseMessage}>Закрыть</button> {/* Кнопка для закрытия модального окна */}
+                </div>
+            )}
         </div>
     );
 };

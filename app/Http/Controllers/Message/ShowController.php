@@ -53,13 +53,13 @@ class ShowController extends Controller
 
 
 
-    public function showIncoming()
+  /*  public function showIncoming()
     {
         // Получаем текущего пользователя
         $user = auth()->user();
 
         // Поездки, где пользователь является водителем
-        $driverIncoming = Order::where('driver_id', $user->id)
+        $driverIncoming = Order::where('user_id', $user->id)
             ->with(['passengers', 'fromAddress', 'toAddress'])
             ->get()
             ->map(function ($order) {
@@ -73,7 +73,7 @@ class ShowController extends Controller
             });
 
         // Логирование данных $driverIncoming
-       // Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
+        Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
 
         // Поездки, где пользователь является пассажиром
         $passengerIncoming = $user->passengerOrders()
@@ -90,7 +90,54 @@ class ShowController extends Controller
             });
 
         // Логирование данных $passengerIncoming
-       // Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
+        Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
+
+        // Передаем данные в Inertia компонент
+        return Inertia::render('Messages/IncomingMessagesComponent', [
+            'driverIncoming' => $driverIncoming,
+            'passengerIncoming' => $passengerIncoming,
+            'user' => $user,
+        ]);
+    }*/
+
+    public function showIncoming()
+    {
+        // Получаем текущего пользователя
+        $user = auth()->user();
+
+        // Поездки, где пользователь является водителем
+        $driverIncoming = Order::where('user_id', $user->id) // Изменено на user_id
+        ->with(['passengers', 'fromAddress', 'toAddress'])
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'departureCity' => $order->fromAddress->city ?? 'Unknown',
+                    'arrivalCity' => $order->toAddress->city ?? 'Unknown',
+                    'dateTimeDeparture' => $order->date_time_departure ? Carbon::parse($order->date_time_departure)->format('Y-m-d H:i') : 'Unknown',
+                    'passengers' => $order->passengers,
+                ];
+            });
+
+        // Логирование данных $driverIncoming
+        Log::info('Driver Incoming Orders:', $driverIncoming->toArray());
+
+        // Поездки, где пользователь является пассажиром
+        $passengerIncoming = $user->passengerOrders() // Убедитесь, что метод passengerOrders() настроен корректно
+        ->with(['driver', 'fromAddress', 'toAddress'])
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'departureCity' => $order->fromAddress->city ?? 'Unknown',
+                    'arrivalCity' => $order->toAddress->city ?? 'Unknown',
+                    'dateTimeDeparture' => $order->date_time_departure ? Carbon::parse($order->date_time_departure)->format('Y-m-d H:i') : 'Unknown',
+                    'driver' => $order->driver,
+                ];
+            });
+
+        // Логирование данных $passengerIncoming
+        Log::info('Passenger Incoming Orders:', $passengerIncoming->toArray());
 
         // Передаем данные в Inertia компонент
         return Inertia::render('Messages/IncomingMessagesComponent', [
@@ -99,5 +146,6 @@ class ShowController extends Controller
             'user' => $user,
         ]);
     }
+
 
 }

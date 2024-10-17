@@ -97,6 +97,53 @@ class NotificationController extends Controller
 
         // Извлекаем уведомления пользователя для бронирований
         $notifications = $user->notifications()
+            ->whereIn('type', [
+                'App\Notifications\BookingRequestNotification',
+                'App\Notifications\BookingRequestApproved',
+                'App\Notifications\BookingRequestDenied'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Извлекаем все уникальные ID заказов для уведомлений
+        $orderIds = $notifications->pluck('data.order_id')->unique()->toArray();
+
+        // Получаем заказы с запросами пассажиров и водителями
+        $orders = Order::whereIn('id', $orderIds)
+            ->with(['passengerRequests', 'driver'])
+            ->get();
+
+        // Отладочный вывод
+        Log::info('Orders fetched:', ['orders' => $orders]);
+
+        // Добавляем статус ответа в заказы, если есть такие уведомления
+        foreach ($notifications as $notification) {
+            if (in_array($notification->type, ['App\Notifications\BookingRequestApproved', 'App\Notifications\BookingRequestDenied'])) {
+                $order = $orders->where('id', $notification->data['order_id'])->first();
+                if ($order && isset($notification->data['status'])) {
+                    // Устанавливаем статус ответа
+                    $order->response_status = $notification->data['status'];
+                }
+            }
+        }
+
+        return Inertia::render('Notifications/BookingNotificationComponent', [
+            'orders' => $orders,
+            'notifications' => $notifications,
+        ]);
+    }
+
+    // почти РАБОЧИЙ метод
+   /* public function bookingNotification()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        // Извлекаем уведомления пользователя для бронирований
+        $notifications = $user->notifications()
             ->whereIn('type', ['App\Notifications\BookingRequestNotification',
                 'App\Notifications\BookingRequestApproved',
                 'App\Notifications\BookingRequestDenied'])
@@ -107,7 +154,7 @@ class NotificationController extends Controller
         $orderIds = $notifications->pluck('data.order_id')->unique()->toArray();
 
         // Получаем заказы с запросами пассажиров
-        $orders = Order::whereIn('id', $orderIds)->with('passengerRequests')->get();
+        $orders = Order::whereIn('id', $orderIds)->with('passengerRequests', 'driver')->get();
         // Получаем заказы с водителями
        // $orders = Order::whereIn('id', $orderIds)->with('driver')->get();
 
@@ -126,7 +173,7 @@ class NotificationController extends Controller
             'orders' => $orders,
             'notifications' => $notifications,
         ]);
-    }
+    }*/
 
 
     public function markAsRead($id)

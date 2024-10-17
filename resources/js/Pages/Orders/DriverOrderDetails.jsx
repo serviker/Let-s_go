@@ -52,23 +52,32 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                 padding: '20px',
                 position: 'relative'
             }}>
-                <h3 style={{ textAlign: 'center', color: 'black' }}>
+                <h3 style={{ textAlign: 'center', color: 'gray', fontWeight: 'bold' }}>
                     Вы уверены, что хотите отменить поездку?
                 </h3>
-                <p style={{ textAlign: 'center', color: 'black' }}>Пожалуйста, выберите причину отмены:</p>
+                <p style={{ textAlign: 'center', color: 'gray', fontWeight: 'bold', fontSize: '20px' }}>
+                    Пожалуйста, выберите причину отмены:
+                </p>
 
                 <div className="cancel-reasons" style={{ marginBottom: '20px' }}>
                     {cancellation_reason.map((reason, index) => (
-                        <div key={index} style={{  display: 'flex', alignItems: 'center' }}>
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
                             <input
                                 type="radio"
                                 id={`reason-${index}`}
                                 name="cancelReason"
                                 value={reason}
                                 onChange={handleReasonChange}
-                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236' }}
+                                style={{ marginRight: '20px', marginBottom: '12px', background: '#eea236', fontWeight: 'bold' }}
                             />
-                            <label htmlFor={`reason-${index}`} style={{ color: 'gray' }}>
+                            <label
+                                htmlFor={`reason-${index}`}
+                                style={{
+                                    color: selectedReason === reason ? '#eea236' : 'gray', // Изменяем цвет текста
+                                    fontWeight: selectedReason === reason ? 'bold' : 'bold', // Делаем жирным текст для выбранного пункта
+                                    fontSize: '20px', // Установка размера шрифта
+                                }}
+                            >
                                 {reason}
                             </label>
                         </div>
@@ -84,7 +93,7 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                     </button>
                 </div>
 
-                {showErrorMessage  && (
+                {showErrorMessage && (
                     <div style={{
                         position: 'fixed',
                         top: '50%',
@@ -94,16 +103,19 @@ const CancelBookingModal = ({ show, onClose, onConfirm }) => {
                         border: '2px solid #eea236',
                         borderRadius: '10px',
                         padding: '20px',
+                        fontSize: '22px',
+                        fontWeight: 'bold',
                         boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                         zIndex: 1000,
                         textAlign: 'center',
                     }}>
-                        <h4 style={{margin: 0}}>Пожалуйста, выберите причину отмены!</h4>
+                        <h4 style={{ margin: 0 }}>Пожалуйста, выберите причину отмены!</h4>
                     </div>
                 )}
             </div>
         </div>
     );
+
 };
 
 const DriverOrderDetails = React.memo(() => {
@@ -144,6 +156,8 @@ const DriverOrderDetails = React.memo(() => {
     };
     const handleOpenCancelModal = () => setShowCancelModal(true);
     const handleCloseCancelModal = () => setShowCancelModal(false);
+    const handleCloseError = () => setShowErrorMessage(false);
+
     const handleConfirmCancel = (cancellation_reason) => {
         Inertia.delete(route('order.cancelForDriver', { order: data.id, cancellation_reason  }), {
             onSuccess: () => {
@@ -325,6 +339,8 @@ const DriverOrderDetails = React.memo(() => {
                     padding: '20px',
                     boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                     zIndex: 1000,
+                    fontSize: '22px',
+                    fontWeight: 'bold',
                     textAlign: 'center',
                 }}>
                     <h4 style={{margin: 0}}>Пожалуйста, выберите причину отмены!</h4>

@@ -105,6 +105,7 @@
     display: flex;
     margin-top: 10px;
     align-items: center; /* Вертикальное выравнивание по центру */
+    position: relative; /* Устанавливаем позицию относительно родителя для абсолютного позиционирования */
 }
 
 .driver-name {
@@ -121,9 +122,13 @@
 
 .instant-booking {
     font-weight: bold;
-    margin-left: 150px; /* Измените отступ до нужного значения */
-    margin-top: 10px;
+    margin-top: 0;
     color: #eea236;
+    position: absolute; /* Абсолютное позиционирование */
+    right: 10px; /* Отступ от правого края */
+    top: 50%; /* По вертикали выравниваем по центру контейнера */
+    transform: translateY(-50%); /* Для корректного вертикального центрирования */
+    white-space: nowrap; /* Запрещаем перенос текста */
 }
 
 .driver-photo {
@@ -131,7 +136,7 @@
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 10px; /* Отступ от фотографии до имени */
+    margin-right: 1px; /* Отступ от фотографии до имени */
     margin-left: 80px;
 }
 

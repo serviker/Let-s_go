@@ -37,10 +37,32 @@ const BookingNotificationComponent = () => {
     };
 
     // Функция для проверки, является ли пользователь водителем в данном заказе
+  /*  const isDriverForOrder = (orderId) => {
+        const order = orders.find(order => order.id === orderId);
+        console.log("Order found:", order);  // Логируем найденный заказ
+        if (!order) return false;
+        console.log("Order driver ID:", order.driver?.id, "Auth user ID:", props.auth.user.id);  // Логируем ID водителя и текущего пользователя
+        return order.driver?.id === props.auth.user.id;  // Проверяем ID водителя
+    };*/
+
     const isDriverForOrder = (orderId) => {
-        const order = orders.find(order => order.id === orderId); // Ищем заказ по ID
-        return order && order.driver_id === props.auth.user.id;   // Сравниваем driver_id с текущим пользователем
+        const order = orders.find(order => order.id === orderId);
+        console.log("Order found:", order);  // Логируем найденный заказ
+        if (!order) return false;
+        console.log("Order user_id:", order.user_id, "Auth user ID:", props.auth.user.id);  // Логируем user_id заказа и текущего пользователя
+        return order.user_id === props.auth.user.id;  // Проверяем ID пользователя
     };
+
+    // const isDriverForOrder = (orderId) => {
+    //     const order = orders.find(order => order.id === orderId);
+    //     console.log("Order found:", order);
+    //     if (!order) return false;
+    //     console.log("Order driver ID:", order.driver_id, "Auth user ID:", props.auth.user.id);
+    //     return order.driver_id === props.auth.user.id;  // Проверка по driver_id
+    // };
+
+
+
 
     const markAsRead = async (notificationId) => {
         try {
@@ -78,11 +100,11 @@ const BookingNotificationComponent = () => {
                 ) : (
                     <ul className="notifications-list">
                         {notifications.map(notification => {
-                           // console.log("notification", notification);  // Логируем уведомление
+                            console.log("notification", notification);  // Логируем уведомление
 
                             // Проверяем, является ли текущий пользователь водителем в этом заказе
                             const isDriver = isDriverForOrder(notification.data.order_id);
-
+                            console.log("notification-isDriver", isDriver);
                             return (
                                 <li key={notification.id} className="notification-item" style={{ textAlign: 'center',fontSize: '24px', marginLeft: '10px', fontWeight: 'bold', color: 'gray' }}>
                                     <div className="notification-text">

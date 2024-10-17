@@ -205,11 +205,14 @@ export default function DriverOrderCreate({ className = '' }) {
                         />
                         <InputError message={errors.date_time_departure} className="input-error" />
                         <div className="flex">
-                            <Link href={route('dashboard')} className="home-link">
-                                <button className="btn btn-info">На главную</button>
-                            </Link>
+                            <button
+                                className="btn btn-info"
+                                onClick={() => window.location.href = route('dashboard')}
+                            >
+                                На главную
+                            </button>
                             <SecondaryButton type="button" onClick={handleNext} className="btn btn-success">
-                                Продолжить
+                            Продолжить
                             </SecondaryButton>
                         </div>
                     </div>
@@ -535,7 +538,8 @@ export default function DriverOrderCreate({ className = '' }) {
                                 display: 'flex',
                                 alignItems: 'center',
                                 alignContent: 'center',
-                                fontSize: '22px'
+                                fontSize: '22px',
+                                color: Number(data.status_order_id) === 1 ? '#eea236' : 'inherit' // Условный цвет
                             }}>
                                 <input
                                     type="radio"
@@ -552,7 +556,8 @@ export default function DriverOrderCreate({ className = '' }) {
                                     display: 'flex',
                                     alignItems: 'center',
                                     alignContent: 'center',
-                                    fontSize: '22px'
+                                    fontSize: '22px',
+                                    color: Number(data.status_order_id) === 2 ? '#eea236' : 'inherit' // Условный цвет
                                 }}>
                                     <input
                                         type="radio"

@@ -35,25 +35,32 @@ export default function Register() {
         });
     };
 
+    // Проверка, есть ли ошибки в обязательных полях
+    const isDisabled = processing ||
+        errors.name ||
+        errors.lastName ||
+        errors.email ||
+        errors.password ||
+        errors.password_confirmation;
+
     return (
         <GuestLayout>
             <Head title="Register" />
             <div className="card">
-                <Link href="/" className="btn btn-link text-decoration-none" style={{ color: '#6c757d'}}>
-                    &larr; Back
-                </Link>
+                <Link href="/" className="btn btn-link text-decoration-none" style={{ color: '#6c757d'}}>&larr; Back</Link>
                 <div className="card-header text-center">
                     <h1>Register</h1>
                 </div>
                 <div className="card-body">
                     <form onSubmit={submit}>
+                        {/* Поле имени */}
                         <div className="mb-3">
                             <InputLabel htmlFor="name" value="First Name" style={{ color: '#eea236' }} />
                             <TextInput
                                 id="name"
                                 name="name"
                                 value={data.name}
-                                className="form-control"
+                                className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                                 autoComplete="given-name"
                                 isFocused
                                 onChange={(e) => setData('name', e.target.value)}
@@ -62,13 +69,14 @@ export default function Register() {
                             <InputError message={errors.name} className="input-error" />
                         </div>
 
+                        {/* Поле фамилии */}
                         <div className="mb-3">
                             <InputLabel htmlFor="lastName" value="Last Name" style={{ color: '#eea236' }} />
                             <TextInput
                                 id="lastName"
                                 name="lastName"
                                 value={data.lastName}
-                                className="form-control"
+                                className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
                                 autoComplete="family-name"
                                 onChange={(e) => setData('lastName', e.target.value)}
                                 required
@@ -76,6 +84,7 @@ export default function Register() {
                             <InputError message={errors.lastName} className="input-error" />
                         </div>
 
+                        {/* Поле email */}
                         <div className="mb-3">
                             <InputLabel htmlFor="email" value="Email" style={{ color: '#eea236' }} />
                             <TextInput
@@ -83,7 +92,7 @@ export default function Register() {
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="form-control"
+                                className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                                 autoComplete="email"
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
@@ -91,6 +100,7 @@ export default function Register() {
                             <InputError message={errors.email} className="input-error" />
                         </div>
 
+                        {/* Поле телефона */}
                         <div className="mb-3">
                             <InputLabel htmlFor="phone" value="Phone" style={{ color: '#eea236' }} />
                             <TextInput
@@ -104,6 +114,7 @@ export default function Register() {
                             <InputError message={errors.phone} className="input-error" />
                         </div>
 
+                        {/* Поле фото */}
                         <div className="mb-3">
                             <InputLabel htmlFor="photoUrl" value="Photo" style={{ color: '#eea236' }} />
                             <input
@@ -116,6 +127,7 @@ export default function Register() {
                             <InputError message={errors.photoUrl} className="input-error" />
                         </div>
 
+                        {/* Поле пароля */}
                         <div className="mb-3">
                             <InputLabel htmlFor="password" value="Password" style={{ color: '#eea236' }} />
                             <TextInput
@@ -123,7 +135,7 @@ export default function Register() {
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="form-control"
+                                className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                                 autoComplete="new-password"
                                 onChange={(e) => setData('password', e.target.value)}
                                 required
@@ -131,6 +143,7 @@ export default function Register() {
                             <InputError message={errors.password} className="input-error" />
                         </div>
 
+                        {/* Поле подтверждения пароля */}
                         <div className="mb-3">
                             <InputLabel htmlFor="password_confirmation" value="Confirm Password" style={{ color: '#eea236' }} />
                             <TextInput
@@ -138,7 +151,7 @@ export default function Register() {
                                 type="password"
                                 name="password_confirmation"
                                 value={data.password_confirmation}
-                                className="form-control"
+                                className={`form-control ${errors.password_confirmation ? 'is-invalid' : ''}`}
                                 autoComplete="new-password"
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 required
@@ -150,8 +163,8 @@ export default function Register() {
                             <Link href={route('login')} className="text-decoration-none" style={{ color: '#eea236' }}>
                                 Already registered?
                             </Link>
-                            <PrimaryButton className="ms-2 btn-primary" disabled={processing}>
-                                Register
+                            <PrimaryButton className="ms-2 btn-primary" disabled={isDisabled}>
+                                Зарегистрироваться
                             </PrimaryButton>
                         </div>
                     </form>
@@ -160,3 +173,5 @@ export default function Register() {
         </GuestLayout>
     );
 }
+
+

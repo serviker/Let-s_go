@@ -74,7 +74,9 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                     }}>
                                         <p className="mb-4" style={{marginBottom: '20px'}}>
 
-                                            <h2>Поездки в удобном формате <br/> по самым низким ценам.</h2>
+                                            <h2 style={{ color: 'gray'}}>Наш Сервис предлагает <br/><br/> Поездки в удобном формате <br/> по
+                                                самым
+                                                низким ценам.</h2>
                                             <br/>
                                             {/*Для входа авторизуйтесь<br/>*/}
                                             <Link

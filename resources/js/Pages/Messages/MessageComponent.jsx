@@ -6,7 +6,7 @@ import {Link} from "@inertiajs/react";
 
 const MessageComponent = ({ order, passenger, driver, messages: initialMessages, currentUser }) => {
     const [newMessage, setNewMessage] = useState('');
-    const [messages, setMessages] = useState(initialMessages || []); // Объявляем состояние для списка сообщений
+    const [messages, setMessages] = useState(initialMessages || []);
 
     // Проверка и обновление сообщений при изменении initialMessages
     useEffect(() => {
@@ -23,7 +23,6 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-                // Определяем отправителя и получателя
                 const senderId = currentUser.id;
                 const recipientId = currentUser.id === driver.id ? passenger.id : driver.id;
 
@@ -43,8 +42,8 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
 
                 if (response.ok) {
                     const data = await response.json();
-                    setMessages(data.messages); // Обновляем список сообщений
-                    setNewMessage(''); // Очищаем поле ввода
+                    setMessages(data.messages);
+                    setNewMessage('');
                 } else {
                     console.error('Ошибка сервера:', response.statusText);
                 }
@@ -54,9 +53,14 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
         }
     };
 
+    // // Determine who is currently active (clicked) and should be shown at the top
+    // const activeUser = driver.id === passenger.id ? driver : passenger;
+    // const activeUserName = activeUser.name;
+    // const imageName = activeUser.photoUrl ? activeUser.photoUrl.replace(/^\//, '') : 'user_icon.svg';
+    // const activeUserPhoto = `/${imageName}`;
 
-    // Determine who is currently active (clicked) and should be shown at the top
-    const activeUser = driver.id === passenger.id ? driver : passenger;
+    // Определяем активного собеседника
+    const activeUser = currentUser.id === driver.id ? passenger : driver;
     const activeUserName = activeUser.name;
     const imageName = activeUser.photoUrl ? activeUser.photoUrl.replace(/^\//, '') : 'user_icon.svg';
     const activeUserPhoto = `/${imageName}`;
@@ -68,7 +72,7 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
                     &larr;
                 </Link>
                 <img
-                    src={activeUserPhoto || '/images/user_icon.svg'} // Use a default avatar if no photo
+                    src={activeUserPhoto || '/images/user_icon.svg'}
                     alt={activeUserName}
                     className="user-photo"
                 />
@@ -81,7 +85,7 @@ const MessageComponent = ({ order, passenger, driver, messages: initialMessages,
                 {Array.isArray(messages) && messages.map((message, index) => (
                     <div
                         key={index}
-                        className={`message-bubble ${message.sender_id === currentUser.id ? 'current-user' : (message.sender_id === driver.id ?  'message-right' : 'message-left')}`}
+                        className={`message-bubble ${message.sender_id === currentUser.id ? 'current-user' : (message.sender_id === driver.id ? 'message-right' : 'message-left')}`}
                     >
                         {message.message_text}
                     </div>

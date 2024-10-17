@@ -79,8 +79,7 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Order::class, 'order_passenger', 'passenger_id', 'order_id')
             ->withTimestamps()
-            ->withPivot('seats', 'departure_city', 'arrival_city')
-            ->withTrashed(); // Включает soft deletes;
+            ->withPivot('seats', 'departure_city', 'arrival_city');
     }
     // Связь с таблицей user_options через OptionValue
     public function optionValues()

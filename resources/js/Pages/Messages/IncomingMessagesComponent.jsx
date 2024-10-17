@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from '@inertiajs/inertia-react';
 import '../../../css/IncomingMessages.css';
 import { Button } from "@headlessui/react";
+import {Inertia} from "@inertiajs/inertia";
 
 const IncomingMessagesComponent = ({ driverIncoming, passengerIncoming, user }) => {
     const [openList, setOpenList] = useState({});
@@ -73,7 +74,7 @@ const IncomingMessagesComponent = ({ driverIncoming, passengerIncoming, user }) 
     return (
         <div className="incoming-container">
             <div className="incoming-header">
-                <Button onClick={() => window.history.back()} className="btn btn-link text-decoration-none">
+                <Button onClick={() => Inertia.visit('/dashboard')} className="btn btn-link text-decoration-none">
                     &larr;
                 </Button>
                 <h2>Входящие сообщения</h2>

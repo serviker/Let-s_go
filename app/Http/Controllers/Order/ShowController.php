@@ -363,13 +363,11 @@ class ShowController extends Controller
                 'seats' => $request->input('seats'),
             ]);
 
-            // Уведомляем водителя о запросе на бронирование
-           // $order->driver->notify(new BookingRequestNotification($order, Auth::user()->name));
-            // Уведомляем водителя о запросе на бронирование
-            $driver = Driver::where('user_id', $order->driver_id)->first(); // Получаем объект водителя
+            // Уведомляем водителя о запросе на бронирование через связь driver
+            $driver = $order->driver; // Используем связь driver в модели Order
             if ($driver) {
                 $driver->notify(new BookingRequestNotification($order, Auth::user()->name));
-                Log::info('Уведомление отправлено водителю.', ['driver_id' => $driver->user_id]);
+                Log::info('Уведомление отправлено водителю.', ['driver_id' => $driver->id]);
             } else {
                 Log::warning('Водитель не найден для заказа.', ['order_id' => $order->id]);
             }
@@ -382,12 +380,14 @@ class ShowController extends Controller
         return redirect()->route('order.show', ['order' => $orderId]);
     }
 
+
     /*Метод showBookingRequests
     Этот метод отображает запросы на бронирование для заданного водителя.
      Он загружает все заказы, которые имеют запросы от пассажиров, которые еще не были одобрены.*/
     public function showBookingRequests($driverId)
     {
-        $orders = Order::where('driver_id', $driverId)
+        // Получаем заказы водителя с запросами пассажиров
+        $orders = Order::where('user_id', $driverId)
             ->with([
                 'fromAddress',
                 'toAddress',
@@ -401,8 +401,8 @@ class ShowController extends Controller
             ->map(function ($order) {
                 return [
                     'order_id' => $order->id,
-                    'fromCity' => $order->fromAddress->city ?? 'Unknown City',
-                    'toCity' => $order->toAddress->city ?? 'Unknown City',
+                    'fromCity' => $order->fromAddress->city ?? 'Unknown City', // Обработка отсутствующего адреса
+                    'toCity' => $order->toAddress->city ?? 'Unknown City', // Обработка отсутствующего адреса
                     'available_seats' => $order->available_seats,
                     'date_time_departure' => $order->date_time_departure,
                     'passengerRequests' => $order->passengerRequests->map(function ($request) {
@@ -411,19 +411,22 @@ class ShowController extends Controller
                             'departure_city' => $request->departure_city,
                             'arrival_city' => $request->arrival_city,
                             'seats' => $request->seats,
-                            'passenger_name' => $request->passenger->name ?? 'Unknown Passenger',
-                            'message' => $request->message ?? '',
+                            'passenger_name' => $request->passenger->name ?? 'Unknown Passenger', // Обработка отсутствующего пассажира
+                            'message' => $request->message ?? '', // Обработка отсутствующего сообщения
                         ];
                     }),
                 ];
             });
 
+        // Логирование для отладки
         Log::info('Orders showBookingRequests:', $orders->toArray());
 
+        // Рендер компонента через Inertia с передачей данных
         return Inertia::render('Bookings/BookingComponent', [
             'orders' => $orders,
         ]);
     }
+
 
 
 

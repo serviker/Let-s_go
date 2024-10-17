@@ -161,6 +161,9 @@ const BookingComponent = () => {
     const orders = props.orders || [];
     const [message, setMessage] = useState(null);
 
+    // Логируем заказы
+    console.log("Полученные заказы:", orders);
+
     const handleResponse = async (orderId, passengerId, approve, request) => {
         console.log("Полученные данные из handleResponse:", orderId, passengerId, approve );
         try {

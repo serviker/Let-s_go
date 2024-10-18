@@ -26,7 +26,7 @@ use Inertia\Inertia;
 
 class ShowController extends Controller
 {
-    public function __invoke(Order $order)
+    /*public function __invoke(Order $order)
     {
         // Get the authenticated user
         $user = Auth::user();
@@ -80,11 +80,11 @@ class ShowController extends Controller
         // Загружаем запросы от пассажиров
         $passengerRequests = $order->passengerRequests;
 
-      /*  if ($passengerRequests->isEmpty()) {
+        if ($passengerRequests->isEmpty()) {
             Log::info('Нет запросов пассажиров для заказа с ID: ' . $order->id);
         } else {
             Log::info('Запросы пассажиров загружены для заказа:', $passengerRequests->toArray());
-        }*/
+        }
 
         // Формируем данные для передачи в представление
         $data = [
@@ -148,7 +148,102 @@ class ShowController extends Controller
             'searchCriteria' => $sessionCriteria,
             'flash' => session()->get('flash', []), // Передаем flash-сообщения в компонент
         ]);
+    }*/
+
+    public function __invoke(Order $order)
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Извлечь критерии поиска из session
+        $sessionCriteria = session('searchCriteria', []);
+
+        // Получаем адреса
+        $fromAddress = $order->fromAddress;
+        $toAddress = $order->toAddress;
+
+        // Получаем информацию о водителе и его машине
+        $driver = Driver::with('user.cars')->find($order->driver_id);
+        $car = ($driver && $driver->user && $driver->user->cars->isNotEmpty()) ? $driver->user->cars->first() : null;
+
+        // Обрабатываем список пассажиров
+        $passengers = $order->passengers->map(function ($passenger) {
+            return [
+                'id' => $passenger->id,
+                'name' => $passenger->name,
+                'photoUrl' => $passenger->photoUrl ? asset('/' . $passenger->photoUrl) : null,
+                'departureCity' => $passenger->pivot->departure_city ?? 'Unknown',
+                'arrivalCity' => $passenger->pivot->arrival_city ?? 'Unknown',
+                'seats' => $passenger->pivot->seats
+            ];
+        });
+
+        // Проверяем, является ли пользователь пассажиром
+        $isPassenger = $order->passengers()->where('passenger_id', $user->id)->exists();
+
+        // Загружаем запросы от пассажиров
+        $passengerRequests = $order->passengerRequests;
+
+        // Формируем данные для передачи в представление
+        $data = [
+            'id' => $order->id,
+            'departureAddress' => $fromAddress->street . ' ' . $fromAddress->house ?? 'Unknown',
+            'arrivalAddress' => $toAddress->street . ' ' . $toAddress->house ?? 'Unknown',
+            'fromCity' => $fromAddress->city ?? 'Unknown',
+            'toCity' => $toAddress->city ?? 'Unknown',
+            'intermediate_addresses' => $order->intermediateAddresses()->pluck('city')->toArray(),
+            'price' => (float)$order->price,
+            'driverName' => $driver && $driver->user ? $driver->user->name : 'Unknown',
+            'carName' => $car ? ($car->brand . ' ' . $car->model) : 'No car',
+            'carColor' => $car ? $car->color : 'No car',
+            'carPhoto' => $car && $car->photoUrl ? asset('/' . $car->photoUrl) : null,
+            'dateTimeDeparture' => $order->date_time_departure ?? 'Unknown',
+            'driverPhotoUrl' => $driver && $driver->user && $driver->user->photoUrl ? asset('/' . $driver->user->photoUrl) : null,
+            'driverId' => $driver ? $driver->id : 0,
+            'description' => $order->description ?? 'No description provided',
+            'availableSeats' => $order->available_seats ?? 'No available seats',
+            'passengers' => $passengers,
+            'isBooked' => $isPassenger,
+            'searchCriteria' => $sessionCriteria,
+            'status_order_id' => $order->status_order_id, // Передаем статус бронирования
+            'passengerRequests' => $passengerRequests,
+        ];
+
+        // Проверяем, является ли пользователь водителем
+        if ($user && $user->id === $driver->user->id) {
+            // Если заказ был только что создан, устанавливаем флаг перезагрузки
+            $isOrderCreated = session('isOrderCreated', false);
+
+            if ($isOrderCreated === false) {
+                session(['isOrderCreated' => true]);
+
+                // Перенаправляем с перезагрузкой компонента
+                return Inertia::render('Orders/DriverOrderDetails', [
+                    'order' => $data,
+                    'canJoin' => false,
+                    'searchCriteria' => $sessionCriteria,
+                    'isOrderCreated' => true // Указываем, что поездка успешно создана
+                ])->with(['flash' => ['success' => 'Заказ успешно создан']]);
+            } else {
+                // Убираем флаг после первого рендеринга
+                session(['isOrderCreated' => false]);
+                return Inertia::render('Orders/DriverOrderDetails', [
+                    'order' => $data,
+                    'canJoin' => false,
+                    'searchCriteria' => $sessionCriteria,
+                    'isOrderCreated' => false // Перезагрузка больше не нужна
+                ]);
+            }
+        }
+
+        // Если пользователь пассажир, показываем PassengerOrderDetails
+        return Inertia::render('Orders/PassengerOrderDetails', [
+            'order' => $data,
+            'canJoin' => !$isPassenger,
+            'searchCriteria' => $sessionCriteria,
+        ]);
     }
+
 // рабочий метод, но переписыват дату на текущую
    /* public function __invoke(Order $order)
     {

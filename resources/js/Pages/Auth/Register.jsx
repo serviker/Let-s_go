@@ -4,6 +4,8 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
+import React, { useState } from 'react';
+
 import '../../../css/Auth.css';
 
 export default function Register() {
@@ -16,7 +18,7 @@ export default function Register() {
         password: '',
         password_confirmation: '',
     });
-
+    const [fileName, setFileName] = useState('');
     const submit = (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -47,15 +49,25 @@ export default function Register() {
         <GuestLayout>
             <Head title="Register" />
             <div className="card">
-                <Link href="/" className="btn btn-link text-decoration-none" style={{ color: '#6c757d'}}>&larr; Back</Link>
+                <Link href="/" className="btn btn-link text-decoration-none" style={{color: '#eea236', fontWeight: 'bold', fontSize: '20px'}}>&larr; Назад</Link>
                 <div className="card-header text-center">
-                    <h1>Register</h1>
+                    <img
+                        src="/images/logo_4.png"
+                        alt="Описание изображения"
+                        style={{
+                            display: 'block',
+                            margin: '0 auto',
+                            width: '200px',
+                            height: 'auto'
+                        }}
+                    />
+                    <h1>Регистрация</h1>
                 </div>
                 <div className="card-body">
                     <form onSubmit={submit}>
                         {/* Поле имени */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="name" value="First Name" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="name" value="Имя" style={{color: '#eea236'}}/>
                             <TextInput
                                 id="name"
                                 name="name"
@@ -66,12 +78,12 @@ export default function Register() {
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.name} className="input-error" />
+                            <InputError message={errors.name} className="input-error"/>
                         </div>
 
                         {/* Поле фамилии */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="lastName" value="Last Name" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="lastName" value="Фамилия" style={{color: '#eea236'}}/>
                             <TextInput
                                 id="lastName"
                                 name="lastName"
@@ -81,12 +93,12 @@ export default function Register() {
                                 onChange={(e) => setData('lastName', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.lastName} className="input-error" />
+                            <InputError message={errors.lastName} className="input-error"/>
                         </div>
 
                         {/* Поле email */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="email" value="Email" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="email" value="Email" style={{color: '#eea236'}}/>
                             <TextInput
                                 id="email"
                                 type="email"
@@ -97,12 +109,12 @@ export default function Register() {
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.email} className="input-error" />
+                            <InputError message={errors.email} className="input-error"/>
                         </div>
 
                         {/* Поле телефона */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="phone" value="Phone" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="phone" value="Телефон" style={{color: '#eea236'}}/>
                             <TextInput
                                 id="phone"
                                 type="tel"
@@ -111,25 +123,52 @@ export default function Register() {
                                 className="form-control"
                                 onChange={(e) => setData('phone', e.target.value)}
                             />
-                            <InputError message={errors.phone} className="input-error" />
+                            <InputError message={errors.phone} className="input-error"/>
                         </div>
 
                         {/* Поле фото */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="photoUrl" value="Photo" style={{ color: '#eea236' }} />
-                            <input
-                                id="photoUrl"
-                                type="file"
-                                name="photoUrl"
-                                onChange={(e) => setData('photoUrl', e.target.files[0])}
-                                className="form-control"
-                            />
-                            <InputError message={errors.photoUrl} className="input-error" />
+                            <InputLabel htmlFor="photoUrl" value="Фото" style={{color: '#eea236'}}/>
+                            <div style={{
+                                display: 'inline-block',
+                                width: '100%',
+                                height: '50px',
+                                padding: '20px',
+                                border: '1px solid #eea236',
+                                borderRadius: '8px',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                textAlign: 'center',
+                            }}>
+                                <input
+                                    id="photoUrl"
+                                    type="file"
+                                    accept="image/*"
+                                    name="photoUrl"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        setData('photoUrl', file);
+                                        setFileName(file ? file.name : ''); // Установка имени файла
+                                    }}
+                                    className="form-control"
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        position: 'absolute',
+                                        opacity: '0',
+                                        cursor: 'pointer',
+                                        left: '0',
+                                        top: '0'
+                                    }}
+                                />
+                                <p style={{marginTop: '-10px', color: '#333'}}>{fileName || 'Выберите файл'}</p>
+                            </div>
+                            <InputError message={errors.photoUrl} className="input-error"/>
                         </div>
 
                         {/* Поле пароля */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="password" value="Password" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="password" value="Пароль" style={{color: '#eea236'}}/>
                             <TextInput
                                 id="password"
                                 type="password"
@@ -140,12 +179,13 @@ export default function Register() {
                                 onChange={(e) => setData('password', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.password} className="input-error" />
+                            <InputError message={errors.password} className="input-error"/>
                         </div>
 
                         {/* Поле подтверждения пароля */}
                         <div className="mb-3">
-                            <InputLabel htmlFor="password_confirmation" value="Confirm Password" style={{ color: '#eea236' }} />
+                            <InputLabel htmlFor="password_confirmation" value="Подтвердить пароль"
+                                        style={{color: '#eea236'}}/>
                             <TextInput
                                 id="password_confirmation"
                                 type="password"
@@ -156,12 +196,12 @@ export default function Register() {
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.password_confirmation} className="input-error" />
+                            <InputError message={errors.password_confirmation} className="input-error"/>
                         </div>
 
                         <div className="d-flex justify-content-between align-items-center mb-3">
-                            <Link href={route('login')} className="text-decoration-none" style={{ color: '#eea236' }}>
-                                Already registered?
+                            <Link href={route('login')} className="text-decoration-none" style={{color: '#eea236'}}>
+                                Уже зарегистрированы?
                             </Link>
                             <PrimaryButton className="ms-2 btn-primary" disabled={isDisabled}>
                                 Зарегистрироваться

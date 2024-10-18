@@ -240,15 +240,17 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
 
 
             <div className="mt-6">
+
                 {cars.length > 0 ? (
+
                     cars.map((car) => (
-                        <div className="flex items-center mt-4" key={car.id}>
-                            <div className="separator" style={{
-                                margin: '20px 0',
-                                borderTop: '4px solid #ccc'
-                            }}></div>
+                        <div className="flex items-center mt-4" key={car.id}
+                             style={{display: 'flex', justifyContent: 'space-between'}}>
+
+
                             {/*<h2 className="text-lg font-medium text-center text-gray-900">Ваше авто</h2>*/}
                             {car.photoUrl ? (
+
                                 <img
                                     src={`/${car.photoUrl}`}
                                     alt="Car"
@@ -270,10 +272,10 @@ export default function ProfileInformationForm({ mustVerifyEmail, status, classN
                             )}
                             <span
                                 style={{
-                                    marginLeft: car.photoUrl ? '230px' : '0',
                                     fontSize: '20px',
                                     fontWeight: 'bold',
-                                    textAlign: 'end'
+                                    textAlign: 'end',
+                                    marginTop: '20px'
                                 }}>
                     {car.brand} {car.model} {car.color}
                 </span>

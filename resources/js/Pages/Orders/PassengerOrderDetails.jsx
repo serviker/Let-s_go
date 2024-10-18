@@ -203,7 +203,8 @@ const PassengerOrderDetails = ({ order, searchCriteria  }) => {
     const handleCloseModal = () => setShowErrorSmsModal(false);
     // Убедитесь, что вы получаете сообщение из страницы
     const { flash } = usePage().props;
-    const message = usePage().props.flash.message;
+    // const message = usePage().props.flash.message;
+    const message = data?.message || '';
     const [visible, setVisible] = useState(true);
 
 // Удалите сообщение через 3 секунды

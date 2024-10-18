@@ -15,7 +15,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
     return (
         <>
             <Head title="Welcome" />
-            <div className="bg-gray-50 text-black/50 white:bg-white dark:text-black/50">
+            <div className="bg-gray-50 text-black/50 white:bg-white dark:text-black/50" style={{ display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
                 <img
                     src="/images/car_1.jpg"
                     alt="Заставка"
@@ -28,10 +28,10 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                        // filter: 'brightness(80%)', // Применение затемнения для лучшей читабельности текста поверх изображения
                     }}
                 />
-                <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white">
+                <div className="relative min-h-screen flex flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white" >
                     {/*<Navbar setOrders={null} "public/imagesCar/Zastavka.jpg" />*/}
 
-                    <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl">
+                    <div className="relative w-full max-w-2xl px-6 lg:max-w-7xl" >
                         <header className="grid grid-cols-2 items-center gap-2 py-10 lg:grid-cols-3">
                             {/*<div className="flex lg:justify-center lg:col-start-2">*/}
                             {/*    <svg*/}
@@ -46,7 +46,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             {/*        />*/}
                             {/*    </svg>*/}
                             {/*</div>*/}
-                            <nav className="-mx-3 flex flex-1 justify-end">
+                            <nav className="-mx-3 flex flex-1 justify-end" style={{ display: 'flex', alignContent: 'center', justifyContent: 'center'}}>
                                 {auth.user ? (
                                     // <Link
                                     //     href={route('dashboard')}
@@ -73,8 +73,19 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                         transform: 'translate(-50%, -50%)'  // Полное центрирование
                                     }}>
                                         <p className="mb-4" style={{marginBottom: '20px'}}>
+                                            <img
+                                                src="/images/logo_4.png"
+                                                alt="Описание изображения"
+                                                style={{
+                                                    display: 'block',
+                                                    margin: '0 auto',
+                                                    width: '200px',
+                                                    height: 'auto'
+                                                }}
+                                            />
+                                            <h2 style={{color: 'gray'}}>Наш Сервис предлагает </h2>
 
-                                            <h2 style={{ color: 'gray'}}>Наш Сервис предлагает <br/><br/> Поездки в удобном формате <br/> по
+                                            <h2 style={{color: 'gray'}}>Поездки в удобном формате <br/> по
                                                 самым
                                                 низким ценам.</h2>
                                             <br/>
@@ -88,13 +99,11 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                             </Link>
                                         </p>
 
-                                        <p style={{marginBottom: '0',  alignItems: 'center'}}>
+                                        <p style={{marginBottom: '0', alignItems: 'center'}}>
                                             Если вы еще не с нами<br/>
                                             <Link
                                                 href={route('register')}
                                                 className="btn btn-info"
-                                              //  className="ml-2 rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                                                style={{marginLeft: '10px'}}  // Расстояние между текстом и ссылкой
                                             >
                                                 Зарегистрироваться.
                                             </Link>
